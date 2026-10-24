@@ -261,14 +261,14 @@ async function startCheck(body) {
   source.addEventListener("end", () => { source.close(); state.live = false; renderRows(); });
 }
 
-async function replay(name) {
+async function replay(name, maxGapMs = 1200) {
   resetForRun();
   const r = await fetch(api.run(name));
   if (!r.ok) { handle({ type: "error", text: "no recorded run " + name }); return; }
   const run = await r.json();
   $("hint").textContent = `Replay of a recorded live run · ${run.run_id}`;
   let prev = 0;
-  for (const e of run.events) { await new Promise((ok) => setTimeout(ok, Math.min(1200, Math.max(60, (e.t - prev) * 1000)))); prev = e.t; handle(e); }
+  for (const e of run.events) { await new Promise((ok) => setTimeout(ok, Math.min(maxGapMs, Math.max(40, (e.t - prev) * 1000)))); prev = e.t; handle(e); }
   state.live = false; renderRows();
 }
 

@@ -23,7 +23,7 @@ def main() -> None:
     html = html.replace("/static/", "")
     html = html.replace("<title>Retrofit Check</title>", "<title>Retrofit Check</title>\n<meta name=\"description\" content=\"Which energy upgrades is my house eligible for? Replays of recorded agent runs.\">")
     (OUT / "index.html").write_text(html)
-    for f in ("app.js", "app.css"):
+    for f in ("app.js", "app.css", "demo.js"):
         shutil.copy(WEB / f, OUT / f)
     index = json.loads((SAMPLES / "index.json").read_text())
     (OUT / "samples" / "index.json").write_text(json.dumps(index, indent=1))

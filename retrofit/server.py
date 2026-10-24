@@ -194,15 +194,22 @@ def runs():
     return out
 
 
+@app.get("/api/samples")
+def samples_index():
+    return json.loads((SAMPLES / "index.json").read_text())
+
+
 @app.get("/api/runs/{name}")
 def run_file(name: str):
-    p = RUNS / f"{Path(name).name}.json"
-    if not p.exists():
-        matches = list(RUNS.glob(f"{Path(name).name}*.json"))
-        if not matches:
-            raise HTTPException(404, "no such run")
-        p = matches[0]
-    return JSONResponse(json.loads(p.read_text()))
+    """A recorded run: a sample by key ("dartmouth"), or any saved run by id or id prefix."""
+    n = Path(name).name
+    for p in (SAMPLES / f"{n}.json", RUNS / f"{n}.json"):
+        if p.exists():
+            return JSONResponse(json.loads(p.read_text()))
+    matches = sorted(RUNS.glob(f"{n}*.json"))
+    if not matches:
+        raise HTTPException(404, "no such run")
+    return JSONResponse(json.loads(matches[0].read_text()))
 
 
 @app.get("/api/area/{entity}")
