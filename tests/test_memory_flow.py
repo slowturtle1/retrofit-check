@@ -27,7 +27,7 @@ D = json.loads((Path(__file__).parent / "house_d_facts.json").read_text())
 @pytest.fixture(scope="module")
 def hmem_url():
     if not shutil.which("npx") or not (HMEM / "vendor/hmem/src/index.ts").exists():
-        pytest.skip("H-MEM engine not vendored (run: cd hmem && npm run setup)")
+        pytest.skip("H-MEM engine not set up. Run first: cd hmem && npm install && npm run setup")
     state = tempfile.mkdtemp(prefix="hmem-test-")
     port = "8799"
     proc = subprocess.Popen(["npx", "tsx", "server.ts"], cwd=HMEM, env={**os.environ, "HMEM_PORT": port, "HMEM_STATE": state},

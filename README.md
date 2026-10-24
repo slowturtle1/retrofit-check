@@ -107,9 +107,12 @@ Every run writes `logs/trace-<run id>.jsonl` (one JSON event per line: agent ste
 ## Tests
 
 ```bash
-.venv/bin/python -m pytest tests                 # rules, critic, money, H-MEM: gas then oil, off the gas grid, gas use asked once
+(cd hmem && npm install && npm run setup)        # once: fetches the Meterless H-MEM reference engine (Apache 2.0) into hmem/vendor
+.venv/bin/python -m pytest tests                 # 22 tests: rules, critic, money, and the H-MEM feature
 (cd hmem && npm run conformance)                 # Meterless H-MEM conformance suite on the vendored engine: 13/13
 ```
+
+The two H-MEM tests in `tests/test_memory_flow.py` start the H-MEM service and check our own feature end to end: the owner says gas, then corrects it to oil with no gas grid connection, and the heat pump grant changes from £7,500 to £9,000 with the source "you"; and gas use given once is recalled on the next check without asking again. Without the setup step they are skipped with a message saying so.
 
 ## Limits, honestly
 
