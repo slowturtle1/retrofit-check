@@ -43,7 +43,7 @@ def main() -> None:
         run = json.loads(text)
         (OUT / f"{key}.json").write_text(json.dumps(run, indent=1))
         house = run["result"]["house"]
-        index.append({"key": key, "label": label, "note": note, "file": f"{key}.json", "run_id": run["run_id"],
+        index.append({"key": key, "label": label, "note": note, "file": f"{key}.json", "run_id": run["run_id"], "house_id": run["house_id"],
                       "way": int(run["house_id"].rsplit("-", 1)[1]) if run["house_id"].startswith("osm-way-") else None,
                       "lat": float(house["lat"]), "lon": float(house["lon"]),
                       "summary": [f"{v['measure']}: {v['headline']}" for v in run["result"]["verdicts"]]})

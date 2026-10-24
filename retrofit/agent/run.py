@@ -9,6 +9,7 @@ the critic back to the writer. The legal status itself always comes from rules.p
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 import uuid
@@ -25,6 +26,19 @@ from ..zetaris import Zetaris
 from . import evaluator, explain, llm, memory
 
 RUNS = ROOT / "runs"
+LOGS = ROOT / "logs"
+
+
+def _line(e: dict) -> str:
+    """One readable stdout line per trace event."""
+    if e["type"] == "zetaris":
+        return f"{e.get('purpose') or 'query'} rows={e.get('rows')} {e.get('seconds')}s" + (f" ERROR {str(e.get('error'))[:80]}" if e.get("error") else "")
+    if e["type"] == "model":
+        return f"{e.get('role')} ok={e.get('ok')} model={e.get('routed_model') or e.get('model')} receipt={e.get('receipt_id')} {e.get('seconds')}s"
+    for k in ("text", "tool", "house_id", "summary"):
+        if e.get(k):
+            return str(e[k])[:160]
+    return ""
 HEATING = ("gas", "oil", "lpg", "coal", "electric", "heat_pump")
 Emit = Callable[[dict], None]
 
@@ -50,18 +64,29 @@ def _keyword_intake(note: str) -> dict:
 
 
 class Run:
-    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float = 900):
+    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float = 900, offline: bool = False):
         self.id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:6]
         self.events: list[dict] = []
         self._emit = emit
         self.use_model = use_model
         self.model_budget_s = model_budget_s
         self.started = time.time()
-        self.z = Zetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}))
+        self.offline = offline
+        if offline:  # sample mode: same agent, the Zetaris tables come from a local snapshot, no model, no network
+            from ..offline import OfflineZetaris
+            self.z = OfflineZetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}))
+            self.use_model = False
+        else:
+            self.z = Zetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}))
 
     def emit(self, e: dict) -> None:
-        e = {"t": round(time.time() - self.started, 2), **e}
+        e = {"t": round(time.time() - self.started, 2), "run_id": self.id, **e}
         self.events.append(e)
+        LOGS.mkdir(exist_ok=True)
+        with open(LOGS / f"trace-{self.id}.jsonl", "a") as fh:
+            fh.write(json.dumps(e, default=str) + "\n")
+        if os.environ.get("LOG_STDOUT", "true").lower() in ("1", "true", "yes"):
+            print(f"[{self.id}] {e['t']:6.2f} {e['type']:<13} {_line(e)}", flush=True)
         if self._emit:
             self._emit(e)
 
@@ -71,11 +96,30 @@ class Run:
     def model_call(self, c: dict) -> None:
         self.emit({"type": "model", **c})
 
+    def _mem(self) -> bool:
+        return not self.offline and memory.available()
+
     # ------------------------------------------------------------------ steps
 
+    def _locate_offline(self, way: int | None, lat: float | None, lon: float | None) -> dict | None:
+        from shapely.geometry import Point, Polygon
+
+        from ..offline import houses
+        for h in houses():
+            if (way and h["house_id"] in (f"osm-way-{way}", f"osm-relation-{way}")) or (
+                    not way and lat is not None and Polygon(h["coords"]).buffer(0.00002).contains(Point(lon, lat))):
+                return {**h, "osm_way": way}
+        return None
+
     def locate(self, way: int | None, lat: float | None, lon: float | None, label: str | None) -> dict:
-        self.emit({"type": "tool_start", "tool": "find_house", "source": "OpenStreetMap API"})
-        house = osm.house_from_way(way) if way else osm.building_at(lat, lon)
+        self.emit({"type": "tool_start", "tool": "find_house", "source": "local snapshot (sample mode)" if self.offline else "OpenStreetMap API"})
+        if self.offline:
+            house = self._locate_offline(way, lat, lon)
+            if not house:
+                self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": "not in the sample snapshot"})
+                raise LookupError("Sample mode has data for the example houses only. Pick one of them, or run the live stack for any other house.")
+        else:
+            house = osm.house_from_way(way) if way else osm.building_at(lat, lon)
         if not house:
             self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": "no building at that point"})
             raise LookupError("No building outline at that point. Tap the roof of the house.")
@@ -85,6 +129,9 @@ class Run:
         return house
 
     def recall(self, house_id: str) -> dict:
+        if self.offline:
+            self.say("Sample mode: H-MEM is not used, so nothing from earlier visits is recalled.")
+            return {}
         if not memory.available():
             self.say("H-MEM is not running, so nothing from earlier visits can be used.", level="warn")
             return {}
@@ -129,27 +176,30 @@ class Run:
         if heating:
             said["heating"] = heating
         if said.get("heating") in HEATING and said["heating"] != ctx.get("heating"):
-            r = memory.remember(house_id, "heating", f"Heating: {said['heating']}", "you told us") if memory.available() else None
+            r = memory.remember(house_id, "heating", f"Heating: {said['heating']}", "you told us") if self._mem() else None
             if r and r.get("superseded"):
                 self.say(f"You told me before it was {ctx.get('heating')}; I now use {said['heating']} and keep the old note as history.")
             ctx["heating"], ctx["heating_said_on"] = said["heating"], today
-            self.emit({"type": "memory_write", "kind": "heating", "content": said["heating"], "result": r})
+            if r:
+                self.emit({"type": "memory_write", "kind": "heating", "content": said["heating"], "result": r})
         if gas_kwh and gas_kwh != ctx.get("gas_kwh"):
-            r = memory.remember(house_id, "gas_use", f"Gas use: {int(gas_kwh)} kWh a year", "you told us") if memory.available() else None
+            r = memory.remember(house_id, "gas_use", f"Gas use: {int(gas_kwh)} kWh a year", "you told us") if self._mem() else None
             ctx["gas_kwh"], ctx["gas_said_on"] = float(gas_kwh), today
-            self.emit({"type": "memory_write", "kind": "gas_use", "content": f"{int(gas_kwh)} kWh a year", "result": r})
+            if r:
+                self.emit({"type": "memory_write", "kind": "gas_use", "content": f"{int(gas_kwh)} kWh a year", "result": r})
         elif ctx.get("gas_kwh"):
             self.say(f"Using the gas use you gave me on {ctx['gas_said_on']}: {int(ctx['gas_kwh']):,} kWh a year. No need to ask again.")
         if said.get("off_gas_grid") is not None:
             ctx["off_gas_grid"] = bool(said["off_gas_grid"])
-            if memory.available():
+            if self._mem():
                 memory.remember(house_id, "off_gas_grid", "Off the gas grid: " + ("yes" if ctx["off_gas_grid"] else "no"))
         for side in said.get("walls_not_road") or []:
             if side in rules.COMPASS and side not in ctx.get("walls_not_road", []):
                 ctx.setdefault("walls_not_road", []).append(side)
                 ctx["walls_said_on"] = today
-                r = memory.remember(house_id, f"not_road_{side.replace(' ', '_')}", f"Not a public road: {side}") if memory.available() else None
-                self.emit({"type": "memory_write", "kind": "not_road", "content": side, "result": r})
+                r = memory.remember(house_id, f"not_road_{side.replace(' ', '_')}", f"Not a public road: {side}") if self._mem() else None
+                if r:
+                    self.emit({"type": "memory_write", "kind": "not_road", "content": side, "result": r})
         return ctx
 
     def write_and_check(self, result: dict, v: dict) -> dict | None:
@@ -197,6 +247,8 @@ class Run:
         self.say("Using the cached facts for this house." if got["cached"] else "Fetched live facts and cached them for Zetaris.")
 
         f = rules.load(self.z, hid)
+        if got["cached"] and any(d["dataset"].startswith("listed") for d in f["designations"]) and not f["planes"]:
+            self.emit({"type": "decision", "branch": "listed_stop", "text": "The building is listed, so every upgrade needs listed building consent whatever the roof is like. The roof was not surveyed."})
         result = rules.evaluate(f, heating=ctx.get("heating"), off_gas_grid=ctx.get("off_gas_grid"),
                                 walls_not_road=ctx.get("walls_not_road"), said_on=ctx.get("walls_said_on"))
         flags = evaluator.challenge(self.z, f, result, house["coords"], self.emit)
@@ -236,7 +288,7 @@ class Run:
                         self.emit({"type": "answer_update", "measure": v["measure"], "text": answers[v["measure"]]})
 
         summary = "; ".join(f"{explain.MEASURE_NAME[v['measure']]}: {v['headline']}" for v in result["verdicts"])
-        if memory.available():
+        if self._mem():
             memory.remember(hid, "outcome", f"Last check {date.today().isoformat()}: {summary}", "the agent's last check")
         record = {"run_id": self.id, "house_id": hid, "label": house["label"], "context": {k: v for k, v in ctx.items() if k != "memories"},
                   "result": _public(result), "texts": answers, "events": self.events, "seconds": round(time.time() - self.started, 1)}

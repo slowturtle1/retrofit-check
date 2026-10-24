@@ -16,19 +16,18 @@ from pathlib import Path
 import requests
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import ROOT, USER_AGENT, env
 
+from .agent import memory
+from .agent.run import RUNS, Run
+
 SAMPLE = os.environ.get("SAMPLE_MODE", "").lower() in ("1", "true", "yes")
 SAMPLES = ROOT / "samples"
-if not SAMPLE:
-    from .agent import memory
-    from .agent.run import RUNS, Run
-else:
-    RUNS = SAMPLES
 
 WEB = ROOT / "web"
 AREAS = ROOT / "runs" / "areas"
@@ -54,6 +53,10 @@ class CheckIn(BaseModel):
     use_model: bool = True
 
 
+class CheckSyncIn(CheckIn):
+    use_model: bool = False   # the model step can take minutes; callers opt in
+
+
 @app.get("/")
 def index():
     return FileResponse(WEB / "index.html")
@@ -65,7 +68,7 @@ def config_js():
     return Response(f"window.GOOGLE_MAPS_API_KEY = {json.dumps(key)};\n", media_type="application/javascript", headers={"Cache-Control": "no-store"})
 
 
-def _sample_for(body) -> Path | None:
+def _unused_sample_for(body) -> Path | None:
     """Sample mode: the recorded run for the house that was asked for."""
     index = json.loads((SAMPLES / "index.json").read_text())
     for x in index:
@@ -79,7 +82,9 @@ def _sample_for(body) -> Path | None:
 @app.get("/api/examples")
 def examples():
     if SAMPLE:
-        return [{k: x.get(k) for k in ("key", "label", "way", "lat", "lon", "note")} for x in json.loads((SAMPLES / "index.json").read_text())]
+        from .offline import houses
+        cached = {h["house_id"] for h in houses()}
+        return [x for x in json.loads((SAMPLES / "index.json").read_text()) if x.get("house_id") in cached or not x.get("house_id")]
     return EXAMPLES
 
 
@@ -92,40 +97,69 @@ def mode():
 def start_check(body: CheckIn):
     if not body.way and (body.lat is None or body.lon is None):
         raise HTTPException(400, "give an OSM way or a point")
-    if SAMPLE:
-        f = _sample_for(body)
-        if not f:
-            raise HTTPException(404, "Sample mode has only the recorded houses. Pick one of the examples.")
-        rec = json.loads(f.read_text())
-        run_id = "sample-" + uuid.uuid4().hex[:6]
-        q: queue.Queue = queue.Queue()
-        live[run_id] = {"queue": q}
-
-        def play():
-            prev = 0.0
-            q.put({"t": 0, "type": "note", "text": f"Sample mode: replaying recorded run {rec['run_id']} (no Zetaris, Nightshift or keys needed)"})
-            for e in rec["events"]:
-                time.sleep(min(0.8, max(0.03, float(e.get("t", 0)) - prev)))
-                prev = float(e.get("t", 0))
-                q.put(e)
-            q.put(None)
-
-        threading.Thread(target=play, daemon=True).start()
-        return {"run_id": run_id}
-    q = queue.Queue()
-    run = Run(emit=q.put, use_model=body.use_model)
+    q: queue.Queue = queue.Queue()
+    run = Run(emit=q.put, use_model=body.use_model and not SAMPLE, offline=SAMPLE)
     live[run.id] = {"queue": q, "events": run.events}
 
     def work():
         try:
             run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh)
+        except LookupError as e:
+            run.emit({"type": "error", "code": "not_found", "text": str(e)[:300]})
         except Exception as e:  # shown in the trace; the page stays usable
-            run.emit({"type": "error", "text": str(e)[:300]})
+            run.emit({"type": "error", "code": "failed", "text": str(e)[:300]})
         finally:
             q.put(None)
 
     threading.Thread(target=work, daemon=True).start()
     return {"run_id": run.id}
+
+
+def _err(status: int, code: str, message: str) -> JSONResponse:
+    return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
+
+
+@app.post("/api/v1/check")
+def check_sync(body: CheckSyncIn):
+    """Programmatic entry: JSON in, JSON out. The model step is off unless use_model is true (it can take minutes)."""
+    if not body.way and (body.lat is None or body.lon is None):
+        return _err(400, "bad_request", "Give an OpenStreetMap way id ('way') or a point ('lat' and 'lon').")
+    run = Run(use_model=body.use_model and not SAMPLE, offline=SAMPLE)
+    try:
+        rec = run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh)
+    except LookupError as e:
+        return _err(404, "not_found", str(e))
+    except Exception as e:  # noqa: BLE001  structured, no stack trace
+        return _err(502, "upstream_failed", f"{type(e).__name__}: {str(e)[:300]}")
+    res, texts = rec["result"], rec["texts"]
+    return {
+        "run_id": rec["run_id"], "mode": "sample" if SAMPLE else "live", "seconds": rec["seconds"],
+        "house": {k: res["house"].get(k) for k in ("house_id", "label", "lat", "lon", "building", "footprint_m2", "source")},
+        "protected": res.get("protected"), "listed": res.get("listed"), "owner": res.get("owner"),
+        "upgrades": [{
+            "measure": v["measure"], "status": v["status"], "headline": v["headline"],
+            "recommendation": res.get("money", {}).get(v["measure"], {}).get("recommendation"),
+            "one": texts[v["measure"]]["one"], "why": texts[v["measure"]]["why"], "get": texts[v["measure"]]["get"], "cost_help": texts[v["measure"]]["cost"],
+            "written_by": texts[v["measure"]].get("writer"), "money": {k: m for k, m in res.get("money", {}).get(v["measure"], {}).items() if k != "uses"},
+            "uncertain": v["uncertain"], "rules": [{"id": k, **{f: res["rules"][k][f] for f in ("clause", "in_force", "source_url")}} for k in v["rules"] + v["conditions"] if k in res["rules"]],
+            "facts": v["facts"],
+        } for v in res["verdicts"]],
+        "trace": {"events": len(rec["events"]), "file": f"logs/trace-{rec['run_id']}.jsonl",
+                  "zetaris_queries": sum(1 for e in rec["events"] if e["type"] == "zetaris"),
+                  "challenges": [e["text"] for e in rec["events"] if e["type"] == "challenge"],
+                  "model_calls": [{k: e.get(k) for k in ("role", "ok", "routed_model", "receipt_id", "seconds")} for e in rec["events"] if e["type"] == "model"]},
+    }
+
+
+@app.exception_handler(RequestValidationError)
+def _bad_input(request, exc):
+    first = exc.errors()[0] if exc.errors() else {}
+    return _err(400, "bad_request", f"{first.get('msg', 'invalid input')} at {'.'.join(str(x) for x in first.get('loc', []))}")
+
+
+@app.exception_handler(Exception)
+def _any_error(request, exc):  # never a stack trace to the client
+    return _err(500, "internal_error", f"{type(exc).__name__}: {str(exc)[:200]}")
 
 
 @app.get("/api/runs/{run_id}/events")
@@ -213,4 +247,4 @@ def feedback(body: FeedbackIn):
 app.mount("/static", StaticFiles(directory=WEB), name="static")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=int(os.environ.get("PORT", "5173")), log_level="warning")
+    uvicorn.run(app, host=os.environ.get("HOST", "127.0.0.1"), port=int(os.environ.get("PORT", "5173")), log_level="warning")

@@ -32,17 +32,20 @@ def _timed(step: Step, name: str, source: str, fn, *args):
     return out
 
 
-def cached(house_id: str) -> bool:
-    with psycopg.connect(db_dsn()) as c:
-        return c.execute("SELECT 1 FROM house h JOIN roof_survey r USING (house_id) WHERE h.house_id = %s", (house_id,)).fetchone() is not None
+def cached(house_id: str, z: Zetaris) -> bool:
+    hid = house_id.replace("'", "")
+    return bool(z.run(f"SELECT h.house_id FROM retrofit_pg.house h JOIN retrofit_pg.roof_survey r ON h.house_id = r.house_id WHERE h.house_id = '{hid}'",
+                      purpose="Is this house already in the cache?").rows)
 
 
 def gather(house: dict, z: Zetaris, step: Step, refresh: bool = False) -> dict:
     """house comes from osm.house_from_way or osm.building_at."""
     hid = house["house_id"]
-    if cached(hid) and not refresh:
+    if cached(hid, z) and not refresh:
         step({"type": "note", "text": f"{hid} is already in the cache; reading it through Zetaris"})
         return {"house_id": hid, "cached": True}
+    if getattr(z, "offline", False):
+        raise LookupError(f"{hid} is not in the sample snapshot. Sample mode has data for the example houses only; run the live stack for any other house.")
 
     # Planning first: it decides how much else is worth measuring.
     pd = _timed(step, "planning_data", "planning.data.gov.uk via Zetaris REST table", planning.read, z, house)

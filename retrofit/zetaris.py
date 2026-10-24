@@ -45,7 +45,7 @@ class Zetaris:
                     "X-Request-ID": str(uuid.uuid4()),
                 },
                 json={"queryId": str(uuid.uuid4()), "sql": sql, "source": "SqlEditor", "limit": limit},
-                timeout=240,
+                timeout=float(env("ZETARIS_TIMEOUT", "90")),
             )
         except requests.RequestException as e:
             self._record(sql, purpose, started, error=str(e))

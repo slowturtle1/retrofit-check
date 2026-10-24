@@ -44,8 +44,8 @@ def _chat_once(messages, role, on_call, model, max_tokens, temperature) -> str:
         r = requests.post(
             _base() + "/chat/completions",
             headers={"Authorization": "Bearer " + env("METERLESS_RUNTIME_TOKEN"), "meterless-app": APP, "meterless-scope": "user"},
-            json={"model": model or env("METERLESS_MODEL", "meterless/auto"), "messages": messages, "max_tokens": max_tokens, "temperature": temperature},
-            timeout=180,
+            json={"model": model or env("METERLESS_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"), "messages": messages, "max_tokens": max_tokens, "temperature": temperature},
+            timeout=float(env("MODEL_TIMEOUT", "120")),
         )
         if r.status_code != 200:
             raise requests.HTTPError(f"{r.status_code}: {r.text[:200]}")

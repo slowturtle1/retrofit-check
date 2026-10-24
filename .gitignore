@@ -16,6 +16,7 @@ node_modules/
 
 # local runs and caches (curated copies live in samples/)
 runs/
+logs/
 hmem/.state/
 
 # HackOS checklist

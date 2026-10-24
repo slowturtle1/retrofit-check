@@ -19,7 +19,7 @@ Type a postcode, tap your house on the 3D map. For each of the three upgrades th
 
 The model never decides legality. The rules do. The agents plan, challenge the evidence and explain.
 
-## Five sample houses
+## Six sample houses
 
 | House | Input | Output | What it shows |
 |---|---|---|---|
@@ -28,8 +28,9 @@ The model never decides legality. The rules do. The agents plan, challenge the e
 | Hampstead, NW3 | OSM way 110514126 | Solar allowed (about 4,696 kWh a year) | planning.data still lists Article 4 A4Ha1 (2010, covered roof solar) with no end date; Camden ended it on 9 Jun 2026. The agent shows both and follows the council |
 | 10 Downing Street | a tap on the roof | All three need listed building consent (Grade I since 14 Jan 1970) | The planner stops early: no roof survey for a listed building |
 | Muswell Hill, N10 (Haringey) | a tap on the roof | Answers marked uncertain | The evaluator finds Haringey has published no conservation area Article 4s, so a missing record proves nothing |
+| Trees over the roof, NW5 | OSM way 827708528 | Solar *Probably not worth it for this house*: only about 0.9 kWp of usable roof | The evaluator finds half the roof reading is trees, measures again with a wider margin, and still marks the roof numbers rough |
 
-The recorded runs are in [`samples/`](samples/) and replay without any keys (see *Sample mode*).
+All six run without keys in sample mode (see below); the recorded live runs are in [`samples/`](samples/).
 
 ## How the agents work
 
@@ -61,11 +62,11 @@ Every step, Zetaris query (with its SQL), model call (with its Nightshift receip
 | **Zetaris** (data layer) | Postgres datasource `retrofit_pg` over JDBC; Lightning REST tables for planning.data (per footprint, per council) and PVGIS; `LATERAL VIEW explode` over the JSON; a join between live planning designations and our Article 4 table; 8 reads in parallel per check | `retrofit/zetaris.py`, `retrofit/sources/planning.py`, `retrofit/sources/pvgis.py`, `retrofit/rules.py`, `retrofit/agent/evaluator.py`, `scripts/setup_zetaris.py` |
 | **Meterless Nightshift** (AI provider) | Every model call goes to the local runtime, with `meterless-app` and `meterless-scope` headers; the compute receipt (`receipt_id`, routed model) is logged for each call | `retrofit/agent/llm.py` |
 | **Meterless H-MEM** (engine) | The Meterless reference implementation, unchanged, behind a small HTTP service; homeowner facts with provenance, supersede on correction, feedback, audit | `hmem/server.ts`, `retrofit/agent/memory.py`, `tests/test_memory_flow.py` |
-| **NVIDIA Nemotron** | Nemotron 3.5 Lightning 30B (routed by Nightshift) reads the owner's note, rewrites explanations, and checks rewrites as the critic | `retrofit/agent/explain.py`, `retrofit/agent/run.py` |
+| **NVIDIA Nemotron** | The model is pinned (`METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b`); it reads the owner's note, rewrites explanations, and checks rewrites as the critic. Every call logs the model that answered from the Nightshift receipt | `retrofit/agent/llm.py`, `retrofit/agent/explain.py`, `retrofit/agent/run.py` |
 
 ## Run it
 
-Needs Docker with Zetaris running locally, Meterless Nightshift with an NVIDIA key, Python 3.12+, Node 20+.
+Needs Docker with Zetaris running locally, Meterless Nightshift with an NVIDIA key, Python 3.12+, Node 20+. Zetaris and Nightshift are set up as in the organisers' [Participant Setup Guide](https://docs.google.com/document/d/1_d3osxbXZRpp4Ln80w6Obc5xx06SmkIMrgp6BOj0Ofc/edit). Every sponsor call has a time limit (`ZETARIS_TIMEOUT`, `MODEL_TIMEOUT`) and a fallback: planning.data and PVGIS go direct if Zetaris cannot reach them, and the checked draft stays if Nightshift does not answer.
 
 ```bash
 cp .env.example .env                      # fill in Zetaris key, Nightshift token, a database password, optional Google key
@@ -81,11 +82,27 @@ The Google key is optional and only draws the 3D city. Without it the map falls 
 ## Sample mode (no keys)
 
 ```bash
+git clone https://github.com/slowturtle1/retrofit-check && cd retrofit-check
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 SAMPLE_MODE=true .venv/bin/python -m retrofit.server      # http://localhost:5173
 ```
 
-No Zetaris, Nightshift, H-MEM or keys: the five sample houses replay their recorded runs, trace included, on an OpenStreetMap base map. `/?replay=<run id>` replays any saved run.
+No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables for the six sample houses in `samples/cache.sqlite`: the same SQL it sends to Zetaris, answered locally. Without Nightshift the explanations are the checked drafts from the rules. A house that is not in the snapshot gets a clear message; any house works in live mode. The map falls back to OpenStreetMap without a Google key.
+
+Separately, `/?replay=<run id>` replays a recorded live run (with Nemotron's texts and receipts) from `samples/*.json`, labelled as a replay.
+
+## Use it from code
+
+```bash
+curl -s -X POST http://localhost:5173/api/v1/check -H 'content-type: application/json' \
+  -d '{"way": 1106478076, "heating": "gas", "gas_kwh": 12000}'
+```
+
+Input: an OpenStreetMap way id (`way`) or a point on the roof (`lat`, `lon`); optional `heating` (gas, oil, lpg, coal, electric, heat_pump), `gas_kwh` (a year, from the bill), `note` (free text the agent reads), `use_model` (true to have Nemotron rewrite the explanations; it can take minutes). Output: for each upgrade the status, recommendation, plain text, money ranges, rules with clause and date, facts with sources, uncertainty flags, and a trace summary (Zetaris queries, challenges, model calls with receipts). Errors come back as `{"error": {"code": ..., "message": ...}}` with a 4xx or 5xx status, never a stack trace. The page itself uses `POST /api/check` with a live event stream.
+
+## Logs
+
+Every run writes `logs/trace-<run id>.jsonl` (one JSON event per line: agent steps, decisions, challenges and re-checks, each Zetaris query with its purpose, row count and time, H-MEM reads and writes, each model call with the model that answered and its Nightshift receipt) and prints one line per event to stdout (`LOG_STDOUT=false` turns that off). The full record of each live run is saved in `runs/`.
 
 ## Tests
 

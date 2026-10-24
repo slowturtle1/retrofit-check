@@ -12,7 +12,8 @@
    "solar: Allowed under permitted development",
    "heat_pump: Allowed under permitted development, if conditions are met",
    "wall_insulation: Needs planning permission"
-  ]
+  ],
+  "house_id": "osm-way-1106478076"
  },
  {
   "key": "lady-somerset",
@@ -27,7 +28,8 @@
    "solar: Allowed under permitted development",
    "heat_pump: Allowed under permitted development, if conditions are met",
    "wall_insulation: Allowed under permitted development, if conditions are met"
-  ]
+  ],
+  "house_id": "osm-way-1556408737"
  },
  {
   "key": "hampstead",
@@ -42,7 +44,8 @@
    "solar: Allowed under permitted development",
    "heat_pump: Allowed under permitted development, if conditions are met",
    "wall_insulation: Needs planning permission"
-  ]
+  ],
+  "house_id": "osm-way-110514126"
  },
  {
   "key": "downing",
@@ -57,7 +60,8 @@
    "solar: Needs listed building consent",
    "heat_pump: Needs listed building consent",
    "wall_insulation: Needs listed building consent"
-  ]
+  ],
+  "house_id": "osm-relation-1879842"
  },
  {
   "key": "muswell",
@@ -72,7 +76,8 @@
    "solar: Allowed under permitted development",
    "heat_pump: Allowed under permitted development, if conditions are met",
    "wall_insulation: Needs planning permission"
-  ]
+  ],
+  "house_id": "osm-way-1068478521"
  },
  {
   "key": "trees",
@@ -87,6 +92,7 @@
    "solar: Allowed under permitted development",
    "heat_pump: Allowed under permitted development, if conditions are met",
    "wall_insulation: Needs planning permission"
-  ]
+  ],
+  "house_id": "osm-way-827708528"
  }
 ]
