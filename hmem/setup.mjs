@@ -13,9 +13,11 @@ fs.rmSync(path.join(here, "conformance"), { recursive: true, force: true });
 if (local && fs.existsSync(path.join(local, "engines/hmem/reference"))) {
   copy(path.join(local, "engines/hmem/reference"), path.join(here, "vendor/hmem"));
   copy(path.join(local, "engines/hmem/conformance"), path.join(here, "conformance"));
+  fs.copyFileSync(path.join(local, "engines/hmem/LICENSE"), path.join(here, "vendor/hmem/LICENSE"));
   console.log("H-MEM vendored from", local);
 } else {
   execSync("npx --yes degit meterless/meterless/engines/hmem/reference vendor/hmem", { cwd: here, stdio: "inherit" });
   execSync("npx --yes degit meterless/meterless/engines/hmem/conformance conformance", { cwd: here, stdio: "inherit" });
+  execSync("curl -sfL https://raw.githubusercontent.com/meterless/meterless/main/engines/hmem/LICENSE -o vendor/hmem/LICENSE", { cwd: here, stdio: "inherit" });
 }
 execSync("npm install --no-audit --no-fund", { cwd: path.join(here, "vendor/hmem"), stdio: "inherit" });
