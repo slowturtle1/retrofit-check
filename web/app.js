@@ -19,6 +19,12 @@ const UNCERTAIN = {
   article4_ended_but_listed: "An Article 4 here has ended but planning.data still lists it. We follow the council's decision.",
 };
 
+const STATIC = !!window.STATIC_SITE;   // docs/: replays recorded runs, no server
+const api = {
+  area: (e) => (STATIC ? `samples/areas/${e}.json` : `/api/area/${e}`),
+  run: (n) => (STATIC ? `samples/${n}.json` : `/api/runs/${encodeURIComponent(n)}`),
+  examples: () => (STATIC ? "samples/index.json" : "/api/examples"),
+};
 let viewer, state = { result: null, texts: {}, open: -1, houseId: null, label: null, request: null, memories: [] };
 const S = { center: null, hpr: null, home: null, house: [], overlay: [] };
 let tapMode = false, evCount = 0, source = null;
@@ -94,7 +100,7 @@ async function overlayFor(v) {
     const area = (res.areas || []).find((a) => (v.status === "needs_consent" ? /listed/.test(a.dataset) : a.dataset === "conservation-area" || a.dataset.includes("outstanding") || a.dataset === "national-park"));
     if (!area || !area.entity) return;
     try {
-      const g = await (await fetch(`/api/area/${area.entity}`)).json();
+      const g = await (await fetch(api.area(area.entity))).json();
       if (state.result !== res || state.open < 0) return;
       if (v.status !== "needs_consent") S.overlay.push(...drapeGeo(g.fill, "#D0654A", 0.28));
       S.overlay.push(viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(+state.result.house.lon, +state.result.house.lat, 60), label: {
@@ -257,10 +263,10 @@ async function startCheck(body) {
 
 async function replay(name) {
   resetForRun();
-  const r = await fetch(`/api/runs/${encodeURIComponent(name)}`);
+  const r = await fetch(api.run(name));
   if (!r.ok) { handle({ type: "error", text: "no recorded run " + name }); return; }
   const run = await r.json();
-  $("hint").textContent = `Replay of a recorded run · ${run.run_id}`;
+  $("hint").textContent = `Replay of a recorded live run · ${run.run_id}`;
   let prev = 0;
   for (const e of run.events) { await new Promise((ok) => setTimeout(ok, Math.min(1200, Math.max(60, (e.t - prev) * 1000)))); prev = e.t; handle(e); }
   state.live = false; renderRows();
@@ -293,17 +299,26 @@ $("gas").onchange = () => { if (state.request && !state.live) startCheck(state.r
 $("traceToggle").onclick = () => $("trace").classList.toggle("closed");
 
 async function examples() {
-  const list = await (await fetch("/api/examples")).json();
+  const list = await (await fetch(api.examples())).json();
   $("examples").innerHTML = list.map((x, i) => `<button data-i="${i}" title="${esc(x.note)}">${esc(x.label)}</button>`).join("");
   document.querySelectorAll("#examples button").forEach((b) => b.onclick = () => {
     document.querySelectorAll("#examples button").forEach((o) => o.classList.toggle("on", o === b));
-    const x = list[+b.dataset.i]; startCheck(x.way ? { way: x.way, label: x.label } : { lat: x.lat, lon: x.lon, label: x.label });
+    const x = list[+b.dataset.i];
+    if (STATIC) { replay(x.file.replace(/\.json$/, "")); return; }
+    startCheck(x.way ? { way: x.way, label: x.label } : { lat: x.lat, lon: x.lon, label: x.label });
   });
 }
 
 async function main() {
   examples();
-  fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) { $("hint").textContent = "Sample mode: recorded runs, no keys needed"; $("searchForm").classList.add("hid"); } }).catch(() => {});
+  if (STATIC) {
+    $("searchForm").classList.add("hid");
+    document.querySelector(".you").classList.add("hid");
+    $("tap").classList.remove("on");
+    $("hint").textContent = "Replays of recorded live runs. Clone the repo to check any house.";
+  } else {
+    fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) { $("hint").textContent = "Sample mode: the agent runs on cached data, no keys needed"; $("searchForm").classList.add("hid"); } }).catch(() => {});
+  }
   const opts = { baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false };
   if (window.GOOGLE_MAPS_API_KEY) {
     viewer = new Cesium.Viewer("map", { ...opts, baseLayer: false });

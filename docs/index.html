@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retrofit Check</title>
+<meta name="description" content="Which energy upgrades is my house eligible for? Replays of recorded agent runs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<script>window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/";</script>
+<script src="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Cesium.js"></script>
+<script>window.GOOGLE_MAPS_API_KEY = ""; window.STATIC_SITE = true;</script>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="map"></div>
+
+<div id="ctrl">
+  <button class="cb" id="rl" title="Turn left">⟲</button>
+  <button class="cb" id="rr" title="Turn right">⟳</button>
+  <button class="cb" id="zi" title="Closer">+</button>
+  <button class="cb" id="zo" title="Further">−</button>
+  <button class="cb txt" id="reset">Reset</button>
+  <span class="hint" id="hint">Drag to turn around the house</span>
+</div>
+
+<aside id="panel">
+  <div class="brand">RETROFIT CHECK</div>
+  <div class="q">Which energy upgrades is my house eligible for?</div>
+  <form class="search" id="searchForm">
+    <span>⌕</span><input id="addr" placeholder="Postcode or street in England" autocomplete="off"><button class="go" type="submit">Find</button>
+  </form>
+  <div class="ex" id="examples"></div>
+  <div class="tap" id="tap">Now tap the roof of your house.</div>
+  <div id="err"></div>
+
+  <div id="houseBox" class="hid">
+    <div class="place" id="place"></div>
+    <div class="ctx" id="ctx"></div>
+    <div class="you">
+      <label>Heating now
+        <select id="heating">
+          <option value="">Not sure</option><option value="gas">Gas boiler</option><option value="oil">Oil</option>
+          <option value="lpg">LPG</option><option value="electric">Electric</option><option value="heat_pump">Heat pump</option>
+        </select>
+      </label>
+      <label>Gas use <input id="gas" type="number" min="0" step="100" placeholder="kWh a year" title="From your bill or annual statement"></label>
+      <button class="link" id="noteToggle" type="button">Tell us something</button>
+    </div>
+    <div class="note hid" id="noteBox">
+      <textarea id="note" rows="2" placeholder="For example: the lane on the side is our private drive"></textarea>
+      <button class="go small" id="noteSend" type="button">Check again</button>
+    </div>
+    <div class="mem" id="mem"></div>
+    <div class="h">What you can do here</div>
+    <div id="rows"></div>
+    <div class="foot" id="foot"></div>
+  </div>
+</aside>
+
+<section id="trace" class="closed">
+  <button id="traceToggle" type="button"><span id="traceDot"></span> How the agent worked <span id="traceCount"></span></button>
+  <div id="traceBody"></div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>

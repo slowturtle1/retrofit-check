@@ -89,7 +89,7 @@ SAMPLE_MODE=true .venv/bin/python -m retrofit.server      # http://localhost:517
 
 No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables for the six sample houses in `samples/cache.sqlite`: the same SQL it sends to Zetaris, answered locally. Without Nightshift the explanations are the checked drafts from the rules. A house that is not in the snapshot gets a clear message; any house works in live mode. The map falls back to OpenStreetMap without a Google key.
 
-Separately, `/?replay=<run id>` replays a recorded live run (with Nemotron's texts and receipts) from `samples/*.json`, labelled as a replay.
+Separately, `/?replay=<run id>` replays a recorded live run (with Nemotron's texts and receipts) from `samples/*.json`, labelled as a replay. The same replays are built into a static page in [`docs/`](docs/) (`scripts/build_static.py`) that needs no server: open it with `python3 -m http.server -d docs` or on GitHub Pages.
 
 ## Use it from code
 
