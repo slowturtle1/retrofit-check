@@ -1,0 +1,13 @@
+# Retrofit Check (Python 3.12+). Node 20+ is needed only for the H-MEM service in hmem/.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+requests>=2.32
+python-dotenv>=1.0
+psycopg[binary]>=3.2
+numpy>=2.0
+tifffile>=2024.8
+imagecodecs>=2024.6
+shapely>=2.0
+pyproj>=3.6
+openai>=1.40
+pytest>=8.0

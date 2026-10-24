@@ -1,0 +1,29 @@
+# secrets
+.env
+.env.local
+*.key
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# node
+node_modules/
+
+# macOS
+.DS_Store
+
+# local runs and caches (curated copies live in samples/)
+runs/
+hmem/.state/
+
+# HackOS checklist
+.env.*
+!.env.example
+*.pem
+secrets/
+credentials/
+
+# setup check made by Cursor on 21 Oct, not part of the project
+hello.py

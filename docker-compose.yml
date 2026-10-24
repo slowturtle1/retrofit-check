@@ -1,0 +1,29 @@
+# Local cache database for Retrofit Check. Zetaris reads it as a JDBC datasource,
+# so it joins the network the Zetaris containers already use (zetaris_default).
+services:
+  retrofit-db:
+    image: postgres:16
+    container_name: retrofit-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: retrofit
+      POSTGRES_USER: retrofit
+      POSTGRES_PASSWORD: ${RETROFIT_DB_PASSWORD:?set RETROFIT_DB_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - retrofit-db:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U retrofit -d retrofit"]
+      interval: 5s
+      retries: 20
+    networks: [zetaris]
+
+volumes:
+  retrofit-db:
+
+networks:
+  zetaris:
+    name: zetaris_default
+    external: true

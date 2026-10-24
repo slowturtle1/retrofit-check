@@ -1,0 +1,119 @@
+"""The evaluator attacks the evidence behind a first answer; the analyst goes back to Zetaris to settle each challenge.
+
+A challenge is resolved when a new query backs the finding. If it does not, the finding stays but is
+marked uncertain and the homeowner is told to ask the council. Every challenge and re-query is in the trace.
+"""
+
+from __future__ import annotations
+
+import json
+from typing import Callable
+from urllib.parse import urlencode
+
+from ..config import USER_AGENT
+from ..sources.planning import BASE
+from ..zetaris import Zetaris, ZetarisError
+
+Emit = Callable[[dict], None]
+# planning.data organisation entities for the London councils we have looked at; others show as "council <id>"
+COUNCILS = {"90": "Camden", "387": "Westminster", "175": "Haringey", "366": "Waltham Forest", "329": "Southwark", "192": "Lambeth",
+            "163": "Hackney", "42": "Brent", "198": "Lewisham", "182": "Kensington and Chelsea", "350": "Tower Hamlets", "48": "Barnet",
+            "126": "Enfield", "167": "Hillingdon", "188": "Kingston upon Thames", "170": "Hounslow", "41": "Barking and Dagenham"}
+
+
+def council(org: str) -> str:
+    return COUNCILS.get(org, f"council {org}")
+
+
+def _rest(z: Zetaris, table: str, db: str, url: str, purpose: str) -> None:
+    try:
+        z.run(f'''CREATE LIGHTNING REST TABLE {table} FROM {db} REQUEST(
+    endpoint "{url}",
+    method "get",
+    response_type "json",
+    http_encoding "URLENCODED"
+) HEADER (
+    user-agent "{USER_AGENT}"
+) BODY ()''', purpose=purpose)
+    except ZetarisError as e:
+        if "exist" not in str(e).lower():
+            raise
+
+
+def council_publishes_ca_article4(z: Zetaris, org: str) -> tuple[int, int]:
+    """How many Article 4 areas this council has on planning.data, and how many are about conservation areas."""
+    url = BASE + "?" + urlencode([("dataset", "article-4-direction-area"), ("organisation_entity", org), ("exclude_field", "geometry"), ("limit", "500")])
+    table = f"a4_council_{org}"
+    _rest(z, table, "PLANNING_DATA", url, f"Register every Article 4 area {council(org)} has published")
+    rows = z.run(f"""SELECT count(*) AS n,
+       sum(CASE WHEN lower(e.name) LIKE '%conservation area%' OR lower(e.name) LIKE '%various properties%' THEN 1 ELSE 0 END) AS ca
+FROM planning_data.{table} LATERAL VIEW explode(entities) AS e""", purpose=f"Does {council(org)} publish conservation area Article 4s at all?").rows
+    return int(rows[0][0] or 0), int(rows[0][1] or 0)
+
+
+def listed_outline(z: Zetaris, house_id: str, coords: list) -> int:
+    from shapely.geometry import Polygon
+    url = BASE + "?" + urlencode([("geometry", Polygon(coords).wkt), ("geometry_relation", "intersects"), ("dataset", "listed-building-outline"),
+                                  ("exclude_field", "geometry"), ("limit", "20")])
+    table = "lbo_" + house_id.replace("-", "_")
+    _rest(z, table, "PLANNING_DATA", url, "Register listed building outlines that touch the footprint")
+    return len(z.run(f"SELECT e.reference FROM planning_data.{table} LATERAL VIEW explode(entities) AS e", purpose="Check the listing again against the building outline").rows)
+
+
+def challenge(z: Zetaris, f: dict, result: dict, coords: list, emit: Emit) -> list[str]:
+    """Returns uncertainty flags to add to every verdict."""
+    flags: list[str] = []
+    des = f["designations"]
+    in_ca = [d for d in des if d["dataset"] == "conservation-area"]
+    a4 = [d for d in des if d["dataset"] == "article-4-direction-area"]
+    energy_a4 = [d for d in a4 if d.get("removes_solar") in (True, "true") or d.get("removes_ashp") in (True, "true")]
+
+    listed = [d for d in des if d["dataset"] in ("listed-building", "listed-building-outline")]
+
+    # 1. No Article 4 on record is not proof that none exists. (Skipped for a listed building: consent is needed anyway.)
+    if in_ca and not energy_a4 and not listed:
+        org = str(in_ca[0].get("organisation") or "")
+        emit({"type": "challenge", "by": "evaluator", "about": "article-4",
+              "text": f"No Article 4 that touches energy upgrades is on record for this house. Councils publish unevenly, so that alone is not proof. Does {council(org)} publish conservation area Article 4s at all?"})
+        try:
+            n, ca = council_publishes_ca_article4(z, org) if org else (0, 0)
+            ok = ca > 0
+            emit({"type": "requery", "by": "analyst", "about": "article-4", "ok": ok,
+                  "text": f"{council(org)} has {n} Article 4 areas on planning.data, {ca} of them for conservation areas or named properties. " +
+                          ("It does publish them, and none covers this house for energy upgrades: the finding stands." if ok else
+                           "It publishes none for conservation areas, so a missing record proves nothing: marked uncertain.")})
+            if not ok:
+                flags.append("article4_coverage_unknown")
+        except ZetarisError as e:
+            emit({"type": "requery", "by": "analyst", "about": "article-4", "ok": False, "text": f"Could not ask Zetaris again ({str(e)[:80]}): marked uncertain."})
+            flags.append("article4_coverage_unknown")
+
+    # 2. A listing point without an outline may belong to the building next door.
+    points = [d for d in des if d["dataset"] == "listed-building"]
+    outlines = [d for d in des if d["dataset"] == "listed-building-outline"]
+    if points and not outlines:
+        emit({"type": "challenge", "by": "evaluator", "about": "listed",
+              "text": f"The listing ({points[0]['reference']}) was found as a point only. A point can sit on the neighbour's side of a party wall. Check against the building outline."})
+        try:
+            n = listed_outline(z, f["house"]["house_id"], coords)
+            emit({"type": "requery", "by": "analyst", "about": "listed", "ok": n > 0,
+                  "text": "A listed outline covers this footprint: the listing stands." if n else "No listed outline touches this footprint: treated as listed to be safe, marked uncertain."})
+            if not n:
+                flags.append("listed_point_only")
+        except ZetarisError as e:
+            emit({"type": "requery", "by": "analyst", "about": "listed", "ok": False, "text": f"Could not ask again ({str(e)[:80]}): marked uncertain."})
+            flags.append("listed_point_only")
+    return flags
+
+
+def cost_sources(z: Zetaris, kwp: float, emit: Emit) -> None:
+    """Two official cost series disagree for solar; ask Zetaris for both and keep the range."""
+    emit({"type": "challenge", "by": "evaluator", "about": "solar cost",
+          "text": "One cost figure would hide how much prices vary. Check the national median against the London average before quoting a cost."})
+    rows = z.run("SELECT fact_id, value, plain, valid_from, valid_to FROM retrofit_pg.price_fact WHERE fact_id IN ('solar_cost_gb_median', 'solar_cost_london_mean')",
+                 purpose="Compare the two official solar cost series").dicts()
+    v = {r["fact_id"]: float(r["value"]) for r in rows}
+    lo, hi = v.get("solar_cost_gb_median"), v.get("solar_cost_london_mean")
+    if lo and hi:
+        emit({"type": "requery", "by": "analyst", "about": "solar cost", "ok": True,
+              "text": f"National median £{lo:,.0f} per kW, London average £{hi:,.0f} per kW ({(hi / lo - 1) * 100:.0f}% apart). Showing £{round(kwp * lo, -2):,.0f} to £{round(kwp * hi, -2):,.0f} with both sources."})

@@ -1,0 +1,2093 @@
+{
+ "run_id": "20261024T210646-9e02f1",
+ "house_id": "osm-way-110514126",
+ "label": "Hampstead, NW3",
+ "context": {
+  "heating": "gas",
+  "heating_said_on": "2026-10-24",
+  "heating_memory": "mem-7",
+  "last_outcome": {
+   "id": "mem-12",
+   "content": "Last check 2026-10-24: Solar panels: Allowed under permitted development; Heat pump: Allowed under permitted development, if conditions are met; Outside wall insulation: Needs planning permission",
+   "kind": "outcome",
+   "confidence": 0.8,
+   "learnedAt": "2026-10-24T20:23:46.299Z",
+   "label": "the agent's last check",
+   "supersedes": "mem-8",
+   "relevance": 0.224
+  },
+  "gas_kwh": 15000.0,
+  "gas_said_on": "2026-10-24"
+ },
+ "result": {
+  "house": {
+   "house_id": "osm-way-110514126",
+   "label": "Hampstead, NW3",
+   "lat": "51.55513301811031",
+   "lon": "-0.18219174947753244",
+   "building": "house",
+   "footprint_m2": "196",
+   "source": "OpenStreetMap way 110514126",
+   "coords": [
+    [
+     -0.1820969,
+     51.5551868
+    ],
+    [
+     -0.1820761,
+     51.5550891
+    ],
+    [
+     -0.1820812,
+     51.5550887
+    ],
+    [
+     -0.1820768,
+     51.5550681
+    ],
+    [
+     -0.1820846,
+     51.5550618
+    ],
+    [
+     -0.182103,
+     51.5550603
+    ],
+    [
+     -0.1821178,
+     51.5550673
+    ],
+    [
+     -0.1821215,
+     51.5550844
+    ],
+    [
+     -0.1822452,
+     51.5550742
+    ],
+    [
+     -0.1822428,
+     51.5550631
+    ],
+    [
+     -0.1822893,
+     51.5550593
+    ],
+    [
+     -0.1823081,
+     51.5551476
+    ],
+    [
+     -0.1822593,
+     51.5551516
+    ],
+    [
+     -0.1822688,
+     51.5551963
+    ],
+    [
+     -0.1822441,
+     51.5551983
+    ],
+    [
+     -0.1822485,
+     51.5552191
+    ],
+    [
+     -0.1821865,
+     51.5552242
+    ],
+    [
+     -0.1821772,
+     51.5551802
+    ],
+    [
+     -0.1820969,
+     51.5551868
+    ]
+   ]
+  },
+  "protected": [
+   "Hampstead"
+  ],
+  "areas": [
+   {
+    "name": "Hampstead",
+    "dataset": "conservation-area",
+    "reference": "CA15",
+    "entity": "44009659",
+    "start_date": "1968-02-01",
+    "grade": null
+   }
+  ],
+  "listed": false,
+  "verdicts": [
+   {
+    "measure": "solar",
+    "status": "allowed",
+    "headline": "Allowed under permitted development",
+    "rules": [],
+    "facts": [
+     {
+      "fact": "listed",
+      "value": "no",
+      "source": "planning.data listed-building"
+     },
+     {
+      "fact": "conservation-area",
+      "value": "Hampstead (CA15, since 1968-02-01)",
+      "source": "planning.data conservation-area"
+     },
+     {
+      "fact": "article-4",
+      "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+      "source": "https://www.camden.gov.uk/article-4-directions-other-development-"
+     },
+     {
+      "fact": "article-4",
+      "value": "Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 2010-09-01): Front elevations, roofs facing a road, hard surfaces and boundary walls, including solar panels on a roof facing a road. Cancelled by Camden when A4Ha2 came into force on 9 Jun 2026.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "article-4",
+      "value": "Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 2026-06-09): Same as the old direction for front elevations, roofs facing a road, hard surfaces and boundary walls, but solar panels are no longer covered.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "sources disagree",
+      "value": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "best roof plane",
+      "value": "S, 4.6 kWp, about 4696 kWh a year",
+      "source": "PVGIS 5.2, EU Joint Research Centre via Zetaris; roof from EA LIDAR"
+     },
+     {
+      "fact": "LIDAR noise",
+      "value": "10% of roof cells (trees, chimneys)",
+      "source": "EA LIDAR DSM 1 m"
+     }
+    ],
+    "conditions": [
+     "solar-pitched",
+     "solar-ca-wall"
+    ],
+    "alternatives": [],
+    "grants": [
+     "vat-zero",
+     "seg"
+    ],
+    "numbers": {
+     "kwp": 4.6,
+     "kwh_year": 4696,
+     "facing": "S"
+    },
+    "where": {
+     "roof_facing": "S"
+    },
+    "uncertain": [
+     "article4_ended_but_listed"
+    ]
+   },
+   {
+    "measure": "heat_pump",
+    "status": "allowed_with_conditions",
+    "headline": "Allowed under permitted development, if conditions are met",
+    "rules": [],
+    "facts": [
+     {
+      "fact": "listed",
+      "value": "no",
+      "source": "planning.data listed-building"
+     },
+     {
+      "fact": "conservation-area",
+      "value": "Hampstead (CA15, since 1968-02-01)",
+      "source": "planning.data conservation-area"
+     },
+     {
+      "fact": "article-4",
+      "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+      "source": "https://www.camden.gov.uk/article-4-directions-other-development-"
+     },
+     {
+      "fact": "article-4",
+      "value": "Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 2010-09-01): Front elevations, roofs facing a road, hard surfaces and boundary walls, including solar panels on a roof facing a road. Cancelled by Camden when A4Ha2 came into force on 9 Jun 2026.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "article-4",
+      "value": "Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 2026-06-09): Same as the old direction for front elevations, roofs facing a road, hard surfaces and boundary walls, but solar panels are no longer covered.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "sources disagree",
+      "value": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "walls facing a road",
+      "value": "north wall to Church Row, north wall to Church Row, north wall to Church Row, north wall to Church Row",
+      "source": "OpenStreetMap roads and footprint"
+     },
+     {
+      "fact": "shares a wall with a neighbour",
+      "value": "no",
+      "source": "OpenStreetMap footprints"
+     },
+     {
+      "fact": "current heating",
+      "value": "gas",
+      "source": "you"
+     }
+    ],
+    "conditions": [
+     "ashp-units",
+     "ashp-ca-front"
+    ],
+    "alternatives": [],
+    "grants": [
+     "bus-standard",
+     "vat-zero"
+    ],
+    "numbers": {
+     "units_allowed": 2
+    },
+    "where": {
+     "ok_walls": [
+      "east",
+      "east",
+      "south",
+      "south west",
+      "west",
+      "south",
+      "east",
+      "south",
+      "west",
+      "west",
+      "west",
+      "east"
+     ],
+     "road_walls": [
+      "north",
+      "north",
+      "north",
+      "north"
+     ]
+    },
+    "uncertain": [
+     "article4_ended_but_listed"
+    ]
+   },
+   {
+    "measure": "wall_insulation",
+    "status": "needs_permission",
+    "headline": "Needs planning permission",
+    "rules": [
+     "ewi-art23"
+    ],
+    "facts": [
+     {
+      "fact": "listed",
+      "value": "no",
+      "source": "planning.data listed-building"
+     },
+     {
+      "fact": "conservation-area",
+      "value": "Hampstead (CA15, since 1968-02-01)",
+      "source": "planning.data conservation-area"
+     },
+     {
+      "fact": "article-4",
+      "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+      "source": "https://www.camden.gov.uk/article-4-directions-other-development-"
+     },
+     {
+      "fact": "article-4",
+      "value": "Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 2010-09-01): Front elevations, roofs facing a road, hard surfaces and boundary walls, including solar panels on a roof facing a road. Cancelled by Camden when A4Ha2 came into force on 9 Jun 2026.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "article-4",
+      "value": "Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 2026-06-09): Same as the old direction for front elevations, roofs facing a road, hard surfaces and boundary walls, but solar panels are no longer covered.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     },
+     {
+      "fact": "sources disagree",
+      "value": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+      "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+     }
+    ],
+    "conditions": [],
+    "alternatives": [
+     "inside-insulation",
+     "householder-fee"
+    ],
+    "grants": [
+     "vat-zero"
+    ],
+    "numbers": {},
+    "where": {},
+    "uncertain": [
+     "article4_ended_but_listed"
+    ]
+   }
+  ],
+  "today": "2026-10-24",
+  "walls": [
+   {
+    "wall_no": "0",
+    "facing_deg": "82",
+    "length_m": "11.0",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "2",
+    "facing_deg": "82",
+    "length_m": "2.3",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "4",
+    "facing_deg": "173",
+    "length_m": "1.3",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "5",
+    "facing_deg": "217",
+    "length_m": "1.3",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "6",
+    "facing_deg": "262",
+    "length_m": "1.9",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "7",
+    "facing_deg": "172",
+    "length_m": "8.6",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "8",
+    "facing_deg": "82",
+    "length_m": "1.2",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "9",
+    "facing_deg": "173",
+    "length_m": "3.2",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "10",
+    "facing_deg": "262",
+    "length_m": "9.9",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "11",
+    "facing_deg": "352",
+    "length_m": "3.4",
+    "fronts_highway": "true",
+    "highway_name": "Church Row",
+    "distance_m": "18.3",
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "12",
+    "facing_deg": "262",
+    "length_m": "5.0",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "13",
+    "facing_deg": "353",
+    "length_m": "1.7",
+    "fronts_highway": "true",
+    "highway_name": "Church Row",
+    "distance_m": "13.3",
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "14",
+    "facing_deg": "263",
+    "length_m": "2.3",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "15",
+    "facing_deg": "352",
+    "length_m": "4.3",
+    "fronts_highway": "true",
+    "highway_name": "Church Row",
+    "distance_m": "11.1",
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "16",
+    "facing_deg": "83",
+    "length_m": "4.9",
+    "fronts_highway": "false",
+    "highway_name": null,
+    "distance_m": null,
+    "adjoins": "false"
+   },
+   {
+    "wall_no": "17",
+    "facing_deg": "352",
+    "length_m": "5.6",
+    "fronts_highway": "true",
+    "highway_name": "Church Row",
+    "distance_m": "16.1",
+    "adjoins": "false"
+   }
+  ],
+  "planes": [
+   {
+    "facing": "S",
+    "azimuth_deg": "174",
+    "pitch_deg": "48",
+    "area_m2": "31"
+   },
+   {
+    "facing": "N",
+    "azimuth_deg": "352",
+    "pitch_deg": "46",
+    "area_m2": "23"
+   },
+   {
+    "facing": "W",
+    "azimuth_deg": "264",
+    "pitch_deg": "54",
+    "area_m2": "21"
+   }
+  ],
+  "money": {
+   "solar": {
+    "recommendation": "Worth getting quotes",
+    "why": null,
+    "cost": [
+     7300,
+     9700
+    ],
+    "value_year": [
+     520,
+     970
+    ],
+    "payback_years": [
+     8,
+     19
+    ],
+    "uses": [
+     "solar_cost_gb_median",
+     "solar_cost_london_mean",
+     "elec_rate",
+     "seg_low",
+     "seg_high",
+     "self_use_low",
+     "self_use_high"
+    ],
+    "note": "MCS certified installer needed for export payments."
+   },
+   "heat_pump": {
+    "cost_before_grant": [
+     11100,
+     15600
+    ],
+    "grant": 7500,
+    "cost": [
+     3600,
+     8100
+    ],
+    "median_after_grant": 5400,
+    "uses": [
+     "ashp_cost_lq",
+     "ashp_cost_median",
+     "ashp_cost_uq",
+     "gas_rate",
+     "gas_standing",
+     "elec_rate",
+     "boiler_eff",
+     "scop_low",
+     "scop_high",
+     "ashp_life_years",
+     "gas_boiler_cost"
+    ],
+    "note": "The MCS installer applies for the grant and takes it off the bill. The saving assumes you also close the gas supply, so the gas standing charge goes.",
+    "saving_year": [
+     110,
+     350
+    ],
+    "gas_kwh": 15000,
+    "payback_years": [
+     10,
+     74
+    ],
+    "extra_over_boiler": 1900,
+    "extra_payback_years": 8,
+    "recommendation": "Worth it mainly if your boiler needs replacing soon",
+    "why": "On its own it would take longer than a heat pump lasts (up to 20 years) to pay back. If your boiler needs replacing anyway, a typical heat pump costs about \u00a31,900 more than a new gas boiler, which the saving pays back in about 8 years."
+   },
+   "wall_insulation": {
+    "recommendation": "Ask the council first"
+   }
+  },
+  "prices": {
+   "elec_rate": {
+    "fact_id": "elec_rate",
+    "value": "26.32",
+    "unit": "p/kWh",
+    "plain": "Electricity unit rate under the Ofgem price cap, Direct Debit average, no VAT on electricity from 1 Oct 2026 to 31 Mar 2027",
+    "kind": "official",
+    "valid_from": "2026-10-01",
+    "valid_to": "2026-12-31",
+    "source_url": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+    "checked_on": "2026-10-25"
+   },
+   "gas_rate": {
+    "fact_id": "gas_rate",
+    "value": "7.97",
+    "unit": "p/kWh",
+    "plain": "Gas unit rate under the Ofgem price cap, Direct Debit average, including 5% VAT",
+    "kind": "official",
+    "valid_from": "2026-10-01",
+    "valid_to": "2026-12-31",
+    "source_url": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+    "checked_on": "2026-10-25"
+   },
+   "gas_standing": {
+    "fact_id": "gas_standing",
+    "value": "29.68",
+    "unit": "p/day",
+    "plain": "Gas standing charge under the Ofgem price cap, Direct Debit average",
+    "kind": "official",
+    "valid_from": "2026-10-01",
+    "valid_to": "2026-12-31",
+    "source_url": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+    "checked_on": "2026-10-25"
+   },
+   "seg_low": {
+    "fact_id": "seg_low",
+    "value": "6.0",
+    "unit": "p/kWh",
+    "plain": "Highest export rate open to everyone (ScottishPower), per Which?",
+    "kind": "consumer_survey",
+    "valid_from": "2026-04-24",
+    "valid_to": null,
+    "source_url": "https://www.which.co.uk/news/article/smart-export-guarantee-rates-the-best-and-worst-seg-tariffs-for-solar-panel-owners-azICP0i78MD8",
+    "checked_on": "2026-10-25"
+   },
+   "seg_high": {
+    "fact_id": "seg_high",
+    "value": "15.0",
+    "unit": "p/kWh",
+    "plain": "Export rate for customers who also buy their electricity from the supplier, per Which?",
+    "kind": "consumer_survey",
+    "valid_from": "2026-04-24",
+    "valid_to": null,
+    "source_url": "https://www.which.co.uk/news/article/smart-export-guarantee-rates-the-best-and-worst-seg-tariffs-for-solar-panel-owners-azICP0i78MD8",
+    "checked_on": "2026-10-25"
+   },
+   "solar_cost_gb_median": {
+    "fact_id": "solar_cost_gb_median",
+    "value": "1595.06",
+    "unit": "\u00a3/kW",
+    "plain": "Median installed cost of 0 to 4 kW solar PV in Great Britain, 2025/26 (MCS data)",
+    "kind": "official",
+    "valid_from": "2025-04-01",
+    "valid_to": "2026-03-31",
+    "source_url": "https://www.gov.uk/government/statistics/solar-pv-cost-data",
+    "checked_on": "2026-10-25"
+   },
+   "solar_cost_london_mean": {
+    "fact_id": "solar_cost_london_mean",
+    "value": "2101.01",
+    "unit": "\u00a3/kW",
+    "plain": "Mean installed cost of 0 to 4 kW solar PV in London, 2025/26 (MCS data)",
+    "kind": "official",
+    "valid_from": "2025-04-01",
+    "valid_to": "2026-03-31",
+    "source_url": "https://www.gov.uk/government/statistics/solar-pv-cost-data",
+    "checked_on": "2026-10-25"
+   },
+   "ashp_cost_lq": {
+    "fact_id": "ashp_cost_lq",
+    "value": "11128.0",
+    "unit": "\u00a3",
+    "plain": "Lower quartile cost of an air to water heat pump installed under the Boiler Upgrade Scheme, Apr to Jun 2026, before the grant",
+    "kind": "official",
+    "valid_from": "2026-04-01",
+    "valid_to": "2026-06-30",
+    "source_url": "https://www.gov.uk/government/statistics/boiler-upgrade-scheme-statistics-august-2026",
+    "checked_on": "2026-10-25"
+   },
+   "ashp_cost_median": {
+    "fact_id": "ashp_cost_median",
+    "value": "12908.0",
+    "unit": "\u00a3",
+    "plain": "Median cost of an air to water heat pump installed under the Boiler Upgrade Scheme, Apr to Jun 2026, before the grant",
+    "kind": "official",
+    "valid_from": "2026-04-01",
+    "valid_to": "2026-06-30",
+    "source_url": "https://www.gov.uk/government/statistics/boiler-upgrade-scheme-statistics-august-2026",
+    "checked_on": "2026-10-25"
+   },
+   "ashp_cost_uq": {
+    "fact_id": "ashp_cost_uq",
+    "value": "15627.0",
+    "unit": "\u00a3",
+    "plain": "Upper quartile cost of an air to water heat pump installed under the Boiler Upgrade Scheme, Apr to Jun 2026, before the grant",
+    "kind": "official",
+    "valid_from": "2026-04-01",
+    "valid_to": "2026-06-30",
+    "source_url": "https://www.gov.uk/government/statistics/boiler-upgrade-scheme-statistics-august-2026",
+    "checked_on": "2026-10-25"
+   },
+   "self_use_low": {
+    "fact_id": "self_use_low",
+    "value": "0.25",
+    "unit": "share",
+    "plain": "Share of solar electricity used at home without a battery, low end",
+    "kind": "assumption",
+    "valid_from": null,
+    "valid_to": null,
+    "source_url": "assumption",
+    "checked_on": "2026-10-25"
+   },
+   "self_use_high": {
+    "fact_id": "self_use_high",
+    "value": "0.5",
+    "unit": "share",
+    "plain": "Share of solar electricity used at home without a battery, high end",
+    "kind": "assumption",
+    "valid_from": null,
+    "valid_to": null,
+    "source_url": "assumption",
+    "checked_on": "2026-10-25"
+   },
+   "boiler_eff": {
+    "fact_id": "boiler_eff",
+    "value": "0.85",
+    "unit": "share",
+    "plain": "Seasonal efficiency of the existing gas boiler",
+    "kind": "assumption",
+    "valid_from": null,
+    "valid_to": null,
+    "source_url": "assumption",
+    "checked_on": "2026-10-25"
+   },
+   "scop_low": {
+    "fact_id": "scop_low",
+    "value": "2.8",
+    "unit": "ratio",
+    "plain": "Heat pump seasonal efficiency, low end",
+    "kind": "assumption",
+    "valid_from": null,
+    "valid_to": null,
+    "source_url": "assumption",
+    "checked_on": "2026-10-25"
+   },
+   "scop_high": {
+    "fact_id": "scop_high",
+    "value": "3.5",
+    "unit": "ratio",
+    "plain": "Heat pump seasonal efficiency, high end",
+    "kind": "assumption",
+    "valid_from": null,
+    "valid_to": null,
+    "source_url": "assumption",
+    "checked_on": "2026-10-25"
+   },
+   "gas_boiler_cost": {
+    "fact_id": "gas_boiler_cost",
+    "value": "3500.0",
+    "unit": "\u00a3",
+    "plain": "Typical cost of replacing an old gas boiler with an A rated one, with thermostatic radiator valves, Great Britain",
+    "kind": "advice_body",
+    "valid_from": "2026-05-20",
+    "valid_to": null,
+    "source_url": "https://energysavingtrust.org.uk/advice/boilers/",
+    "checked_on": "2026-10-25"
+   },
+   "ashp_life_years": {
+    "fact_id": "ashp_life_years",
+    "value": "20.0",
+    "unit": "years",
+    "plain": "On average an air source heat pump lasts up to 20 years",
+    "kind": "advice_body",
+    "valid_from": null,
+    "valid_to": null,
+    "source_url": "https://mcscertified.com/technology/air-source-heat-pump/",
+    "checked_on": "2026-10-25"
+   }
+  },
+  "owner": {
+   "heating": "gas",
+   "heating_said_on": "2026-10-24",
+   "gas_kwh": 15000.0,
+   "gas_said_on": "2026-10-24",
+   "off_gas_grid": null
+  },
+  "rules": {
+   "solar-ca-wall": {
+    "rule_id": "solar-ca-wall",
+    "measure": "solar",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(e)",
+    "plain": "In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+    "applies_when": "article_2_3",
+    "effect": "condition",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+    "checked_on": "2026-10-24"
+   },
+   "solar-pitched": {
+    "rule_id": "solar-pitched",
+    "measure": "solar",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(c)",
+    "plain": "On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge.",
+    "applies_when": "always",
+    "effect": "condition",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+    "checked_on": "2026-10-24"
+   },
+   "ashp-units": {
+    "rule_id": "ashp-units",
+    "measure": "heat_pump",
+    "clause": "GPDO Sch 2 Part 14 Class G, G.1(a) and (d)",
+    "plain": "One outdoor unit for a house that shares a wall, two for a detached house. Each unit up to 1.5 cubic metres, and it must meet the MCS Planning Standards, including the noise limit.",
+    "applies_when": "always",
+    "effect": "condition",
+    "in_force": "2025-05-29",
+    "amended_by": "SI 2025/560 (29 May 2025)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+    "checked_on": "2026-10-24"
+   },
+   "ashp-ca-front": {
+    "rule_id": "ashp-ca-front",
+    "measure": "heat_pump",
+    "clause": "GPDO Sch 2 Part 14 Class G, G.1(j)",
+    "plain": "In a conservation area, the unit may not go on a wall or roof that faces a road, or closer to the road than the house.",
+    "applies_when": "article_2_3",
+    "effect": "condition",
+    "in_force": "2025-05-29",
+    "amended_by": "SI 2025/560 (29 May 2025)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+    "checked_on": "2026-10-24"
+   },
+   "ewi-art23": {
+    "rule_id": "ewi-art23",
+    "measure": "wall_insulation",
+    "clause": "GPDO Sch 2 Part 1 Class A, A.2(a)",
+    "plain": "In a conservation area, covering any outside wall with render, stone, pebble dash, timber, plastic or tiles is not permitted development. It needs planning permission.",
+    "applies_when": "article_2_3",
+    "effect": "not_permitted",
+    "in_force": "2015-04-15",
+    "amended_by": null,
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/1",
+    "checked_on": "2026-10-24"
+   },
+   "inside-insulation": {
+    "rule_id": "inside-insulation",
+    "measure": "wall_insulation",
+    "clause": "Town and Country Planning Act 1990, s.55(2)(a)",
+    "plain": "Work that only affects the inside of a building is not development, so insulating from the inside needs no planning permission (listed buildings still need consent).",
+    "applies_when": "always",
+    "effect": "condition",
+    "in_force": "1990-08-24",
+    "amended_by": null,
+    "source_url": "https://www.legislation.gov.uk/ukpga/1990/8/section/55",
+    "checked_on": "2026-10-24"
+   }
+  },
+  "grants": {
+   "vat-zero": {
+    "scheme_id": "vat-zero",
+    "measure": "any",
+    "amount_gbp": null,
+    "plain": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027.",
+    "condition": "any",
+    "valid_from": "2022-04-01",
+    "valid_to": "2027-03-31",
+    "source_url": "https://www.gov.uk/guidance/vat-on-energy-saving-materials-and-heating-equipment-notice-7086",
+    "checked_on": "2026-10-24"
+   },
+   "seg": {
+    "scheme_id": "seg",
+    "measure": "solar",
+    "amount_gbp": null,
+    "plain": "Smart Export Guarantee: your energy supplier pays you for electricity you send back to the grid.",
+    "condition": "any",
+    "valid_from": "2020-01-01",
+    "valid_to": null,
+    "source_url": "https://www.ofgem.gov.uk/environmental-and-social-schemes/smart-export-guarantee-seg",
+    "checked_on": "2026-10-24"
+   },
+   "householder-fee": {
+    "scheme_id": "householder-fee",
+    "measure": "any",
+    "amount_gbp": "548",
+    "plain": "If you need planning permission: a householder application costs \u00a3548 and councils usually decide within 8 weeks.",
+    "condition": "any",
+    "valid_from": "2026-04-01",
+    "valid_to": null,
+    "source_url": "https://www.ribblevalley.gov.uk/downloads/file/4972/planning-application-fees-from-1-april-2026-table-",
+    "checked_on": "2026-10-24"
+   },
+   "bus-standard": {
+    "scheme_id": "bus-standard",
+    "measure": "heat_pump",
+    "amount_gbp": "7500",
+    "plain": "Boiler Upgrade Scheme: \u00a37,500 off an air source heat pump that replaces gas, oil, LPG, coal or electric heating. Your MCS installer applies and takes it off the bill.",
+    "condition": "replacing_fossil_heating",
+    "valid_from": "2023-10-23",
+    "valid_to": null,
+    "source_url": "https://www.ofgem.gov.uk/environmental-and-social-schemes/boiler-upgrade-scheme",
+    "checked_on": "2026-10-24"
+   }
+  }
+ },
+ "texts": {
+  "solar": {
+   "one": "Your south roof could make about 4,696 kWh a year.",
+   "why": "Not listed, and inside Hampstead Conservation Area. On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge. In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+   "get": "About 4.6 kWp on the south slope: 4,696 kWh a year.",
+   "cost": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027. Smart Export Guarantee: your energy supplier pays you for electricity you send back to the grid.",
+   "writer": "code"
+  },
+  "heat_pump": {
+   "one": "Allowed on a wall away from the road (east, south, south west, west side).",
+   "why": "One outdoor unit for a house that shares a wall, two for a detached house. Each unit up to 1.5 cubic metres, and it must meet the MCS Planning Standards, including the noise limit. In a conservation area, the unit may not go on a wall or roof that faces a road, or closer to the road than the house.",
+   "get": "Up to 2 outdoor units. Your installer sizes it with a heat loss survey.",
+   "cost": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027. Boiler Upgrade Scheme: \u00a37,500 off an air source heat pump that replaces gas, oil, LPG, coal or electric heating. Your MCS installer applies and takes it off the bill.",
+   "writer": "code"
+  },
+  "wall_insulation": {
+   "one": "Inside Hampstead Conservation Area, cladding the outside walls needs planning permission.",
+   "why": "In a conservation area, covering any outside wall with render, stone, pebble dash, timber, plastic or tiles is not permitted development. It needs planning permission.",
+   "get": "Work that only affects the inside of a building is not development, so insulating from the inside needs no planning permission (listed buildings still need consent). If you need planning permission: a householder application costs \u00a3548 and councils usually decide within 8 weeks.",
+   "cost": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027. If you need planning permission: a householder application costs \u00a3548 and councils usually decide within 8 weeks.",
+   "writer": "code"
+  }
+ },
+ "events": [
+  {
+   "t": 0.0,
+   "type": "start",
+   "run_id": "20261024T210646-9e02f1"
+  },
+  {
+   "t": 0.0,
+   "type": "tool_start",
+   "tool": "find_house",
+   "source": "OpenStreetMap API"
+  },
+  {
+   "t": 0.19,
+   "type": "tool_end",
+   "tool": "find_house",
+   "ok": true,
+   "house_id": "osm-way-110514126",
+   "footprint_m2": 196
+  },
+  {
+   "t": 0.19,
+   "type": "house",
+   "house_id": "osm-way-110514126",
+   "label": "Hampstead, NW3",
+   "lat": 51.55513301811031,
+   "lon": -0.18219174947753244,
+   "coords": [
+    [
+     -0.1820969,
+     51.5551868
+    ],
+    [
+     -0.1820761,
+     51.5550891
+    ],
+    [
+     -0.1820812,
+     51.5550887
+    ],
+    [
+     -0.1820768,
+     51.5550681
+    ],
+    [
+     -0.1820846,
+     51.5550618
+    ],
+    [
+     -0.182103,
+     51.5550603
+    ],
+    [
+     -0.1821178,
+     51.5550673
+    ],
+    [
+     -0.1821215,
+     51.5550844
+    ],
+    [
+     -0.1822452,
+     51.5550742
+    ],
+    [
+     -0.1822428,
+     51.5550631
+    ],
+    [
+     -0.1822893,
+     51.5550593
+    ],
+    [
+     -0.1823081,
+     51.5551476
+    ],
+    [
+     -0.1822593,
+     51.5551516
+    ],
+    [
+     -0.1822688,
+     51.5551963
+    ],
+    [
+     -0.1822441,
+     51.5551983
+    ],
+    [
+     -0.1822485,
+     51.5552191
+    ],
+    [
+     -0.1821865,
+     51.5552242
+    ],
+    [
+     -0.1821772,
+     51.5551802
+    ],
+    [
+     -0.1820969,
+     51.5551868
+    ]
+   ]
+  },
+  {
+   "t": 0.19,
+   "type": "memory_recall",
+   "memories": [
+    {
+     "id": "mem-7",
+     "content": "Heating: gas",
+     "kind": "heating",
+     "confidence": 0.95,
+     "learnedAt": "2026-10-24T20:19:33.701Z",
+     "label": "you told us",
+     "supersedes": null,
+     "relevance": 0.327
+    },
+    {
+     "id": "mem-12",
+     "content": "Last check 2026-10-24: Solar panels: Allowed under permitted development; Heat pump: Allowed under permitted development, if conditions are met; Outside wall insulation: Needs planning permission",
+     "kind": "outcome",
+     "confidence": 0.8,
+     "learnedAt": "2026-10-24T20:23:46.299Z",
+     "label": "the agent's last check",
+     "supersedes": "mem-8",
+     "relevance": 0.224
+    },
+    {
+     "id": "mem-15",
+     "content": "Gas use: 15000 kWh a year",
+     "kind": "gas_use",
+     "confidence": 0.95,
+     "learnedAt": "2026-10-24T20:58:44.236Z",
+     "label": "you told us",
+     "supersedes": null,
+     "relevance": 0.184
+    }
+   ]
+  },
+  {
+   "t": 0.19,
+   "type": "thought",
+   "text": "I remember 3 thing(s) about this house from earlier."
+  },
+  {
+   "t": 0.19,
+   "type": "thought",
+   "text": "Using the gas use you gave me on 2026-10-24: 15,000 kWh a year. No need to ask again."
+  },
+  {
+   "t": 0.2,
+   "type": "note",
+   "text": "osm-way-110514126 is already in the cache; reading it through Zetaris"
+  },
+  {
+   "t": 0.2,
+   "type": "thought",
+   "text": "Using the cached facts for this house."
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT d.dataset, d.reference, d.name, d.grade, d.start_date, d.end_date, d.entity, d.organisation,\n       a.removes_solar, a.removes_ashp, a.removes_walls, a.summary AS a4_summary, a.source_url AS a4_source, a.end_date AS a4_end_date\nFROM retrofit_pg.designation d\nLEFT JOIN retrofit_pg.article4_rule a ON a.reference = d.reference\nWHERE d.house_id = 'osm-way-110514126'",
+   "purpose": "Protected areas, listing and Article 4, joined to what each Article 4 removes",
+   "seconds": 2.08,
+   "rows": 4,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT rule_id, measure, clause, plain, applies_when, effect, in_force, amended_by, source_url, checked_on FROM retrofit_pg.pd_rule",
+   "purpose": "The dated rules",
+   "seconds": 2.08,
+   "rows": 13,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT wall_no, facing_deg, length_m, fronts_highway, highway_name, distance_m, adjoins FROM retrofit_pg.house_wall WHERE house_id = 'osm-way-110514126' ORDER BY wall_no",
+   "purpose": "Which walls face a road",
+   "seconds": 2.09,
+   "rows": 16,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT fact_id, value, unit, plain, kind, valid_from, valid_to, source_url, checked_on FROM retrofit_pg.price_fact",
+   "purpose": "Dated prices and costs for rough money",
+   "seconds": 2.08,
+   "rows": 17,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT scheme_id, measure, amount_gbp, plain, condition, valid_from, valid_to, source_url, checked_on FROM retrofit_pg.grant_scheme",
+   "purpose": "Help with cost",
+   "seconds": 2.08,
+   "rows": 5,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT facing, azimuth_deg, pitch_deg, area_m2 FROM retrofit_pg.roof_plane WHERE house_id = 'osm-way-110514126' ORDER BY area_m2 DESC",
+   "purpose": "Roof planes measured from LIDAR",
+   "seconds": 2.09,
+   "rows": 3,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT facing, kwp, kwh_year, params, source FROM retrofit_pg.pv_estimate WHERE house_id = 'osm-way-110514126'",
+   "purpose": "Solar yield from PVGIS",
+   "seconds": 2.09,
+   "rows": 1,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT noise_pct, flat_pct, eaves_m, ridge_m, method FROM retrofit_pg.roof_survey WHERE house_id = 'osm-way-110514126'",
+   "purpose": "How clean the LIDAR roof reading is",
+   "seconds": 2.09,
+   "rows": 1,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "zetaris",
+   "sql": "SELECT house_id, label, lat, lon, building, footprint_m2, source FROM retrofit_pg.house WHERE house_id = 'osm-way-110514126'",
+   "purpose": "The house: footprint from OpenStreetMap",
+   "seconds": 2.09,
+   "rows": 1,
+   "error": null
+  },
+  {
+   "t": 2.29,
+   "type": "challenge",
+   "by": "evaluator",
+   "about": "solar cost",
+   "text": "One cost figure would hide how much prices vary. Check the national median against the London average before quoting a cost."
+  },
+  {
+   "t": 2.51,
+   "type": "zetaris",
+   "sql": "SELECT fact_id, value, plain, valid_from, valid_to FROM retrofit_pg.price_fact WHERE fact_id IN ('solar_cost_gb_median', 'solar_cost_london_mean')",
+   "purpose": "Compare the two official solar cost series",
+   "seconds": 0.22,
+   "rows": 2,
+   "error": null
+  },
+  {
+   "t": 2.51,
+   "type": "requery",
+   "by": "analyst",
+   "about": "solar cost",
+   "ok": true,
+   "text": "National median \u00a31,595 per kW, London average \u00a32,101 per kW (32% apart). Showing \u00a37,300 to \u00a39,700 with both sources."
+  },
+  {
+   "t": 2.51,
+   "type": "decision",
+   "branch": "sources_disagree",
+   "text": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+   "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+  },
+  {
+   "t": 2.51,
+   "type": "thought",
+   "text": "An Article 4 direction here has ended but still shows on planning.data.",
+   "level": "warn",
+   "measure": "solar"
+  },
+  {
+   "t": 2.51,
+   "type": "answer",
+   "result": {
+    "house": {
+     "house_id": "osm-way-110514126",
+     "label": "Hampstead, NW3",
+     "lat": "51.55513301811031",
+     "lon": "-0.18219174947753244",
+     "building": "house",
+     "footprint_m2": "196",
+     "source": "OpenStreetMap way 110514126",
+     "coords": [
+      [
+       -0.1820969,
+       51.5551868
+      ],
+      [
+       -0.1820761,
+       51.5550891
+      ],
+      [
+       -0.1820812,
+       51.5550887
+      ],
+      [
+       -0.1820768,
+       51.5550681
+      ],
+      [
+       -0.1820846,
+       51.5550618
+      ],
+      [
+       -0.182103,
+       51.5550603
+      ],
+      [
+       -0.1821178,
+       51.5550673
+      ],
+      [
+       -0.1821215,
+       51.5550844
+      ],
+      [
+       -0.1822452,
+       51.5550742
+      ],
+      [
+       -0.1822428,
+       51.5550631
+      ],
+      [
+       -0.1822893,
+       51.5550593
+      ],
+      [
+       -0.1823081,
+       51.5551476
+      ],
+      [
+       -0.1822593,
+       51.5551516
+      ],
+      [
+       -0.1822688,
+       51.5551963
+      ],
+      [
+       -0.1822441,
+       51.5551983
+      ],
+      [
+       -0.1822485,
+       51.5552191
+      ],
+      [
+       -0.1821865,
+       51.5552242
+      ],
+      [
+       -0.1821772,
+       51.5551802
+      ],
+      [
+       -0.1820969,
+       51.5551868
+      ]
+     ]
+    },
+    "protected": [
+     "Hampstead"
+    ],
+    "areas": [
+     {
+      "name": "Hampstead",
+      "dataset": "conservation-area",
+      "reference": "CA15",
+      "entity": "44009659",
+      "start_date": "1968-02-01",
+      "grade": null
+     }
+    ],
+    "listed": false,
+    "verdicts": [
+     {
+      "measure": "solar",
+      "status": "allowed",
+      "headline": "Allowed under permitted development",
+      "rules": [],
+      "facts": [
+       {
+        "fact": "listed",
+        "value": "no",
+        "source": "planning.data listed-building"
+       },
+       {
+        "fact": "conservation-area",
+        "value": "Hampstead (CA15, since 1968-02-01)",
+        "source": "planning.data conservation-area"
+       },
+       {
+        "fact": "article-4",
+        "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+        "source": "https://www.camden.gov.uk/article-4-directions-other-development-"
+       },
+       {
+        "fact": "article-4",
+        "value": "Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 2010-09-01): Front elevations, roofs facing a road, hard surfaces and boundary walls, including solar panels on a roof facing a road. Cancelled by Camden when A4Ha2 came into force on 9 Jun 2026.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "article-4",
+        "value": "Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 2026-06-09): Same as the old direction for front elevations, roofs facing a road, hard surfaces and boundary walls, but solar panels are no longer covered.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "sources disagree",
+        "value": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "best roof plane",
+        "value": "S, 4.6 kWp, about 4696 kWh a year",
+        "source": "PVGIS 5.2, EU Joint Research Centre via Zetaris; roof from EA LIDAR"
+       },
+       {
+        "fact": "LIDAR noise",
+        "value": "10% of roof cells (trees, chimneys)",
+        "source": "EA LIDAR DSM 1 m"
+       }
+      ],
+      "conditions": [
+       "solar-pitched",
+       "solar-ca-wall"
+      ],
+      "alternatives": [],
+      "grants": [
+       "vat-zero",
+       "seg"
+      ],
+      "numbers": {
+       "kwp": 4.6,
+       "kwh_year": 4696,
+       "facing": "S"
+      },
+      "where": {
+       "roof_facing": "S"
+      },
+      "uncertain": [
+       "article4_ended_but_listed"
+      ]
+     },
+     {
+      "measure": "heat_pump",
+      "status": "allowed_with_conditions",
+      "headline": "Allowed under permitted development, if conditions are met",
+      "rules": [],
+      "facts": [
+       {
+        "fact": "listed",
+        "value": "no",
+        "source": "planning.data listed-building"
+       },
+       {
+        "fact": "conservation-area",
+        "value": "Hampstead (CA15, since 1968-02-01)",
+        "source": "planning.data conservation-area"
+       },
+       {
+        "fact": "article-4",
+        "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+        "source": "https://www.camden.gov.uk/article-4-directions-other-development-"
+       },
+       {
+        "fact": "article-4",
+        "value": "Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 2010-09-01): Front elevations, roofs facing a road, hard surfaces and boundary walls, including solar panels on a roof facing a road. Cancelled by Camden when A4Ha2 came into force on 9 Jun 2026.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "article-4",
+        "value": "Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 2026-06-09): Same as the old direction for front elevations, roofs facing a road, hard surfaces and boundary walls, but solar panels are no longer covered.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "sources disagree",
+        "value": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "walls facing a road",
+        "value": "north wall to Church Row, north wall to Church Row, north wall to Church Row, north wall to Church Row",
+        "source": "OpenStreetMap roads and footprint"
+       },
+       {
+        "fact": "shares a wall with a neighbour",
+        "value": "no",
+        "source": "OpenStreetMap footprints"
+       },
+       {
+        "fact": "current heating",
+        "value": "gas",
+        "source": "you"
+       }
+      ],
+      "conditions": [
+       "ashp-units",
+       "ashp-ca-front"
+      ],
+      "alternatives": [],
+      "grants": [
+       "bus-standard",
+       "vat-zero"
+      ],
+      "numbers": {
+       "units_allowed": 2
+      },
+      "where": {
+       "ok_walls": [
+        "east",
+        "east",
+        "south",
+        "south west",
+        "west",
+        "south",
+        "east",
+        "south",
+        "west",
+        "west",
+        "west",
+        "east"
+       ],
+       "road_walls": [
+        "north",
+        "north",
+        "north",
+        "north"
+       ]
+      },
+      "uncertain": [
+       "article4_ended_but_listed"
+      ]
+     },
+     {
+      "measure": "wall_insulation",
+      "status": "needs_permission",
+      "headline": "Needs planning permission",
+      "rules": [
+       "ewi-art23"
+      ],
+      "facts": [
+       {
+        "fact": "listed",
+        "value": "no",
+        "source": "planning.data listed-building"
+       },
+       {
+        "fact": "conservation-area",
+        "value": "Hampstead (CA15, since 1968-02-01)",
+        "source": "planning.data conservation-area"
+       },
+       {
+        "fact": "article-4",
+        "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+        "source": "https://www.camden.gov.uk/article-4-directions-other-development-"
+       },
+       {
+        "fact": "article-4",
+        "value": "Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 2010-09-01): Front elevations, roofs facing a road, hard surfaces and boundary walls, including solar panels on a roof facing a road. Cancelled by Camden when A4Ha2 came into force on 9 Jun 2026.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "article-4",
+        "value": "Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 2026-06-09): Same as the old direction for front elevations, roofs facing a road, hard surfaces and boundary walls, but solar panels are no longer covered.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       },
+       {
+        "fact": "sources disagree",
+        "value": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+        "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf"
+       }
+      ],
+      "conditions": [],
+      "alternatives": [
+       "inside-insulation",
+       "householder-fee"
+      ],
+      "grants": [
+       "vat-zero"
+      ],
+      "numbers": {},
+      "where": {},
+      "uncertain": [
+       "article4_ended_but_listed"
+      ]
+     }
+    ],
+    "today": "2026-10-24",
+    "walls": [
+     {
+      "wall_no": "0",
+      "facing_deg": "82",
+      "length_m": "11.0",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "2",
+      "facing_deg": "82",
+      "length_m": "2.3",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "4",
+      "facing_deg": "173",
+      "length_m": "1.3",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "5",
+      "facing_deg": "217",
+      "length_m": "1.3",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "6",
+      "facing_deg": "262",
+      "length_m": "1.9",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "7",
+      "facing_deg": "172",
+      "length_m": "8.6",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "8",
+      "facing_deg": "82",
+      "length_m": "1.2",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "9",
+      "facing_deg": "173",
+      "length_m": "3.2",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "10",
+      "facing_deg": "262",
+      "length_m": "9.9",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "11",
+      "facing_deg": "352",
+      "length_m": "3.4",
+      "fronts_highway": "true",
+      "highway_name": "Church Row",
+      "distance_m": "18.3",
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "12",
+      "facing_deg": "262",
+      "length_m": "5.0",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "13",
+      "facing_deg": "353",
+      "length_m": "1.7",
+      "fronts_highway": "true",
+      "highway_name": "Church Row",
+      "distance_m": "13.3",
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "14",
+      "facing_deg": "263",
+      "length_m": "2.3",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "15",
+      "facing_deg": "352",
+      "length_m": "4.3",
+      "fronts_highway": "true",
+      "highway_name": "Church Row",
+      "distance_m": "11.1",
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "16",
+      "facing_deg": "83",
+      "length_m": "4.9",
+      "fronts_highway": "false",
+      "highway_name": null,
+      "distance_m": null,
+      "adjoins": "false"
+     },
+     {
+      "wall_no": "17",
+      "facing_deg": "352",
+      "length_m": "5.6",
+      "fronts_highway": "true",
+      "highway_name": "Church Row",
+      "distance_m": "16.1",
+      "adjoins": "false"
+     }
+    ],
+    "planes": [
+     {
+      "facing": "S",
+      "azimuth_deg": "174",
+      "pitch_deg": "48",
+      "area_m2": "31"
+     },
+     {
+      "facing": "N",
+      "azimuth_deg": "352",
+      "pitch_deg": "46",
+      "area_m2": "23"
+     },
+     {
+      "facing": "W",
+      "azimuth_deg": "264",
+      "pitch_deg": "54",
+      "area_m2": "21"
+     }
+    ],
+    "money": {
+     "solar": {
+      "recommendation": "Worth getting quotes",
+      "why": null,
+      "cost": [
+       7300,
+       9700
+      ],
+      "value_year": [
+       520,
+       970
+      ],
+      "payback_years": [
+       8,
+       19
+      ],
+      "uses": [
+       "solar_cost_gb_median",
+       "solar_cost_london_mean",
+       "elec_rate",
+       "seg_low",
+       "seg_high",
+       "self_use_low",
+       "self_use_high"
+      ],
+      "note": "MCS certified installer needed for export payments."
+     },
+     "heat_pump": {
+      "cost_before_grant": [
+       11100,
+       15600
+      ],
+      "grant": 7500,
+      "cost": [
+       3600,
+       8100
+      ],
+      "median_after_grant": 5400,
+      "uses": [
+       "ashp_cost_lq",
+       "ashp_cost_median",
+       "ashp_cost_uq",
+       "gas_rate",
+       "gas_standing",
+       "elec_rate",
+       "boiler_eff",
+       "scop_low",
+       "scop_high",
+       "ashp_life_years",
+       "gas_boiler_cost"
+      ],
+      "note": "The MCS installer applies for the grant and takes it off the bill. The saving assumes you also close the gas supply, so the gas standing charge goes.",
+      "saving_year": [
+       110,
+       350
+      ],
+      "gas_kwh": 15000,
+      "payback_years": [
+       10,
+       74
+      ],
+      "extra_over_boiler": 1900,
+      "extra_payback_years": 8,
+      "recommendation": "Worth it mainly if your boiler needs replacing soon",
+      "why": "On its own it would take longer than a heat pump lasts (up to 20 years) to pay back. If your boiler needs replacing anyway, a typical heat pump costs about \u00a31,900 more than a new gas boiler, which the saving pays back in about 8 years."
+     },
+     "wall_insulation": {
+      "recommendation": "Ask the council first"
+     }
+    },
+    "prices": {
+     "elec_rate": {
+      "fact_id": "elec_rate",
+      "value": "26.32",
+      "unit": "p/kWh",
+      "plain": "Electricity unit rate under the Ofgem price cap, Direct Debit average, no VAT on electricity from 1 Oct 2026 to 31 Mar 2027",
+      "kind": "official",
+      "valid_from": "2026-10-01",
+      "valid_to": "2026-12-31",
+      "source_url": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+      "checked_on": "2026-10-25"
+     },
+     "gas_rate": {
+      "fact_id": "gas_rate",
+      "value": "7.97",
+      "unit": "p/kWh",
+      "plain": "Gas unit rate under the Ofgem price cap, Direct Debit average, including 5% VAT",
+      "kind": "official",
+      "valid_from": "2026-10-01",
+      "valid_to": "2026-12-31",
+      "source_url": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+      "checked_on": "2026-10-25"
+     },
+     "gas_standing": {
+      "fact_id": "gas_standing",
+      "value": "29.68",
+      "unit": "p/day",
+      "plain": "Gas standing charge under the Ofgem price cap, Direct Debit average",
+      "kind": "official",
+      "valid_from": "2026-10-01",
+      "valid_to": "2026-12-31",
+      "source_url": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+      "checked_on": "2026-10-25"
+     },
+     "seg_low": {
+      "fact_id": "seg_low",
+      "value": "6.0",
+      "unit": "p/kWh",
+      "plain": "Highest export rate open to everyone (ScottishPower), per Which?",
+      "kind": "consumer_survey",
+      "valid_from": "2026-04-24",
+      "valid_to": null,
+      "source_url": "https://www.which.co.uk/news/article/smart-export-guarantee-rates-the-best-and-worst-seg-tariffs-for-solar-panel-owners-azICP0i78MD8",
+      "checked_on": "2026-10-25"
+     },
+     "seg_high": {
+      "fact_id": "seg_high",
+      "value": "15.0",
+      "unit": "p/kWh",
+      "plain": "Export rate for customers who also buy their electricity from the supplier, per Which?",
+      "kind": "consumer_survey",
+      "valid_from": "2026-04-24",
+      "valid_to": null,
+      "source_url": "https://www.which.co.uk/news/article/smart-export-guarantee-rates-the-best-and-worst-seg-tariffs-for-solar-panel-owners-azICP0i78MD8",
+      "checked_on": "2026-10-25"
+     },
+     "solar_cost_gb_median": {
+      "fact_id": "solar_cost_gb_median",
+      "value": "1595.06",
+      "unit": "\u00a3/kW",
+      "plain": "Median installed cost of 0 to 4 kW solar PV in Great Britain, 2025/26 (MCS data)",
+      "kind": "official",
+      "valid_from": "2025-04-01",
+      "valid_to": "2026-03-31",
+      "source_url": "https://www.gov.uk/government/statistics/solar-pv-cost-data",
+      "checked_on": "2026-10-25"
+     },
+     "solar_cost_london_mean": {
+      "fact_id": "solar_cost_london_mean",
+      "value": "2101.01",
+      "unit": "\u00a3/kW",
+      "plain": "Mean installed cost of 0 to 4 kW solar PV in London, 2025/26 (MCS data)",
+      "kind": "official",
+      "valid_from": "2025-04-01",
+      "valid_to": "2026-03-31",
+      "source_url": "https://www.gov.uk/government/statistics/solar-pv-cost-data",
+      "checked_on": "2026-10-25"
+     },
+     "ashp_cost_lq": {
+      "fact_id": "ashp_cost_lq",
+      "value": "11128.0",
+      "unit": "\u00a3",
+      "plain": "Lower quartile cost of an air to water heat pump installed under the Boiler Upgrade Scheme, Apr to Jun 2026, before the grant",
+      "kind": "official",
+      "valid_from": "2026-04-01",
+      "valid_to": "2026-06-30",
+      "source_url": "https://www.gov.uk/government/statistics/boiler-upgrade-scheme-statistics-august-2026",
+      "checked_on": "2026-10-25"
+     },
+     "ashp_cost_median": {
+      "fact_id": "ashp_cost_median",
+      "value": "12908.0",
+      "unit": "\u00a3",
+      "plain": "Median cost of an air to water heat pump installed under the Boiler Upgrade Scheme, Apr to Jun 2026, before the grant",
+      "kind": "official",
+      "valid_from": "2026-04-01",
+      "valid_to": "2026-06-30",
+      "source_url": "https://www.gov.uk/government/statistics/boiler-upgrade-scheme-statistics-august-2026",
+      "checked_on": "2026-10-25"
+     },
+     "ashp_cost_uq": {
+      "fact_id": "ashp_cost_uq",
+      "value": "15627.0",
+      "unit": "\u00a3",
+      "plain": "Upper quartile cost of an air to water heat pump installed under the Boiler Upgrade Scheme, Apr to Jun 2026, before the grant",
+      "kind": "official",
+      "valid_from": "2026-04-01",
+      "valid_to": "2026-06-30",
+      "source_url": "https://www.gov.uk/government/statistics/boiler-upgrade-scheme-statistics-august-2026",
+      "checked_on": "2026-10-25"
+     },
+     "self_use_low": {
+      "fact_id": "self_use_low",
+      "value": "0.25",
+      "unit": "share",
+      "plain": "Share of solar electricity used at home without a battery, low end",
+      "kind": "assumption",
+      "valid_from": null,
+      "valid_to": null,
+      "source_url": "assumption",
+      "checked_on": "2026-10-25"
+     },
+     "self_use_high": {
+      "fact_id": "self_use_high",
+      "value": "0.5",
+      "unit": "share",
+      "plain": "Share of solar electricity used at home without a battery, high end",
+      "kind": "assumption",
+      "valid_from": null,
+      "valid_to": null,
+      "source_url": "assumption",
+      "checked_on": "2026-10-25"
+     },
+     "boiler_eff": {
+      "fact_id": "boiler_eff",
+      "value": "0.85",
+      "unit": "share",
+      "plain": "Seasonal efficiency of the existing gas boiler",
+      "kind": "assumption",
+      "valid_from": null,
+      "valid_to": null,
+      "source_url": "assumption",
+      "checked_on": "2026-10-25"
+     },
+     "scop_low": {
+      "fact_id": "scop_low",
+      "value": "2.8",
+      "unit": "ratio",
+      "plain": "Heat pump seasonal efficiency, low end",
+      "kind": "assumption",
+      "valid_from": null,
+      "valid_to": null,
+      "source_url": "assumption",
+      "checked_on": "2026-10-25"
+     },
+     "scop_high": {
+      "fact_id": "scop_high",
+      "value": "3.5",
+      "unit": "ratio",
+      "plain": "Heat pump seasonal efficiency, high end",
+      "kind": "assumption",
+      "valid_from": null,
+      "valid_to": null,
+      "source_url": "assumption",
+      "checked_on": "2026-10-25"
+     },
+     "gas_boiler_cost": {
+      "fact_id": "gas_boiler_cost",
+      "value": "3500.0",
+      "unit": "\u00a3",
+      "plain": "Typical cost of replacing an old gas boiler with an A rated one, with thermostatic radiator valves, Great Britain",
+      "kind": "advice_body",
+      "valid_from": "2026-05-20",
+      "valid_to": null,
+      "source_url": "https://energysavingtrust.org.uk/advice/boilers/",
+      "checked_on": "2026-10-25"
+     },
+     "ashp_life_years": {
+      "fact_id": "ashp_life_years",
+      "value": "20.0",
+      "unit": "years",
+      "plain": "On average an air source heat pump lasts up to 20 years",
+      "kind": "advice_body",
+      "valid_from": null,
+      "valid_to": null,
+      "source_url": "https://mcscertified.com/technology/air-source-heat-pump/",
+      "checked_on": "2026-10-25"
+     }
+    },
+    "owner": {
+     "heating": "gas",
+     "heating_said_on": "2026-10-24",
+     "gas_kwh": 15000.0,
+     "gas_said_on": "2026-10-24",
+     "off_gas_grid": null
+    },
+    "rules": {
+     "solar-ca-wall": {
+      "rule_id": "solar-ca-wall",
+      "measure": "solar",
+      "clause": "GPDO Sch 2 Part 14 Class A, A.2(e)",
+      "plain": "In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+      "applies_when": "article_2_3",
+      "effect": "condition",
+      "in_force": "2015-04-15",
+      "amended_by": "SI 2026/896 (27 Aug 2026)",
+      "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+      "checked_on": "2026-10-24"
+     },
+     "solar-pitched": {
+      "rule_id": "solar-pitched",
+      "measure": "solar",
+      "clause": "GPDO Sch 2 Part 14 Class A, A.2(c)",
+      "plain": "On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge.",
+      "applies_when": "always",
+      "effect": "condition",
+      "in_force": "2015-04-15",
+      "amended_by": "SI 2026/896 (27 Aug 2026)",
+      "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+      "checked_on": "2026-10-24"
+     },
+     "ashp-units": {
+      "rule_id": "ashp-units",
+      "measure": "heat_pump",
+      "clause": "GPDO Sch 2 Part 14 Class G, G.1(a) and (d)",
+      "plain": "One outdoor unit for a house that shares a wall, two for a detached house. Each unit up to 1.5 cubic metres, and it must meet the MCS Planning Standards, including the noise limit.",
+      "applies_when": "always",
+      "effect": "condition",
+      "in_force": "2025-05-29",
+      "amended_by": "SI 2025/560 (29 May 2025)",
+      "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+      "checked_on": "2026-10-24"
+     },
+     "ashp-ca-front": {
+      "rule_id": "ashp-ca-front",
+      "measure": "heat_pump",
+      "clause": "GPDO Sch 2 Part 14 Class G, G.1(j)",
+      "plain": "In a conservation area, the unit may not go on a wall or roof that faces a road, or closer to the road than the house.",
+      "applies_when": "article_2_3",
+      "effect": "condition",
+      "in_force": "2025-05-29",
+      "amended_by": "SI 2025/560 (29 May 2025)",
+      "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+      "checked_on": "2026-10-24"
+     },
+     "ewi-art23": {
+      "rule_id": "ewi-art23",
+      "measure": "wall_insulation",
+      "clause": "GPDO Sch 2 Part 1 Class A, A.2(a)",
+      "plain": "In a conservation area, covering any outside wall with render, stone, pebble dash, timber, plastic or tiles is not permitted development. It needs planning permission.",
+      "applies_when": "article_2_3",
+      "effect": "not_permitted",
+      "in_force": "2015-04-15",
+      "amended_by": null,
+      "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/1",
+      "checked_on": "2026-10-24"
+     },
+     "inside-insulation": {
+      "rule_id": "inside-insulation",
+      "measure": "wall_insulation",
+      "clause": "Town and Country Planning Act 1990, s.55(2)(a)",
+      "plain": "Work that only affects the inside of a building is not development, so insulating from the inside needs no planning permission (listed buildings still need consent).",
+      "applies_when": "always",
+      "effect": "condition",
+      "in_force": "1990-08-24",
+      "amended_by": null,
+      "source_url": "https://www.legislation.gov.uk/ukpga/1990/8/section/55",
+      "checked_on": "2026-10-24"
+     }
+    },
+    "grants": {
+     "vat-zero": {
+      "scheme_id": "vat-zero",
+      "measure": "any",
+      "amount_gbp": null,
+      "plain": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027.",
+      "condition": "any",
+      "valid_from": "2022-04-01",
+      "valid_to": "2027-03-31",
+      "source_url": "https://www.gov.uk/guidance/vat-on-energy-saving-materials-and-heating-equipment-notice-7086",
+      "checked_on": "2026-10-24"
+     },
+     "seg": {
+      "scheme_id": "seg",
+      "measure": "solar",
+      "amount_gbp": null,
+      "plain": "Smart Export Guarantee: your energy supplier pays you for electricity you send back to the grid.",
+      "condition": "any",
+      "valid_from": "2020-01-01",
+      "valid_to": null,
+      "source_url": "https://www.ofgem.gov.uk/environmental-and-social-schemes/smart-export-guarantee-seg",
+      "checked_on": "2026-10-24"
+     },
+     "householder-fee": {
+      "scheme_id": "householder-fee",
+      "measure": "any",
+      "amount_gbp": "548",
+      "plain": "If you need planning permission: a householder application costs \u00a3548 and councils usually decide within 8 weeks.",
+      "condition": "any",
+      "valid_from": "2026-04-01",
+      "valid_to": null,
+      "source_url": "https://www.ribblevalley.gov.uk/downloads/file/4972/planning-application-fees-from-1-april-2026-table-",
+      "checked_on": "2026-10-24"
+     },
+     "bus-standard": {
+      "scheme_id": "bus-standard",
+      "measure": "heat_pump",
+      "amount_gbp": "7500",
+      "plain": "Boiler Upgrade Scheme: \u00a37,500 off an air source heat pump that replaces gas, oil, LPG, coal or electric heating. Your MCS installer applies and takes it off the bill.",
+      "condition": "replacing_fossil_heating",
+      "valid_from": "2023-10-23",
+      "valid_to": null,
+      "source_url": "https://www.ofgem.gov.uk/environmental-and-social-schemes/boiler-upgrade-scheme",
+      "checked_on": "2026-10-24"
+     }
+    }
+   },
+   "texts": {
+    "solar": {
+     "one": "Your south roof could make about 4,696 kWh a year.",
+     "why": "Not listed, and inside Hampstead Conservation Area. On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge. In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+     "get": "About 4.6 kWp on the south slope: 4,696 kWh a year.",
+     "cost": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027. Smart Export Guarantee: your energy supplier pays you for electricity you send back to the grid.",
+     "writer": "code"
+    },
+    "heat_pump": {
+     "one": "Allowed on a wall away from the road (east, south, south west, west side).",
+     "why": "One outdoor unit for a house that shares a wall, two for a detached house. Each unit up to 1.5 cubic metres, and it must meet the MCS Planning Standards, including the noise limit. In a conservation area, the unit may not go on a wall or roof that faces a road, or closer to the road than the house.",
+     "get": "Up to 2 outdoor units. Your installer sizes it with a heat loss survey.",
+     "cost": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027. Boiler Upgrade Scheme: \u00a37,500 off an air source heat pump that replaces gas, oil, LPG, coal or electric heating. Your MCS installer applies and takes it off the bill.",
+     "writer": "code"
+    },
+    "wall_insulation": {
+     "one": "Inside Hampstead Conservation Area, cladding the outside walls needs planning permission.",
+     "why": "In a conservation area, covering any outside wall with render, stone, pebble dash, timber, plastic or tiles is not permitted development. It needs planning permission.",
+     "get": "Work that only affects the inside of a building is not development, so insulating from the inside needs no planning permission (listed buildings still need consent). If you need planning permission: a householder application costs \u00a3548 and councils usually decide within 8 weeks.",
+     "cost": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027. If you need planning permission: a householder application costs \u00a3548 and councils usually decide within 8 weeks.",
+     "writer": "code"
+    }
+   }
+  }
+ ],
+ "seconds": 2.5
+}

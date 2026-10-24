@@ -1,0 +1,15 @@
+{
+  "name": "retrofit-hmem",
+  "private": true,
+  "type": "module",
+  "description": "Meterless H-MEM reference, unchanged, behind a small local HTTP API for the Retrofit Check agent.",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "start": "tsx server.ts",
+    "conformance": "HMEM_IMPL=$PWD/vendor/hmem/src/index.ts tsx conformance/runner.ts",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0"
+  }
+}

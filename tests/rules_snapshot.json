@@ -1,0 +1,217 @@
+{
+ "rules": {
+  "solar-listed": {
+   "rule_id": "solar-listed",
+   "measure": "solar",
+   "clause": "GPDO Sch 2 Part 14 Class A, A.2(g)",
+   "plain": "Panels on a listed house are not permitted development. You need listed building consent.",
+   "applies_when": "listed",
+   "effect": "consent_needed",
+   "in_force": "2015-04-15",
+   "amended_by": "SI 2026/896 (27 Aug 2026)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "solar-ca-wall": {
+   "rule_id": "solar-ca-wall",
+   "measure": "solar",
+   "clause": "GPDO Sch 2 Part 14 Class A, A.2(e)",
+   "plain": "In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+   "applies_when": "article_2_3",
+   "effect": "condition",
+   "in_force": "2015-04-15",
+   "amended_by": "SI 2026/896 (27 Aug 2026)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "solar-pitched": {
+   "rule_id": "solar-pitched",
+   "measure": "solar",
+   "clause": "GPDO Sch 2 Part 14 Class A, A.2(c)",
+   "plain": "On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge.",
+   "applies_when": "always",
+   "effect": "condition",
+   "in_force": "2015-04-15",
+   "amended_by": "SI 2026/896 (27 Aug 2026)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "solar-flat-art23": {
+   "rule_id": "solar-flat-art23",
+   "measure": "solar",
+   "clause": "GPDO Sch 2 Part 14 Class A, A.3(ba)",
+   "plain": "On a flat roof in a conservation area, ask the council first whether it needs to approve how the panels look.",
+   "applies_when": "article_2_3",
+   "effect": "condition",
+   "in_force": "2015-04-15",
+   "amended_by": "SI 2026/896 (27 Aug 2026)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "ashp-listed": {
+   "rule_id": "ashp-listed",
+   "measure": "heat_pump",
+   "clause": "GPDO Sch 2 Part 14 Class G, G.1(i)",
+   "plain": "A heat pump on a listed house or its land is not permitted development. You need listed building consent.",
+   "applies_when": "listed",
+   "effect": "consent_needed",
+   "in_force": "2015-04-15",
+   "amended_by": "SI 2025/560 (29 May 2025)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "ashp-units": {
+   "rule_id": "ashp-units",
+   "measure": "heat_pump",
+   "clause": "GPDO Sch 2 Part 14 Class G, G.1(a) and (d)",
+   "plain": "One outdoor unit for a house that shares a wall, two for a detached house. Each unit up to 1.5 cubic metres, and it must meet the MCS Planning Standards, including the noise limit.",
+   "applies_when": "always",
+   "effect": "condition",
+   "in_force": "2025-05-29",
+   "amended_by": "SI 2025/560 (29 May 2025)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "ashp-ca-front": {
+   "rule_id": "ashp-ca-front",
+   "measure": "heat_pump",
+   "clause": "GPDO Sch 2 Part 14 Class G, G.1(j)",
+   "plain": "In a conservation area, the unit may not go on a wall or roof that faces a road, or closer to the road than the house.",
+   "applies_when": "article_2_3",
+   "effect": "condition",
+   "in_force": "2025-05-29",
+   "amended_by": "SI 2025/560 (29 May 2025)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "ashp-front-upper": {
+   "rule_id": "ashp-front-upper",
+   "measure": "heat_pump",
+   "clause": "GPDO Sch 2 Part 14 Class G, G.1(k)",
+   "plain": "Outside a conservation area, the unit may not go on a wall that faces a road above the ground floor.",
+   "applies_when": "not_article_2_3",
+   "effect": "condition",
+   "in_force": "2025-05-29",
+   "amended_by": "SI 2025/560 (29 May 2025)",
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14",
+   "checked_on": "2026-10-24"
+  },
+  "ewi-art23": {
+   "rule_id": "ewi-art23",
+   "measure": "wall_insulation",
+   "clause": "GPDO Sch 2 Part 1 Class A, A.2(a)",
+   "plain": "In a conservation area, covering any outside wall with render, stone, pebble dash, timber, plastic or tiles is not permitted development. It needs planning permission.",
+   "applies_when": "article_2_3",
+   "effect": "not_permitted",
+   "in_force": "2015-04-15",
+   "amended_by": null,
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/1",
+   "checked_on": "2026-10-24"
+  },
+  "ewi-materials": {
+   "rule_id": "ewi-materials",
+   "measure": "wall_insulation",
+   "clause": "GPDO Sch 2 Part 1 Class A, A.3(a)",
+   "plain": "Outside a conservation area, it is permitted development if the finish looks similar to the walls you have now.",
+   "applies_when": "not_article_2_3",
+   "effect": "condition",
+   "in_force": "2015-04-15",
+   "amended_by": null,
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/1",
+   "checked_on": "2026-10-24"
+  },
+  "ewi-listed": {
+   "rule_id": "ewi-listed",
+   "measure": "wall_insulation",
+   "clause": "Planning (Listed Buildings and Conservation Areas) Act 1990, s.7",
+   "plain": "Any work that changes the character of a listed building needs listed building consent.",
+   "applies_when": "listed",
+   "effect": "consent_needed",
+   "in_force": "1990-08-24",
+   "amended_by": null,
+   "source_url": "https://www.legislation.gov.uk/ukpga/1990/9/section/7",
+   "checked_on": "2026-10-24"
+  },
+  "inside-insulation": {
+   "rule_id": "inside-insulation",
+   "measure": "wall_insulation",
+   "clause": "Town and Country Planning Act 1990, s.55(2)(a)",
+   "plain": "Work that only affects the inside of a building is not development, so insulating from the inside needs no planning permission (listed buildings still need consent).",
+   "applies_when": "always",
+   "effect": "condition",
+   "in_force": "1990-08-24",
+   "amended_by": null,
+   "source_url": "https://www.legislation.gov.uk/ukpga/1990/8/section/55",
+   "checked_on": "2026-10-24"
+  },
+  "article-2-3-land": {
+   "rule_id": "article-2-3-land",
+   "measure": "any",
+   "clause": "GPDO art. 2(3) and Sch 1 Part 1",
+   "plain": "Conservation areas, National Parks, National Landscapes, the Broads and World Heritage Sites count as protected land for these rules.",
+   "applies_when": "always",
+   "effect": "condition",
+   "in_force": "2015-04-15",
+   "amended_by": null,
+   "source_url": "https://www.legislation.gov.uk/uksi/2015/596/article/2",
+   "checked_on": "2026-10-24"
+  }
+ },
+ "grants": {
+  "bus-standard": {
+   "scheme_id": "bus-standard",
+   "measure": "heat_pump",
+   "amount_gbp": "7500",
+   "plain": "Boiler Upgrade Scheme: \u00a37,500 off an air source heat pump. Your MCS installer applies and takes it off the bill.",
+   "condition": "replacing_fossil_heating",
+   "valid_from": "2023-10-23",
+   "valid_to": null,
+   "source_url": "https://www.ofgem.gov.uk/environmental-and-social-schemes/boiler-upgrade-scheme",
+   "checked_on": "2026-10-24"
+  },
+  "bus-off-gas": {
+   "scheme_id": "bus-off-gas",
+   "measure": "heat_pump",
+   "amount_gbp": "9000",
+   "plain": "Boiler Upgrade Scheme: \u00a39,000 for homes off the gas grid that replace oil, LPG or coal heating.",
+   "condition": "off_gas_grid_replacing_oil_lpg_coal",
+   "valid_from": "2026-07-21",
+   "valid_to": "2027-03-31",
+   "source_url": "https://www.gov.uk/government/news/thousands-of-homes-will-be-eligible-for-9000-off-a-heat-pump",
+   "checked_on": "2026-10-24"
+  },
+  "vat-zero": {
+   "scheme_id": "vat-zero",
+   "measure": "any",
+   "amount_gbp": null,
+   "plain": "No VAT on installing solar panels, heat pumps or insulation in a home, until 31 March 2027.",
+   "condition": "any",
+   "valid_from": "2022-04-01",
+   "valid_to": "2027-03-31",
+   "source_url": "https://www.gov.uk/guidance/vat-on-energy-saving-materials-and-heating-equipment-notice-7086",
+   "checked_on": "2026-10-24"
+  },
+  "seg": {
+   "scheme_id": "seg",
+   "measure": "solar",
+   "amount_gbp": null,
+   "plain": "Smart Export Guarantee: your energy supplier pays you for electricity you send back to the grid.",
+   "condition": "any",
+   "valid_from": "2020-01-01",
+   "valid_to": null,
+   "source_url": "https://www.ofgem.gov.uk/environmental-and-social-schemes/smart-export-guarantee-seg",
+   "checked_on": "2026-10-24"
+  },
+  "householder-fee": {
+   "scheme_id": "householder-fee",
+   "measure": "any",
+   "amount_gbp": "548",
+   "plain": "If you need planning permission: a householder application costs \u00a3548 and councils usually decide within 8 weeks.",
+   "condition": "any",
+   "valid_from": "2026-04-01",
+   "valid_to": null,
+   "source_url": "https://www.ribblevalley.gov.uk/downloads/file/4972/planning-application-fees-from-1-april-2026-table-",
+   "checked_on": "2026-10-24"
+  }
+ }
+}
