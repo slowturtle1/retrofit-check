@@ -47,6 +47,35 @@ def facts(v: dict, owner: dict) -> list[dict]:
     return out
 
 
+def _true(x) -> bool:
+    return str(x).lower() in ("true", "t", "1")
+
+
+def house_facts(res: dict, v: dict) -> list[dict]:
+    """Your house: 7 facts, in a fixed order. The owner's facts carry the date they told us."""
+    from .rules import compass
+    areas, owner = res.get("areas") or [], res.get("owner") or {}
+    listed = [a for a in areas if a["dataset"].startswith("listed")]
+    ca = [a for a in areas if a["dataset"] == "conservation-area"]
+    a4 = [f for f in v["facts"] if f["fact"] == "article-4"]
+    roads = [w for w in res.get("walls") or [] if _true(w.get("fronts_highway"))]
+    planes = sorted(res.get("planes") or [], key=lambda p: -float(p["area_m2"]))
+    best = next((p for p in planes if p["facing"] == (v["numbers"] or {}).get("facing")), planes[0] if planes else None)
+    n = v["numbers"] or {}
+    def fact(key, label, value, source, date=None, from_owner=False):
+        return {"key": key, "label": label, "value": value, "source": source, "date": date, "from_owner": from_owner}
+    return [
+        fact("listed", "Listed", ", ".join(f"Grade {a['grade']} listed" if a.get("grade") else "Listed" for a in listed[:1]) or "Not listed", "Historic England, via planning.data"),
+        fact("conservation_area", "Conservation area", ", ".join(f"{a['name']} ({a['start_date'][:4]})" if a.get("start_date") else a["name"] for a in ca) or "None", "planning.data"),
+        fact("article_4", "Article 4", "; ".join(f["value"].split(":")[0] for f in a4) or "None on file", "planning.data and the council"),
+        fact("road_walls", "Walls facing a road", ", ".join(dict.fromkeys(f"{compass(w['facing_deg'])} to {w['highway_name']}" for w in roads)) or "None", "OpenStreetMap"),
+        fact("roof", "Roof direction and slope", f"{best['facing']} slope, {best['pitch_deg']}°, about {best['area_m2']} m²" if best else "Not measured", "Environment Agency LIDAR"),
+        fact("sun", "Sun on the roof", f"about {n['kwh_year']:,} kWh a year from {n['kwp']} kWp" if n.get("kwh_year") else "Not estimated", "PVGIS, EU Joint Research Centre"),
+        fact("electricity_use", "Your electricity use", f"{int(owner['elec_kwh']):,} kWh a year" if owner.get("elec_kwh") else None,
+             "you told us" if owner.get("elec_kwh") else "not given yet", owner.get("elec_said_on"), True),
+    ]
+
+
 def build(rec: dict, mode: str, uncertain_text: dict) -> dict:
     res, texts = rec["result"], rec["texts"]
     v = next(x for x in res["verdicts"] if x["measure"] == "solar")
@@ -76,6 +105,7 @@ def build(rec: dict, mode: str, uncertain_text: dict) -> dict:
             "written_by": t.get("writer"), "checked_by": t.get("checked_by"),
             "uncertain": v["uncertain"],
         },
+        "house_facts": house_facts(res, v),
         "owner": owner,
         "trace": {"events": len(events), "file": f"logs/trace-{rec['run_id']}.jsonl",
                   "agents": sorted({e.get("agent_name") for e in events if e.get("agent_name")}),

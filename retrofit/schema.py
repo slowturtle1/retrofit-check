@@ -19,7 +19,8 @@ STATUSES = ("success", "retrying", "needs_revision", "blocked", "fallback", "fai
 EVENT_FIELDS = ("ts", "trace_id", "run_id", "t", "type", "agent_name", "action", "input_summary", "output_summary",
                 "target_agent", "confidence", "retry_count", "status")
 
-ANSWER_FIELDS = ("schema", "trace_id", "run_id", "mode", "seconds", "question", "house", "solar", "owner", "trace")
+ANSWER_FIELDS = ("schema", "trace_id", "run_id", "mode", "seconds", "question", "house", "house_facts", "solar", "owner", "trace")
+HOUSE_FACTS = ("listed", "conservation_area", "article_4", "road_walls", "roof", "sun", "electricity_use")   # fixed order
 SOLAR_FIELDS = ("status", "status_text", "recommendation", "confidence", "limitations", "next_step", "facts", "rules",
                 "numbers", "lines", "written_by", "checked_by", "uncertain")
 LINES = ("one", "why", "get", "cost")
@@ -149,6 +150,8 @@ def check_answer(a: dict) -> list[str]:
         out += [f"rule {r.get('id')!r}: missing {k}" for k in ("id", "clause", "in_force", "source_url") if not r.get(k)]
     if (s.get("confidence") or {}).get("level") not in CONFIDENCE:
         out.append("solar.confidence.level not high, medium or low")
+    if [f.get("key") for f in a.get("house_facts") or []] != list(HOUSE_FACTS):
+        out.append(f"house_facts keys not {HOUSE_FACTS}")
     if s and not s.get("next_step"):
         out.append("solar.next_step empty")
     return out
