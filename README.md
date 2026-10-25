@@ -229,7 +229,7 @@ The evaluator questions a missing record. Before "no Article 4 here" can stand, 
 
 ## 11. Evaluation
 
-Fifteen real London houses, with expected answers taken from Historic England (a second official source) and frozen with a hash before any system ran. On the solar answers of the 25 Oct run: Retrofit Check 15 of 15 right; the same rules without the evaluator 13 of 15 (both misses confident, the two Hampstead houses, where Camden ended the Article 4 in 2026); Nemotron alone 10 of 15, with three not answered and Keats House and the Freud Museum, both listed, called free to take panels. Sample mode, with no services, gives the same solar answer as the frozen Historic England truth on all 14 evaluation houses in the snapshot. Method, limits and per house answers: [`eval/README.md`](eval/README.md).
+Fifteen real London houses, with expected answers taken from Historic England (a second official source) and frozen with a hash before any system ran. On the solar answers of the live run on 25 Oct: Retrofit Check 15 of 15 right; the same rules without the evaluator 13 of 15 (both misses confident, the two Hampstead houses, where Camden ended the Article 4 in 2026); Nemotron alone 9 of 15, with four not answered, Keats House (listed) called free to take panels and one Hampstead house said to need permission. "Check with the council" counts as right where the case expects the owner to ask the council (Muswell Hill); without that rule Retrofit Check scores 14 of 15. Sample mode, with no services, gives the same solar answer as the frozen Historic England truth on all 14 evaluation houses in the snapshot. Method, limits and per house answers: [`eval/README.md`](eval/README.md).
 
 ## 12. Tests
 
