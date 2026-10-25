@@ -1,8 +1,8 @@
 {
- "commit": "230adf2 (uncommitted changes)",
- "generated_at": "2026-10-25T20:47:26+00:00",
+ "commit": "274b79a (uncommitted changes)",
+ "generated_at": "2026-10-25T21:39:45+00:00",
  "live": false,
- "gaps_tier_1_to_3": 11,
+ "gaps_tier_1_to_3": 2,
  "requirements": [
   {
    "id": "G1",
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "32 commits scanned, no secret found",
+   "detail": "41 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -325,8 +325,8 @@
    "id": "I9",
    "criterion": "impact",
    "tier": 1,
-   "status": "gap",
-   "detail": "approach/worksheet.md missing",
+   "status": "pass",
+   "detail": "all 15 fields of section 21 filled",
    "owner": "C",
    "text": "The decision worksheet (guide section 21) is filled in the repository",
    "source": [
@@ -339,7 +339,7 @@
    "criterion": "impact",
    "tier": 1,
    "status": "gap",
-   "detail": "self score table has 0 of 10 questions with a 0 to 2 score",
+   "detail": "18 of 20 (want 16); no evidence link: minute demo",
    "owner": "C",
    "text": "The self score (guide section 13) is at least 16 of 20, honest, with one evidence link per question",
    "source": [
@@ -352,7 +352,7 @@
    "criterion": "technical",
    "tier": 2,
    "status": "pass",
-   "detail": "fresh clone of HEAD, empty environment: 15 houses answered in 0.2 s (1 s with startup)",
+   "detail": "fresh clone of HEAD, empty environment: 15 houses answered in 0.1 s (1 s with startup)",
    "owner": "B",
    "text": "Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers)",
    "source": [
@@ -615,7 +615,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 0.6 MB, largest tracked file samples/cache.sqlite (160 KB)",
+   "detail": "git objects 1.1 MB, largest tracked file samples/cache.sqlite (168 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [
@@ -629,8 +629,8 @@
    "id": "T18",
    "criterion": "technical",
    "tier": 1,
-   "status": "gap",
-   "detail": "source table has no column for record count, regenerate, limits",
+   "status": "pass",
+   "detail": "13 source sections, seven fields each",
    "owner": "C",
    "text": "data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits",
    "source": [
@@ -643,8 +643,8 @@
    "id": "T19",
    "criterion": "technical",
    "tier": 1,
-   "status": "gap",
-   "detail": "retrofit_pg has 11 tables (db/init), the sample snapshot 13; data/README.md says 'nine tables'",
+   "status": "pass",
+   "detail": "retrofit_pg has 11 tables (db/init), the sample snapshot 13",
    "owner": "C",
    "text": "The table counts stated in README.md and data/README.md match the database schema and the sample snapshot",
    "source": [
@@ -674,8 +674,8 @@
    "id": "T21",
    "criterion": "technical",
    "tier": 1,
-   "status": "gap",
-   "detail": "README.md lacks: input_examples/",
+   "status": "pass",
+   "detail": "README.md matches 2 patterns",
    "owner": "C",
    "text": "The README has exact commands, including a curl call on a file in input_examples/",
    "source": [
@@ -766,7 +766,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "'Limits, honestly': 6 points",
+   "detail": "'14. Limitations': 9 points",
    "owner": "C",
    "text": "The README states limitations honestly in its own section",
    "source": [
@@ -944,8 +944,8 @@
    "id": "N11",
    "criterion": "innovation",
    "tier": 1,
-   "status": "gap",
-   "detail": "no Mermaid diagram (README has an ASCII chain)",
+   "status": "pass",
+   "detail": "Mermaid diagram with 5 labelled edges",
    "owner": "C",
    "text": "The README shows the architecture as a diagram with the loops (Mermaid), not an ASCII chain",
    "source": [
@@ -959,8 +959,8 @@
    "id": "N12",
    "criterion": "innovation",
    "tier": 1,
-   "status": "gap",
-   "detail": "README.md lacks: \\|\\s*Agent\\s*\\|.*\\|.*(block or retry)",
+   "status": "pass",
+   "detail": "README.md matches 1 patterns",
    "owner": "C",
    "text": "The README has an agents table with a \"can block or retry\" column",
    "source": [
@@ -1123,8 +1123,8 @@
    "id": "U3",
    "criterion": "product_ux",
    "tier": 3,
-   "status": "pending",
-   "detail": "waits for A2",
+   "status": "pass",
+   "detail": "2 tests pass",
    "owner": "A",
    "text": "The output is not mostly generic text; no card line is identical on two houses with different facts, and every line holds a fact of its house",
    "source": [
@@ -1222,8 +1222,8 @@
    "id": "U10",
    "criterion": "product_ux",
    "tier": 3,
-   "status": "gap",
-   "detail": "eval/results.json has no solar only summary yet (B6)",
+   "status": "pass",
+   "detail": "2 tests pass; Retrofit Check 15 of 15, 0 confidently wrong; no-evaluator 13 of 15, nemotron-alone 9 of 15; cases hash unchanged",
    "owner": "B",
    "text": "Answers are right against an independent source (the frozen 15 house evaluation, solar only, Historic England)",
    "source": [
@@ -1231,7 +1231,7 @@
     "SS 1",
     "HO B6"
    ],
-   "evidence": "eval/results.json, eval/cases.json hash unchanged"
+   "evidence": "eval/results.json (live) and eval/results-sample.json, eval/cases.json hash unchanged"
   },
   {
    "id": "S1",
@@ -1377,8 +1377,8 @@
    "id": "S10",
    "criterion": "sponsor",
    "tier": 1,
-   "status": "gap",
-   "detail": "README.md lacks: Cursor; (?i)unique",
+   "status": "pass",
+   "detail": "README.md matches 8 patterns",
    "owner": "C",
    "text": "The README sponsor section covers: the Zetaris role, the H-MEM feature and its test, how the app connects to Nightshift, Nemotron, Cursor, and what was unique",
    "source": [
