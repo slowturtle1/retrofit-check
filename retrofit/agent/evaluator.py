@@ -21,8 +21,25 @@ COUNCILS = {"90": "Camden", "387": "Westminster", "175": "Haringey", "366": "Wal
             "126": "Enfield", "167": "Hillingdon", "188": "Kingston upon Thames", "170": "Hounslow", "41": "Barking and Dagenham"}
 
 
+_NAMES: dict[str, str] = {}
+
+
 def council(org: str) -> str:
-    return COUNCILS.get(org, f"council {org}")
+    """Short council name; outside the list, planning.data's own name for the organisation entity, else "the council"."""
+    if org in COUNCILS:
+        return COUNCILS[org]
+    if org not in _NAMES:
+        import re
+
+        import requests
+        try:
+            r = requests.get(f"https://www.planning.data.gov.uk/entity/{int(org)}.json", headers={"User-Agent": USER_AGENT}, timeout=10)
+            name = r.json().get("name") if r.ok else None
+        except (requests.RequestException, ValueError):
+            name = None
+        _NAMES[org] = re.sub(r"^(London Borough of|Royal Borough of|City of) | (City|Borough|District|County|Metropolitan Borough) Council$| Council$", "",
+                             name).strip() if name else "the council"
+    return _NAMES[org]
 
 
 def _rest(z: Zetaris, table: str, db: str, url: str, purpose: str) -> None:

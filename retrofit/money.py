@@ -27,6 +27,8 @@ def solar(v: dict, p: dict) -> dict:
     if v["status"] not in ("allowed", "allowed_with_conditions"):
         return {"recommendation": COUNCIL}
     if not n.get("kwp"):
+        if set(v["uncertain"]) & UNSURE:   # the legal answer is open: that comes first, whatever the roof
+            return {"recommendation": COUNCIL, "why": "No roof slope faces between east and west."}
         return {"recommendation": NOT_WORTH, "why": "No roof slope faces between east and west."}
     kwp, kwh = float(n["kwp"]), float(n["kwh_year"])
     cost = (_r(kwp * p["solar_cost_gb_median"], 100), _r(kwp * p["solar_cost_london_mean"], 100))

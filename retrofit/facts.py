@@ -44,8 +44,14 @@ def gather(house: dict, z: Zetaris, step: Step, refresh: bool = False) -> dict:
     if cached(hid, z) and not refresh:
         step({"type": "note", "text": f"{hid} is already in the cache; reading it through Zetaris"})
         return {"house_id": hid, "cached": True}
-    if getattr(z, "offline", False):
-        raise LookupError(f"{hid} is not in the sample snapshot. Sample mode has data for the example houses only; run the live stack for any other house.")
+    direct = getattr(z, "offline", False)
+    if direct:
+        from . import offline
+        if not offline.direct_allowed():
+            raise LookupError(f"{hid} is not in the sample snapshot. Sample mode has data for the example houses only; run the live stack for any other house.")
+        step({"type": "fallback", "agent": "analyst", "about": "direct sources", "status": "fallback",
+              "text": "Zetaris is not running, so the facts for this house come straight from planning.data, OpenStreetMap, "
+                      "EA LIDAR and PVGIS, and are kept on this machine for the next check."})
 
     # Planning first: it decides how much else is worth measuring.
     pd = _timed(step, "planning_data", "planning.data.gov.uk via Zetaris REST table", planning.read, z, house)
@@ -70,6 +76,10 @@ def gather(house: dict, z: Zetaris, step: Step, refresh: bool = False) -> dict:
         best = lidar.best_solar_plane(roof["planes"])
         pv = _timed(step, "pvgis", "PVGIS 5.2 via Zetaris REST table", pvgis.read, z, house, best) if best else None
 
+    if direct:
+        offline.store_house(house, walls, roof, pv, pd["entities"])
+        step({"type": "note", "text": f"Stored {hid} on this machine: {len(walls)} walls, {len(roof['planes']) if roof else 0} roof planes, {len(pd['entities'])} planning entries"})
+        return {"house_id": hid, "cached": False, "planning_via": pd["via"], "direct": True}
     with psycopg.connect(db_dsn()) as c:
         c.execute("DELETE FROM house WHERE house_id = %s", (hid,))
         c.execute("INSERT INTO house (house_id, label, lat, lon, building, footprint_m2, footprint, source) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",

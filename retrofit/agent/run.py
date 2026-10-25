@@ -152,8 +152,15 @@ class Run:
     def locate(self, way: int | None, lat: float | None, lon: float | None, label: str | None) -> dict:
         self.emit({"type": "tool_start", "tool": "find_house", "source": "local snapshot (sample mode)" if self.offline else "OpenStreetMap API"})
         if self.offline:
+            from ..offline import direct_allowed
             house = self._locate_offline(way, lat, lon)
-            if not house:
+            if not house and direct_allowed():
+                try:
+                    house = osm.house_from_way(way) if way else osm.building_at(lat, lon)
+                except Exception as e:  # noqa: BLE001
+                    self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": f"OpenStreetMap did not answer: {str(e)[:120]}"})
+                    raise SourceUnavailable("This house is not in the sample snapshot and OpenStreetMap did not answer. Check the internet connection, or pick an example house.") from e
+            elif not house:
                 self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": "not in the sample snapshot"})
                 raise LookupError("Sample mode has data for the example houses only. Pick one of them, or run the live stack for any other house.")
         else:
@@ -316,14 +323,18 @@ class Run:
         try:
             got = facts_mod.gather(house, self.z, self.emit, refresh=refresh)
         except LookupError as e:
-            if not self.offline and getattr(self.z, "offline", False):   # Zetaris is down and the snapshot does not know this house
+            if not self.offline and getattr(self.z, "offline", False) and "sample snapshot" in str(e):   # Zetaris is down and the snapshot does not know this house
                 raise SourceUnavailable("Zetaris did not answer, and this house is not in the local snapshot. Try again later.") from e
             raise
         except Exception as e:  # noqa: BLE001  a source for a new house did not answer
             self.emit({"type": "error", "code": "source_unavailable", "agent": "analyst", "text": str(e)[:300]})
             raise SourceUnavailable(f"A data source did not answer for this house ({type(e).__name__}). Try again later; "
                                     "the example houses work from the local snapshot.") from e
-        self.say("Using the cached facts for this house." if got["cached"] else "Fetched live facts and cached them for Zetaris.")
+        if got.get("direct"):
+            self.fallbacks.append("direct_sources")
+        self.say("Using the cached facts for this house." if got["cached"] else
+                 "Fetched the facts straight from the public sources and kept them on this machine." if got.get("direct") else
+                 "Fetched live facts and cached them for Zetaris.")
 
         self.lap("facts")
         f = rules.load(self.z, hid)

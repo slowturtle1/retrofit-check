@@ -129,7 +129,8 @@ def _solar_lines(result: dict, v: dict) -> dict:
         else:
             one, why = ("The listing near this house was found as a point only, so it may belong to the building next door.",
                         "If the house is listed, panels need listed building consent; if it is not, they are likely permitted development.")
-        get = f"Your {slope} could make about {n['kwh_year']:,} kWh a year from about {n['kwp']} kWp if {council} says yes." if n else f"Ask {council} first."
+        get = (f"Your {slope} could make about {n['kwh_year']:,} kWh a year from about {n['kwp']} kWp if {council} says yes." if n else
+               f"No roof slope here faces between east and west, so panels would make little even if {council} says yes.")
         cost = (f"If {council} says yes: about {_gbp(m['cost'])} to install {n['kwp']} kWp, worth about {_gbp(m['value_year'])} a year."
                 if m.get("cost") else f"Cost is shown once {council} confirms.")
         return {"one": one, "why": why, "get": get, "cost": cost}

@@ -4,12 +4,20 @@ samples/cache.sqlite holds a copy of the retrofit_pg tables for the sample house
 lists the evaluator asks Zetaris for (each council's Article 4 areas, listed outlines). The agent code does
 not change: OfflineZetaris has Zetaris's interface, rewrites the Lightning SQL to plain SQLite and returns
 every value as text, as Zetaris does. Built by scripts/make_cache.py from a live run.
+
+Any other house: with DIRECT_SOURCES on (the default), the agent fetches it from the same public sources
+(OpenStreetMap, planning.data, EA LIDAR, PVGIS, no keys) and stores it in runs/live-cache.sqlite, a copy of the
+snapshot that grows; every later read for that house is the same SQL. The trace says Zetaris was not used.
 """
 
 from __future__ import annotations
 
+import json
+import os
 import re
+import shutil
 import sqlite3
+import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -18,6 +26,26 @@ from .config import ROOT
 from .zetaris import Result, ZetarisError
 
 CACHE = ROOT / "samples" / "cache.sqlite"
+LIVE = ROOT / "runs" / "live-cache.sqlite"
+_WRITE = threading.Lock()
+
+
+def direct_allowed() -> bool:
+    return os.environ.get("DIRECT_SOURCES", "true").lower() in ("1", "true", "yes")
+
+
+def db_path():
+    """The growing copy once a new house was fetched, else the shipped snapshot."""
+    if LIVE.exists() and CACHE.exists() and LIVE.stat().st_mtime < CACHE.stat().st_mtime:
+        LIVE.unlink()   # a newer snapshot came with the repo: start the copy again
+    return LIVE if LIVE.exists() else CACHE
+
+
+def _live() -> sqlite3.Connection:
+    if not LIVE.exists():
+        LIVE.parent.mkdir(exist_ok=True)
+        shutil.copy(CACHE, LIVE)
+    return sqlite3.connect(LIVE)
 
 REWRITES = [
     (re.compile(r"FROM planning_data\.a4_council_(\w+) LATERAL VIEW explode\(entities\) AS e", re.I), r"FROM council_a4 AS e WHERE e.org = '\1'"),
@@ -45,10 +73,15 @@ class OfflineZetaris:
         q = sql
         for pat, rep in REWRITES:
             q = pat.sub(rep, q)
+        if direct_allowed():
+            if m := re.search(r"FROM council_a4 AS e WHERE e.org = '(\w+)'", q):
+                _ensure_council(m.group(1))
+            if m := re.search(r"FROM listed_outline AS e WHERE e.house_key = '(\w+)'", q):
+                _ensure_outline(m.group(1))
         if re.search(r"\b(planning_data|pvgis)\.", q, re.I):
             self._done(sql, purpose, started, None, error="not in the sample snapshot")
             raise ZetarisError("this request is not in the sample snapshot")
-        con = sqlite3.connect(f"file:{CACHE}?mode=ro", uri=True)
+        con = sqlite3.connect(f"file:{db_path()}?mode=ro", uri=True)
         try:
             cur = con.execute(q)
             headers = [d[0] for d in cur.description or []]
@@ -76,10 +109,96 @@ def houses() -> list[dict]:
     import json
     if not CACHE.exists():
         return []
-    con = sqlite3.connect(f"file:{CACHE}?mode=ro", uri=True)
+    con = sqlite3.connect(f"file:{db_path()}?mode=ro", uri=True)
     try:
         rows = con.execute("SELECT house_id, label, lat, lon, building, footprint_m2, footprint, source FROM house").fetchall()
     finally:
         con.close()
     return [{"house_id": r[0], "label": r[1], "lat": r[2], "lon": r[3], "building": r[4], "footprint_m2": r[5],
              "coords": json.loads(r[6])["coordinates"][0], "source": r[7]} for r in rows]
+
+
+# ---- direct from the public sources, for houses the snapshot does not hold
+
+def _get(params: dict) -> list[dict]:
+    import requests
+
+    from .config import USER_AGENT
+    from .sources.planning import BASE
+    r = requests.get(BASE, params=params, headers={"User-Agent": USER_AGENT}, timeout=float(os.environ.get("PLANNING_TIMEOUT", "60")))
+    r.raise_for_status()
+    return r.json().get("entities", [])
+
+
+def _has(table: str, col: str, key: str) -> bool:
+    con = sqlite3.connect(f"file:{db_path()}?mode=ro", uri=True)
+    try:
+        return bool(con.execute(f"SELECT 1 FROM {table} WHERE {col} = ? LIMIT 1", (key,)).fetchone())
+    finally:
+        con.close()
+
+
+def _ensure_council(org: str) -> None:
+    """The Article 4 areas a council has published, as the evaluator asks Zetaris for them."""
+    if _has("council_a4", "org", org):
+        return
+    try:
+        ents = _get({"dataset": "article-4-direction-area", "organisation_entity": org, "exclude_field": "geometry", "limit": 500})
+    except Exception as e:  # noqa: BLE001  the evaluator then marks the answer uncertain
+        raise ZetarisError(f"planning.data did not answer: {e}") from e
+    with _WRITE, _live() as con:
+        con.executemany("INSERT INTO council_a4 VALUES (?, ?, ?)", [(org, e.get("name"), e.get("reference")) for e in ents] or [(org, None, None)])
+
+
+def _ensure_outline(house_key: str) -> None:
+    """Listed outlines that touch a fetched house's footprint (the snapshot already holds its own houses' answers)."""
+    from shapely.geometry import Polygon
+    hid = re.sub(r"^osm_(way|relation)_", r"osm-\1-", house_key)
+    if _has("listed_outline", "house_key", house_key):
+        return
+    snap = sqlite3.connect(f"file:{CACHE}?mode=ro", uri=True)
+    try:
+        if snap.execute("SELECT 1 FROM house WHERE house_id = ?", (hid,)).fetchone():
+            return   # the shipped snapshot already holds what planning.data said for its own houses
+    finally:
+        snap.close()
+    con = sqlite3.connect(f"file:{db_path()}?mode=ro", uri=True)
+    try:
+        row = con.execute("SELECT footprint FROM house WHERE house_id = ?", (hid,)).fetchone()
+    finally:
+        con.close()
+    if not row:
+        return
+    try:
+        ents = _get({"geometry": Polygon(json.loads(row[0])["coordinates"][0]).wkt, "geometry_relation": "intersects",
+                     "dataset": "listed-building-outline", "exclude_field": "geometry", "limit": 20})
+    except Exception as e:  # noqa: BLE001
+        raise ZetarisError(f"planning.data did not answer: {e}") from e
+    with _WRITE, _live() as con:
+        con.executemany("INSERT INTO listed_outline VALUES (?, ?)", [(house_key, e.get("reference")) for e in ents])
+
+
+def store_house(house: dict, walls: list, roof: dict | None, pv: dict | None, entities: list) -> None:
+    """The rows facts.gather writes to retrofit_pg, written to the local copy instead (same tables, same columns)."""
+    from datetime import date
+    hid, today = house["house_id"], date.today().isoformat()
+    with _WRITE, _live() as c:
+        for t in ("house", "house_wall", "roof_plane", "roof_survey", "pv_estimate", "designation"):
+            c.execute(f"DELETE FROM {t} WHERE house_id = ?", (hid,))
+        c.execute("INSERT INTO house (house_id, label, lat, lon, building, footprint_m2, footprint, source, fetched_at) VALUES (?,?,?,?,?,?,?,?,?)",
+                  (hid, house.get("label") or house.get("street") or "House", house["lat"], house["lon"], house.get("building"), house["footprint_m2"],
+                   json.dumps({"type": "Polygon", "coordinates": [house["coords"]]}), house["source"], today))
+        for w in walls:
+            c.execute("INSERT INTO house_wall VALUES (?,?,?,?,?,?,?,?)", (hid, w["wall_no"], w["facing_deg"], w["length_m"],
+                      "true" if w["fronts_highway"] else "false", w["highway_name"], w["distance_m"], "true" if w["adjoins"] else "false"))
+        if roof:
+            for p in roof["planes"]:
+                c.execute("INSERT INTO roof_plane VALUES (?,?,?,?,?)", (hid, p["facing"], p["azimuth_deg"], p["pitch_deg"], p["area_m2"]))
+            c.execute("INSERT INTO roof_survey VALUES (?,?,?,?,?,?,?)", (hid, roof["noise_pct"], roof["flat_pct"], roof["eaves_m"], roof["ridge_m"], roof["method"], today))
+        else:
+            c.execute("INSERT INTO roof_survey VALUES (?,?,?,?,?,?,?)", (hid, 0, 0, None, None, "not measured: listed building", today))
+        if pv:
+            c.execute("INSERT INTO pv_estimate VALUES (?,?,?,?,?,?,?)", (hid, pv["facing"], pv["kwp"], pv["kwh_year"], pv["params"], pv["source"], today))
+        for e in entities:
+            c.execute("INSERT INTO designation VALUES (?,?,?,?,?,?,?,?,?)", (hid, e["dataset"], e["reference"], e["name"], e.get("listed-building-grade"),
+                      e.get("start-date") or None, e.get("end-date") or None, e.get("entity"), str(e.get("organisation-entity") or "")))
