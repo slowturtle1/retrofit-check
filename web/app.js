@@ -104,8 +104,8 @@ function factsLine(a) {
   const bits = [];
   if (f.listed) bits.push(f.listed.value);
   if (f.conservation_area) bits.push(f.conservation_area.value === "None" ? "not in a conservation area" : String(f.conservation_area.value).replace(/ \((\d{4})\)$/, " conservation area, $1"));
-  const roof = f.roof && /^(\w+) slope, ([\d.]+)°/.exec(f.roof.value || "");
-  if (roof) bits.push(`${FACING[roof[1]] || roof[1]} roof ${roof[2]}°`);
+  const roof = f.roof && /^([a-z ]+) slope, ([\d.]+)°/.exec(f.roof.value || "");
+  if (roof) bits.push(`${roof[1]} roof ${roof[2]}°`);
   if (f.electricity_use && f.electricity_use.value) bits.push(`${f.electricity_use.value} (you)`);
   return bits.join(" · ");
 }
@@ -202,7 +202,7 @@ function trace(e) {
     case "memory_recall": kind = "h-mem"; txt = `Recall: ${e.memories && e.memories.length ? e.memories.map((m) => m.content).join(" · ") : "nothing yet"}`; break;
     case "memory_write": kind = "h-mem"; txt = `Remember ${e.kind}: ${e.content}${e.result && e.result.superseded ? " (replaces: " + e.result.superseded.content + ")" : ""}`; break;
     case "intake": txt = `Read your note: ${JSON.stringify(e.understood)}`; break;
-    case "challenge": tag = `<span class="tag challenge">challenge</span>`; txt = `The ${e.about} finding: ${e.text}`; break;
+    case "challenge": tag = `<span class="tag challenge">challenge</span>`; txt = e.text; break;
     case "requery": tag = `<span class="tag again">checked again</span>`; kind = "zetaris"; txt = `${e.about}: ${e.text}`; break;
     case "answer": txt = e.answer ? `Answer: ${e.answer.solar.status_text} · ${e.answer.solar.recommendation || ""}` : "Answer from the rules"; break;
     case "answer_update": kind = "nemotron"; txt = "Nemotron's plain words passed the checks"; break;
