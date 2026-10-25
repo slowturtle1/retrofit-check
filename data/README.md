@@ -11,7 +11,7 @@ This version answers one question: is my house eligible for solar panels? The so
 | `retrofit_pg` (Postgres container `retrofit-db`, registered in Zetaris) | 11: `house`, `house_wall`, `roof_plane`, `roof_survey`, `pv_estimate`, `designation`, `article4_rule`, `pd_rule`, `grant_scheme`, `price_fact`, `self_use_share` | The live cache. Created by `db/init/01_schema.sql`, seeded by `02_rules.sql`, `03_hampstead_article4.sql`, `04_prices.sql` and `05_self_use.sql`, filled per house while the agent works |
 | `samples/cache.sqlite` (sample mode) | 13: the same 11 for the sample houses, plus `council_a4` and `listed_outline` | A snapshot of what Zetaris returned, so sample mode runs the same SQL with no Zetaris. The two extra tables hold the planning.data lists the evaluator asks for: each council's Article 4 areas and listed outlines |
 
-Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the snapshot 6. `scripts/make_cache.py` prints the snapshot counts each time it runs.
+Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the snapshot 15 (the 6 example houses and the evaluation houses; one live cache house is left out). `scripts/make_cache.py` prints the snapshot counts each time it runs.
 
 ## Sources behind the solar answer
 
@@ -20,7 +20,7 @@ Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the
 - **URL:** https://www.planning.data.gov.uk , API `https://www.planning.data.gov.uk/entity.json`
 - **Licence:** mostly Open Government Licence v3.0; each dataset page states its own licence and attribution.
 - **Subset:** entities that intersect the house footprint in eight datasets: listed buildings (points and outlines, with grade and date), conservation areas, Article 4 direction areas, National Landscapes, National Parks, World Heritage Sites, scheduled monuments. For the evaluator: every Article 4 area a council has published, and listed outlines touching the footprint.
-- **Record count:** live cache 42 rows in `designation` (13 conservation area, 23 Article 4, 2 listed building points, 4 listed outlines). Snapshot 14 rows in `designation`, 56 rows in `council_a4` (Camden 21, Westminster 10, Haringey 25), 0 in `listed_outline`.
+- **Record count:** live cache 42 rows in `designation` (13 conservation area, 23 Article 4, 2 listed building points, 4 listed outlines). Snapshot 40 rows in `designation` (12 conservation area, 22 Article 4, 2 listed building points, 4 listed outlines), 56 rows in `council_a4` (Camden 21, Westminster 10, Haringey 25), 2 in `listed_outline`.
 - **Zetaris registration:** one REST table per house, `PLANNING_DATA.pd_<house>`, read with `LATERAL VIEW explode(entities)`; per council `PLANNING_DATA.a4_council_<org>`; per house `PLANNING_DATA.lbo_<house>` for listed outlines. A copy of each house's rows goes to `retrofit_pg.designation`.
 - **How to regenerate:** run a check with `refresh=True` for that house (live stack). The snapshot: `.venv/bin/python scripts/make_cache.py`.
 - **Limits:** councils publish unevenly. Haringey has published only employment area Article 4s, so a missing record there proves nothing, and the agent says so. planning.data can lag a council decision: it still lists Hampstead's A4Ha1 with no end date, while Camden ended it on 9 Jun 2026. If Zetaris cannot reach planning.data in time, the same request goes direct and the trace says so.
@@ -30,7 +30,7 @@ Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the
 - **URL:** https://www.openstreetmap.org , API `https://api.openstreetmap.org/api/0.6`
 - **Licence:** © OpenStreetMap contributors, ODbL 1.0.
 - **Subset:** the house footprint, nearby roads and footpaths, neighbouring buildings.
-- **Record count:** live cache 16 rows in `house`, 110 in `house_wall`. Snapshot 6 and 57.
+- **Record count:** live cache 16 rows in `house`, 110 in `house_wall`. Snapshot 15 and 104.
 - **Zetaris registration:** fetched in Python, walls and road facing computed, stored in `retrofit_pg.house` and `retrofit_pg.house_wall`, read back through Zetaris.
 - **How to regenerate:** a check with `refresh=True`, or delete the house row from `retrofit_pg.house` (the cache tables cascade). Snapshot: `scripts/make_cache.py`.
 - **Limits:** "faces a road" is a geometric test: a ray from the middle of each wall reaches a road or footpath before another building. Lanes mapped as service roads count as roads until the owner says otherwise. A footprint drawn with a gap to the neighbour reads as detached. For solar this matters in a conservation area, where panels may not go on a wall that fronts a highway.
@@ -40,7 +40,7 @@ Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the
 - **URL:** https://environment.data.gov.uk/spatialdata/lidar-composite-digital-surface-model-first-return-dsm-1m/wcs (WCS, no key)
 - **Licence:** Open Government Licence v3.0, © Environment Agency.
 - **Subset:** the 1 m surface cells over the house footprint.
-- **Record count:** live cache 31 rows in `roof_plane`, 16 in `roof_survey`. Snapshot 13 and 6.
+- **Record count:** live cache 31 rows in `roof_plane`, 16 in `roof_survey`. Snapshot 28 and 15.
 - **Zetaris registration:** raster read in Python, roof planes (facing, pitch, area) and the share of noisy cells stored in `retrofit_pg.roof_plane` and `retrofit_pg.roof_survey`.
 - **How to regenerate:** a check with `refresh=True`. Snapshot: `scripts/make_cache.py`.
 - **Limits:** cells steeper than 65 degrees count as noise (trees, chimneys). Above 25% the agent measures again with a wider margin and marks the roof numbers as rough if it stays noisy. A listed building is not surveyed: consent is needed whatever the roof is like.
@@ -50,7 +50,7 @@ Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the
 - **URL:** https://re.jrc.ec.europa.eu/pvg_tools/en/ , API `https://re.jrc.ec.europa.eu/api/v5_2/PVcalc`
 - **Licence:** free reuse with acknowledgement, © European Union.
 - **Subset:** yearly output of the best roof plane, for its pitch and facing, 14% system loss.
-- **Record count:** live cache 12 rows in `pv_estimate`. Snapshot 5 (10 Downing Street has none: listed, not surveyed).
+- **Record count:** live cache 12 rows in `pv_estimate`. Snapshot 11. The 4 listed buildings (10 Downing Street, Keats House, the Freud Museum and a listed house in Hampstead) have none: they are not surveyed.
 - **Zetaris registration:** one REST table per request, `PVGIS.pv_<hash>`, read with Lightning SQL; cached in `retrofit_pg.pv_estimate`.
 - **How to regenerate:** a check with `refresh=True`. Snapshot: `scripts/make_cache.py`.
 - **Limits:** panel capacity uses 0.147 kWp per m² of roof plane, an estimate. Shading from nearby trees and buildings is not modelled. If Zetaris cannot reach PVGIS, the same request goes direct and the source line says so.

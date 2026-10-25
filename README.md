@@ -90,7 +90,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 SAMPLE_MODE=true .venv/bin/python -m retrofit.server      # http://localhost:5173
 ```
 
-No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables in `samples/cache.sqlite`: the same SQL it sends to Zetaris, answered locally. No answers are stored; each one is computed again. Without Nightshift the text is the checked draft from the rules. A house that is not in the snapshot gets a clear message; any house in England works in live mode.
+No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables in `samples/cache.sqlite` for 15 houses (the six below and the evaluation houses): the same SQL it sends to Zetaris, answered locally. No answers are stored; each one is computed again. Without Nightshift the text is the checked draft from the rules. A house that is not in the snapshot gets a clear message; any house in England works in live mode.
 
 ### Live mode
 
@@ -229,7 +229,7 @@ The evaluator questions a missing record. Before "no Article 4 here" can stand, 
 
 ## 11. Evaluation
 
-Fifteen real London houses, with expected answers taken from Historic England (a second official source) and frozen with a hash before any system ran. On the solar answers of the 25 Oct run: Retrofit Check 15 of 15 right; the same rules without the evaluator 13 of 15 (both misses confident, the two Hampstead houses, where Camden ended the Article 4 in 2026); Nemotron alone 10 of 15, with three not answered and Keats House and the Freud Museum, both listed, called free to take panels. Method, limits and per house answers: [`eval/README.md`](eval/README.md).
+Fifteen real London houses, with expected answers taken from Historic England (a second official source) and frozen with a hash before any system ran. On the solar answers of the 25 Oct run: Retrofit Check 15 of 15 right; the same rules without the evaluator 13 of 15 (both misses confident, the two Hampstead houses, where Camden ended the Article 4 in 2026); Nemotron alone 10 of 15, with three not answered and Keats House and the Freud Museum, both listed, called free to take panels. Sample mode, with no services, gives the same solar answer as the frozen Historic England truth on all 14 evaluation houses in the snapshot. Method, limits and per house answers: [`eval/README.md`](eval/README.md).
 
 ## 12. Tests
 
