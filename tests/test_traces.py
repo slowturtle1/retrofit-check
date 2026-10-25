@@ -99,7 +99,6 @@ def test_at_least_two_named_agents_hand_off(runs):
             assert _handoffs(r), label
 
 
-@pytest.mark.pending("A4")
 def test_the_listed_stop_names_who_it_hands_to(runs):
     r = _by_label(runs, "Downing")
     assert _handoffs(r), "the planner's listed_stop decision (and the answer) carry no target_agent"
@@ -218,7 +217,6 @@ def test_logs_are_written_to_logs_and_stdout(capfd, monkeypatch):
     assert "zetaris" in out and "evaluator" in out
 
 
-@pytest.mark.pending("A4")
 def test_stdout_has_one_whole_line_per_event(capfd, monkeypatch):
     """The parallel Zetaris reads print from several threads; print() writes the text and the newline separately."""
     for _ in range(5):

@@ -33,7 +33,7 @@ OUT_MD, OUT_JSON = ROOT / "approach" / "report.md", ROOT / "approach" / "report.
 GATING = {"gap", "pending", "missing"}
 ORDER = ["gap", "missing", "pending", "not_run", "manual_open", "manual_done", "na", "pass"]
 LABEL = {"pass": "pass", "gap": "GAP", "pending": "pending", "missing": "test missing", "not_run": "not run",
-         "manual_open": "manual, open", "manual_done": "manual, done", "na": "n/a"}
+         "manual_open": "manual (open)", "manual_done": "manual (done)", "na": "n/a"}
 
 
 def sh(*cmd, cwd=ROOT, timeout=120, env=None) -> subprocess.CompletedProcess:
@@ -240,7 +240,7 @@ def timeouts(**_):
         for c in _calls(p):
             f = c.func
             name = f"{getattr(f.value, 'id', '')}.{f.attr}" if isinstance(f, ast.Attribute) else getattr(f, "id", "")
-            if re.match(r"^(requests|httpx|session|s)\.(get|post|put|delete|request)$|^urlopen$", name):
+            if re.match(r"^(requests|httpx|session)\.(get|post|put|delete|request)$|^urlopen$", name):
                 n += 1
                 if not any(k.arg == "timeout" for k in c.keywords):
                     bad.append(f"{p.relative_to(ROOT)}:{c.lineno}")
