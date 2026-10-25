@@ -136,7 +136,7 @@ function moneyRows(n) {
 
 function sources(s) {
   const rules = s.rules.map((r) => `<li class="src"><b>${esc(r.clause)}</b>, in force ${esc(fmtDate(r.in_force))}${r.amended_by ? ", last change " + esc(r.amended_by) : ""}. ${esc(r.plain || "")} ${r.source_url ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener">Read the rule</a>` : ""}</li>`);
-  const facts = s.facts.map((f) => { const url = /^https?:/.test(f.source || ""); return `<li class="src"><b>${esc(f.fact)}</b>: ${esc(f.value)}. ${url ? `<a href="${esc(f.source)}" target="_blank" rel="noopener">Source</a>` : esc(f.source)}${f.date ? ", " + esc(fmtDate(f.date)) : ""}</li>`; });
+  const facts = s.facts.map((f) => { const url = /^https?:/.test(f.source || ""); return `<li class="src"><b>${esc(f.fact)}</b>: ${esc(String(f.value).replace(/\.$/, ""))}. ${url ? `<a href="${esc(f.source)}" target="_blank" rel="noopener">Source</a>` : esc(f.source)}${f.date ? ", " + esc(fmtDate(f.date)) : ""}</li>`; });
   return `<ul class="srcs">${[...rules, ...facts].join("")}</ul>`;
 }
 
