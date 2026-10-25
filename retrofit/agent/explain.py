@@ -70,6 +70,10 @@ def _gbp(pair) -> str:
 
 
 def solar_lines(result: dict, v: dict) -> dict:
+    return {k: t[:1].upper() + t[1:] for k, t in _solar_lines(result, v).items()}
+
+
+def _solar_lines(result: dict, v: dict) -> dict:
     """The solar card, built from this house's facts: its name, listing, area, roads, roof, numbers and council.
     General law stays in the rules list (Sources) with its link; each line here applies it to this house."""
     n, m = v["numbers"] or {}, (result.get("money") or {}).get("solar") or {}
@@ -139,13 +143,17 @@ def solar_lines(result: dict, v: dict) -> dict:
     if disagree:
         why.append(disagree)
     elif a4 and ca_name:
-        refs = "; ".join(x.split(":")[0] for x in a4)
-        why.append(f"The Article 4 directions on file here ({refs}) do not cover solar panels.")
+        refs = "; ".join(re.sub(r"^(.*?) \((\S+?)\)$", lambda g: f"{g.group(1).lower()}, {g.group(2)}", x.split(":")[0]) for x in a4)
+        why.append(f"The Article 4 direction on file here ({refs}) does not cover solar panels." if len(a4) == 1 else
+                   f"The Article 4 directions on file here ({refs}) do not cover solar panels.")
     if "lidar_noisy" in unsure and noise is not None:
         why.append(f"The roof reading is rough ({noise}% of it is trees or chimneys), so an installer should measure it.")
     get = f"About {n['kwp']} kWp on the {side} slope, about {n['kwh_year']:,} kWh a year."
+    su = m.get("self_use") or {}
+    use = (f" for the {su['use_kwh']:,} kWh a year you use" if su.get("by_owner") else
+           f" for a home using {su['use_kwh']:,} kWh a year (Ofgem's typical figure)" if su.get("use_kwh") else "")
     if m.get("payback_years"):
-        cost = (f"For {n['kwp']} kWp: about {_gbp(m['cost'])} to install, worth about {_gbp(m['value_year'])} a year, "
+        cost = (f"For {n['kwp']} kWp: about {_gbp(m['cost'])} to install, worth about {_gbp(m['value_year'])} a year{use}, "
                 f"so about {m['payback_years'][0]} to {m['payback_years'][1]} years to pay back. No VAT on panels until 31 Mar 2027.")
     elif m.get("cost"):
         cost = f"For {n['kwp']} kWp: about {_gbp(m['cost'])} to install. {m.get('why') or ''}".strip()

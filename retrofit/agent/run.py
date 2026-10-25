@@ -11,6 +11,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
+import threading
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -28,6 +30,7 @@ from . import evaluator, explain, llm, memory
 
 RUNS = ROOT / "runs"
 LOGS = ROOT / "logs"
+_OUT = threading.Lock()   # rules.load emits from threads: one whole line at a time to stdout and the log
 
 
 def _line(e: dict) -> str:
@@ -103,12 +106,14 @@ class Run:
 
     def emit(self, e: dict) -> None:
         e = schema.event({"t": round(time.time() - self.started, 2), **e}, self.id)
-        self.events.append(e)
-        LOGS.mkdir(exist_ok=True)
-        with open(LOGS / f"trace-{self.id}.jsonl", "a") as fh:
-            fh.write(json.dumps(e, default=str) + "\n")
-        if os.environ.get("LOG_STDOUT", "true").lower() in ("1", "true", "yes"):
-            print(f"[{self.id}] {e['ts']} {e['agent_name']:<9} {e['type']:<13} {e['status']:<14} {_line(e)}", flush=True)
+        with _OUT:
+            self.events.append(e)
+            LOGS.mkdir(exist_ok=True)
+            with open(LOGS / f"trace-{self.id}.jsonl", "a") as fh:
+                fh.write(json.dumps(e, default=str) + "\n")
+            if os.environ.get("LOG_STDOUT", "true").lower() in ("1", "true", "yes"):
+                sys.stdout.write(f"[{self.id}] {e['ts']} {e['agent_name']:<9} {e['type']:<13} {e['status']:<14} {_line(e)}\n")
+                sys.stdout.flush()
         if self._emit:
             self._emit(e)
 
@@ -319,7 +324,7 @@ class Run:
         self.lap("facts")
         f = rules.load(self.z, hid)
         if got["cached"] and any(d["dataset"].startswith("listed") for d in f["designations"]) and not f["planes"]:
-            self.emit({"type": "decision", "branch": "listed_stop", "text": "The building is listed, so panels need listed building consent whatever the roof is like. The roof was not surveyed."})
+            self.emit({"type": "decision", "branch": "listed_stop", "target_agent": "analyst", "text": "The building is listed, so panels need listed building consent whatever the roof is like. The roof was not surveyed."})
         result = rules.evaluate(f, heating=ctx.get("heating"), off_gas_grid=ctx.get("off_gas_grid"),
                                 walls_not_road=ctx.get("walls_not_road"), said_on=ctx.get("walls_said_on"))
         result["verdicts"] = [v for v in result["verdicts"] if v["measure"] in MEASURES]
@@ -334,7 +339,15 @@ class Run:
         if solar_v["numbers"].get("kwp") and solar_v["status"].startswith("allowed"):
             evaluator.cost_sources(self.z, float(solar_v["numbers"]["kwp"]), self.emit)
         prices = {k: float(r["value"]) for k, r in f["prices"].items()}
+        share = None
+        if solar_v["numbers"].get("kwh_year") and solar_v["status"].startswith("allowed"):
+            use = ctx.get("elec_kwh") or prices.get("typical_elec_use", 2500)
+            share = evaluator.self_use(self.z, float(solar_v["numbers"]["kwh_year"]), float(use), bool(ctx.get("elec_kwh")), self.emit)
+            if share:
+                prices["self_use_low"], prices["self_use_high"] = share["low"], share["high"]
         result["money"] = money.advise(result, prices, ctx.get("gas_kwh"), ctx.get("heating"))
+        if "solar" in result["money"] and solar_v["numbers"].get("kwh_year"):
+            result["money"]["solar"]["self_use"] = share or {"low": prices["self_use_low"], "high": prices["self_use_high"], "source": "estimate"}
         result["prices"] = f["prices"]
         result["owner"] = {k: ctx.get(k) for k in ("elec_kwh", "elec_said_on", "heating", "heating_said_on", "gas_kwh", "gas_said_on", "off_gas_grid")}
         result["house"]["label"] = house["label"]
@@ -355,7 +368,8 @@ class Run:
 
         self.lap("evaluator")
         answers = {v["measure"]: {**explain.template(result, v), "writer": "code"} for v in result["verdicts"]}
-        self.emit({"type": "answer", "result": _public(result), "texts": answers, "answer": self._answer(result, answers)})
+        self.emit({"type": "answer", "result": _public(result), "texts": answers, "answer": self._answer(result, answers),
+                   "target_agent": "critic" if self.use_model else "planner"})
         self.lap("reporter")
 
         if self.use_model:

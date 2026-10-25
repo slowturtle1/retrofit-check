@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from retrofit.config import env  # noqa: E402
 from retrofit.zetaris import Zetaris, ZetarisError  # noqa: E402
 
-TABLES = ["house", "house_wall", "roof_plane", "roof_survey", "pv_estimate", "designation", "article4_rule", "pd_rule", "grant_scheme", "price_fact"]
+TABLES = ["house", "house_wall", "roof_plane", "roof_survey", "pv_estimate", "designation", "article4_rule", "pd_rule", "grant_scheme", "price_fact", "self_use_share"]
 
 
 def main() -> None:

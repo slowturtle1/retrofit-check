@@ -13,7 +13,7 @@ BOILER_SOON = "Worth it mainly if your boiler needs replacing soon"
 ADD_GAS = "Can't tell yet: add your gas use"
 
 UNSURE = {"article4_unknown", "article4_coverage_unknown", "listed_point_only", "no_wall_away_from_road"}
-MAX_PAYBACK_YEARS = 15     # a typical panel warranty is 25 years; beyond 15 years the case is weak
+PV_LIFE_YEARS = 25         # used when price_fact has no pv_life_years row; worth quotes if a typical payback fits in the panels' life
 MIN_KWH_PER_KWP = 700      # below this the roof gets too little sun
 MIN_KWP = 1.5              # smaller systems carry the same fixed costs (scaffold, inverter) for little output
 
@@ -34,7 +34,7 @@ def solar(v: dict, p: dict) -> dict:
     value = (_r(kwh * (p["self_use_low"] * rate + (1 - p["self_use_low"]) * p["seg_low"] / 100)),
              _r(kwh * (p["self_use_high"] * rate + (1 - p["self_use_high"]) * p["seg_high"] / 100)))
     payback = (round(cost[0] / value[1]), round(cost[1] / value[0]))
-    weak = kwh / kwp < MIN_KWH_PER_KWP or (payback[0] + payback[1]) / 2 > MAX_PAYBACK_YEARS or kwp < MIN_KWP
+    weak = kwh / kwp < MIN_KWH_PER_KWP or (payback[0] + payback[1]) / 2 > p.get("pv_life_years", PV_LIFE_YEARS) or kwp < MIN_KWP
     why = None
     if kwp < MIN_KWP:
         why = f"Only about {kwp} kWp of usable roof: fixed costs such as scaffolding make a system this small poor value."
@@ -43,7 +43,7 @@ def solar(v: dict, p: dict) -> dict:
         why = "The roof reading is rough (trees or chimneys); an installer's survey will confirm the space."
     rec = COUNCIL if set(v["uncertain"]) & UNSURE else NOT_WORTH if weak else WORTH
     return {"recommendation": rec, "why": why, "cost": cost, "value_year": value, "payback_years": payback,
-            "uses": ["solar_cost_gb_median", "solar_cost_london_mean", "elec_rate", "seg_low", "seg_high", "self_use_low", "self_use_high"],
+            "uses": ["solar_cost_gb_median", "solar_cost_london_mean", "elec_rate", "seg_low", "seg_high", "self_use_low", "self_use_high", "pv_life_years"],
             "note": "MCS certified installer needed for export payments."}
 
 

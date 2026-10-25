@@ -68,8 +68,12 @@ def confidence_text(res: dict, v: dict, level: str) -> str:
 
 def limitations(v: dict, prices: dict, uncertain_text: dict, money: dict | None = None) -> list[str]:
     out = [uncertain_text.get(u, u) for u in v["uncertain"]]
-    if (money or {}).get("value_year") and any(str(p.get("kind")) == "assumption" for k, p in prices.items() if k.startswith("self_use")):
-        out.append("How much of the electricity you use at home is an estimate (a quarter to a half without a battery).")
+    su = (money or {}).get("self_use") or {}
+    if (money or {}).get("value_year") and su.get("source", "").startswith("MCS"):
+        who = "you told us" if su.get("by_owner") else "a typical home, Ofgem"
+        out.append(f"The share of solar power used at home follows the MCS tables for {su['use_kwh']:,} kWh a year ({who}); your own pattern may differ.")
+    elif (money or {}).get("value_year"):
+        out.append("How much of the solar power you use at home is an estimate (a quarter to a half without a battery).")
     return out + GENERAL_LIMITS
 
 

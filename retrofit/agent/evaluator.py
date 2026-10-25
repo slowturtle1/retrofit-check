@@ -117,3 +117,27 @@ def cost_sources(z: Zetaris, kwp: float, emit: Emit) -> None:
     if lo and hi:
         emit({"type": "requery", "by": "analyst", "about": "solar cost", "ok": True,
               "text": f"National median £{lo:,.0f} per kW, London average £{hi:,.0f} per kW ({(hi / lo - 1) * 100:.0f}% apart). Showing £{round(kwp * lo, -2):,.0f} to £{round(kwp * hi, -2):,.0f} with both sources."})
+
+
+def self_use(z: Zetaris, gen_kwh: float, use_kwh: float, said_by_owner: bool, emit: Emit) -> dict | None:
+    """How much of the roof's output the home uses itself depends on who is home in the day: ask MCS for all three types."""
+    who = "the owner's" if said_by_owner else "a typical"
+    emit({"type": "challenge", "by": "evaluator", "about": "self use",
+          "text": f"One share of solar power used at home would hide that it depends on who is home in the day. Ask the MCS tables for all three occupancy types, for this roof and {who} yearly use."})
+    try:
+        rows = z.run(f"""SELECT archetype, share FROM retrofit_pg.self_use_share
+WHERE use_from <= {int(use_kwh)} AND use_to >= {int(use_kwh)} AND gen_from <= {int(gen_kwh)} AND gen_to >= {int(gen_kwh)}""",
+                     purpose="MCS share of solar power used at home, for this roof and this household").dicts()
+    except ZetarisError as e:
+        emit({"type": "requery", "by": "analyst", "about": "self use", "ok": False, "text": f"Could not ask Zetaris ({str(e)[:80]}): the share stays an estimate."})
+        return None
+    if not rows:
+        emit({"type": "requery", "by": "analyst", "about": "self use", "ok": False,
+              "text": f"The MCS tables cover 1,500 to 5,999 kWh used and up to 5,999 kWh made; {int(use_kwh):,} kWh used and {int(gen_kwh):,} kWh made is outside them, so the share stays an estimate."})
+        return None
+    s = {r["archetype"]: float(r["share"]) for r in rows}
+    lo, hi = min(s.values()), max(s.values())
+    emit({"type": "requery", "by": "analyst", "about": "self use", "ok": True,
+          "text": "MCS MGD 003 for " + f"{int(gen_kwh):,} kWh made and {int(use_kwh):,} kWh used: " +
+                  ", ".join(f"{k.lower()} {round(v * 100)}%" for k, v in sorted(s.items(), key=lambda kv: kv[1])) + f". Using {round(lo * 100)}% to {round(hi * 100)}%."})
+    return {"low": lo, "high": hi, "use_kwh": int(use_kwh), "by_owner": said_by_owner, "source": "MCS MGD 003 look up tables"}

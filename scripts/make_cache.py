@@ -20,7 +20,7 @@ from retrofit.config import USER_AGENT, db_dsn  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "samples" / "cache.sqlite"
 HOUSE_TABLES = ["house", "house_wall", "roof_plane", "roof_survey", "pv_estimate", "designation"]
-ALL_TABLES = ["article4_rule", "pd_rule", "grant_scheme", "price_fact"]
+ALL_TABLES = ["article4_rule", "pd_rule", "grant_scheme", "price_fact", "self_use_share"]
 
 
 def cell(v):
