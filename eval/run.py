@@ -8,7 +8,7 @@ Systems
 
 The solar status the owner sees is scored by route: allowed (with or without conditions) / permission / consent.
 "Check with the council" counts as right where the case expects the owner to ask the council, otherwise as
-deferred (not right, not wrong). Confidently wrong = wrong and no uncertainty flag on that answer.
+deferred (not right, not wrong). Confidently wrong = a wrong answer given with no uncertainty flag; no answer at all is wrong, not confidently wrong.
 Since 25 Oct the MVP answers solar only, so 15 answers are scored (until then 45: three upgrades per house).
 
 Run: .venv/bin/python eval/run.py [--systems retrofit-check,no-evaluator,nemotron-alone] [--sample]
@@ -120,11 +120,15 @@ def score(cases: list[dict], answers: dict) -> dict:
             row["error"] = (a or {}).get("error", "not run")
             s["per_case"].append(row)
             s["wrong"] += len(MEASURES)
+            s["no_answer"] = s.get("no_answer", 0) + len(MEASURES)
             continue
         for m in MEASURES:
             got, want = a[m]["route"], c["expected"][m]
             row[m] = f"{got} (want {want})"
-            if got == "council" and c["expected"]["flag_council"]:
+            if got == "no answer":
+                s["wrong"] += 1                 # no claim made, so not confidently wrong
+                s["no_answer"] = s.get("no_answer", 0) + 1
+            elif got == "council" and c["expected"]["flag_council"]:
                 s["right"] += 1                 # the expected answer here is: ask the council
             elif got == "council":
                 s["deferred"] += 1
@@ -146,7 +150,7 @@ def score(cases: list[dict], answers: dict) -> dict:
 def summary(name: str, r: dict) -> dict:
     sc = r["score"]
     return {"measures": list(MEASURES), "right": sc["right"], "of": sc["answers"], "wrong": sc["wrong"], "deferred": sc["deferred"],
-            "confident_wrong": sc["confidently_wrong"], "council_flag": f"{sc['flag_raised']}/{sc['flag_expected']}", "skipped": sc.get("skipped", 0),
+            "confident_wrong": sc["confidently_wrong"], "no_answer": sc.get("no_answer", 0), "council_flag": f"{sc['flag_raised']}/{sc['flag_expected']}", "skipped": sc.get("skipped", 0),
             "mode": r.get("mode"), "run_at": r.get("run_at")}
 
 
@@ -154,6 +158,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--systems", default="retrofit-check,no-evaluator,nemotron-alone")
     ap.add_argument("--sample", action="store_true", help="run on the local snapshot (no Zetaris, Nightshift or network)")
+    ap.add_argument("--rescore", action="store_true", help="score the stored answers again, run nothing")
     args = ap.parse_args()
     global SAMPLE
     SAMPLE = args.sample
@@ -162,7 +167,7 @@ def main() -> None:
     results_file = HERE / ("results-sample.json" if SAMPLE else "results.json")
     results = json.loads(results_file.read_text()) if results_file.exists() else {}
     results = {k: v for k, v in results.items() if k == "summary" or v.get("measures") == list(MEASURES)}   # older three upgrade runs are in git history
-    for name in args.systems.split(","):
+    for name in [] if args.rescore else args.systems.split(","):
         if SAMPLE and name == "nemotron-alone":
             continue   # needs Nightshift
         answers = {}
@@ -184,11 +189,17 @@ def main() -> None:
                          "fallbacks": sorted({f for a in answers.values() if isinstance(a, dict) for f in a.get("_fallbacks", [])})}
         results["summary"] = {k: summary(k, v) for k, v in results.items() if k != "summary"}
         results_file.write_text(json.dumps(results, indent=1))
+    if args.rescore:
+        for name, r in results.items():
+            if name != "summary":
+                r["score"] = score(cases, r["answers"])
+        results["summary"] = {k: summary(k, v) for k, v in results.items() if k != "summary"}
+        results_file.write_text(json.dumps(results, indent=1))
     for name, r in results.items():
         if name == "summary":
             continue
         sc = r["score"]
-        print(f"{name:15} right {sc['right']}/{sc['answers']}  wrong {sc['wrong']}  deferred {sc['deferred']}  confidently wrong {sc['confidently_wrong']}  council flag {sc['flag_raised']}/{sc['flag_expected']}"
+        print(f"{name:15} right {sc['right']}/{sc['answers']}  wrong {sc['wrong']} (no answer {sc.get('no_answer', 0)})  deferred {sc['deferred']}  confidently wrong {sc['confidently_wrong']}  council flag {sc['flag_raised']}/{sc['flag_expected']}"
               + (f"  skipped {sc['skipped']}" if sc.get("skipped") else ""))
 
 
