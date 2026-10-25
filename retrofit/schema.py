@@ -22,7 +22,7 @@ EVENT_FIELDS = ("ts", "trace_id", "run_id", "t", "type", "agent_name", "action",
 ANSWER_FIELDS = ("schema", "trace_id", "run_id", "mode", "seconds", "question", "house", "house_facts", "solar", "owner", "trace")
 HOUSE_FACTS = ("listed", "conservation_area", "article_4", "road_walls", "roof", "sun", "electricity_use")   # fixed order
 SOLAR_FIELDS = ("status", "status_text", "recommendation", "confidence", "limitations", "next_step", "facts", "rules",
-                "numbers", "lines", "written_by", "checked_by", "uncertain")
+                "numbers", "usage", "lines", "written_by", "checked_by", "uncertain")
 LINES = ("one", "why", "get", "cost")
 QUESTION = "Is my house eligible for solar panels?"
 

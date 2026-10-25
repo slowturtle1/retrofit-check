@@ -5,6 +5,8 @@ Solar only in this version: heat pump and wall verdicts are still computed by ru
 
 from __future__ import annotations
 
+from datetime import date
+
 from . import schema
 
 GENERAL_LIMITS = [
@@ -45,6 +47,18 @@ def facts(v: dict, owner: dict) -> list[dict]:
     if owner.get("elec_kwh"):
         out.append({"fact": "your electricity use", "value": f"{int(owner['elec_kwh']):,} kWh a year", "source": "you told us", "date": owner.get("elec_said_on")})
     return out
+
+
+def usage(v: dict, owner: dict) -> dict | None:
+    """D4: the owner's yearly electricity use (from H-MEM) against what the roof makes."""
+    kwh, roof = owner.get("elec_kwh"), (v["numbers"] or {}).get("kwh_year")
+    if not kwh or not roof:
+        return None
+    pct = round(100 * float(roof) / float(kwh))
+    said = owner.get("elec_said_on")
+    when = date.fromisoformat(said[:10]).strftime("%-d %b %Y") if said else "date unknown"
+    return {"elec_kwh": int(kwh), "said_on": said, "roof_kwh": int(roof), "share_pct": pct,
+            "text": f"Your roof could make about {pct}% of the {int(kwh):,} kWh you use a year (you told us, {when})."}
 
 
 def _true(x) -> bool:
@@ -101,6 +115,7 @@ def build(rec: dict, mode: str, uncertain_text: dict) -> dict:
             "rules": [{"id": k, **{f: res["rules"][k].get(f) for f in ("clause", "plain", "in_force", "amended_by", "source_url")}}
                       for k in v["rules"] + v["conditions"] if k in res["rules"]],
             "numbers": numbers,
+            "usage": usage(v, owner),
             "lines": {k: t.get(k, "") for k in schema.LINES},
             "written_by": t.get("writer"), "checked_by": t.get("checked_by"),
             "uncertain": v["uncertain"],
