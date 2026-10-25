@@ -44,9 +44,9 @@ def _limit() -> float:
     limit = float(env("MODEL_TIMEOUT", "120"))
     at = getattr(_local, "deadline", None)
     if at is not None:
+        if at - time.time() < 5:
+            raise LLMError("out of time for the model")
         limit = min(limit, at - time.time())
-    if limit < 5:
-        raise LLMError("out of time for the model")
     return limit
 
 
