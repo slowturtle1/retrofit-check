@@ -1,0 +1,877 @@
+# Every requirement from the HackOS documents, once, with the check that proves it.
+# Run: make approach  (writes approach/report.md and approach/report.json, fails on any Tier 1 to 3 gap)
+#
+# Sources (saved copies outside the repo: ~/Documents/hackathon/retrofit/approach/hackos-docs/):
+#   AG  How APPROACH Solutioning For Your Use Case (sections 1 to 22)
+#   SR  Submission Requirements          DQ  Disqualification Checklist
+#   FP  Submission Form Preview          SS  Strong Submission Examples
+#   HO  our own decisions in the 25 Oct handoff (D1 to D8)
+# Where the documents and the Official Rules differ, the Official Rules apply (Cursor is optional).
+#
+# criterion: impact 30, technical 20, innovation 15, demo 15, product_ux 10, sponsor 10, gate (pass or fail, no points)
+# tier: 1 repository (seconds, CI), 2 agent behaviour (sample mode, CI), 3 outcomes (CI), 4 live (this Mac, --live), manual
+# check:
+#   test: [pytest node ids]       all must pass; a pending (xfail) test counts as a gap
+#   fn: name (+ args)             a function in scripts/approach_check.py
+#   readme: [regex, ...]          every pattern must match README.md (case insensitive, multiline)
+#   manual                        a person confirms it: set done and evidence
+#   na                            does not apply to this project (reason in evidence)
+# legacy: the id in the 25 Oct proposal page (approach-check.html), where there was one.
+
+criteria:
+  impact: {points: 30, name: Impact}
+  technical: {points: 20, name: Technical}
+  innovation: {points: 15, name: Innovation}
+  demo: {points: 15, name: Demo}
+  product_ux: {points: 10, name: Product and UX}
+  sponsor: {points: 10, name: Sponsor technology}
+  gate: {points: 0, name: Gate (pass or fail)}
+
+requirements:
+
+# ------------------------------------------------------------------ gate
+- id: G1
+  text: "The GitHub repository is public by the deadline, so judges open it without asking for access"
+  source: [SR 3.3, DQ 2, DQ 3, DQ 15, FP 3.4, FP 6]
+  criterion: gate
+  tier: 4
+  check: {fn: repo_public}
+  owner: her
+  evidence: "gh repo edit --visibility public, only after her explicit yes (advice: Mon 26 Oct evening)"
+  legacy: H1
+- id: G2
+  text: "All four components are submitted on HackOS (demo video, slide deck, public repository with README, sponsor technology explanation)"
+  source: [SR 2, DQ 1, AG 14, FP 1]
+  criterion: gate
+  tier: manual
+  check: manual
+  done: false
+  owner: her
+  evidence: "HackOS submission form, Tue 27 Oct"
+- id: G3
+  text: "Work from before 22 Oct 00:00 UTC is declared in the README"
+  source: [SR 5, DQ 1, DQ 13, AG 10, SS 6]
+  criterion: gate
+  tier: 1
+  check: {readme: ['^#+ .*(before the hackathon|pre.existing)', 'hmem', 'smoke_test\.py']}
+  owner: C
+  evidence: "README section on work from before the hackathon"
+  legacy: T9
+- id: G4
+  text: "Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py)"
+  source: [SR 5, DQ 13, DQ 15, FP 3.8, FP 5]
+  criterion: gate
+  tier: 4
+  check: {fn: local_file_mentions, path: ~/Documents/hackathon/retrofit/submission/form.md, patterns: ['(?i)pre.existing', 'hmem|H-MEM', 'smoke_test']}
+  owner: C
+  evidence: "~/Documents/hackathon/retrofit/submission/form.md, then the HackOS form (her)"
+- id: G5
+  text: "One account per person; the team roster is final (solo, 1 of 1) before the first submission is created; she is the primary contact"
+  source: [DQ 1, SR 6, FP 2, FP 3.3, FP 5]
+  criterion: gate
+  tier: manual
+  check: manual
+  done: true
+  owner: her
+  evidence: "HackOS team Buccies 1/1 since 25 Oct 16:50 GMT (Igor removed on her request)"
+- id: G6
+  text: "The README names exactly one primary track (Track 1, Solving Fragmented Intelligence)"
+  source: [SR 6, DQ 1, FP 3.2, SS 1]
+  criterion: gate
+  tier: 1
+  check: {readme: ['Solving Fragmented Intelligence']}
+  owner: C
+  evidence: "README header"
+- id: G7
+  text: "README, slide deck, form texts and video script name the same track"
+  source: [FP 3.2, FP 5, SS 1]
+  criterion: gate
+  tier: 4
+  check: {fn: same_track_everywhere}
+  owner: C
+  evidence: "README, deck v3, submission/form.md, submission/video-script.md"
+- id: G8
+  text: "Submitted on HackOS before 27 Oct 23:45 UTC, with hours to spare (target 18:00 UTC)"
+  source: [SR 1, DQ 1, DQ 15, FP 8, AG 14]
+  criterion: gate
+  tier: manual
+  check: manual
+  done: false
+  owner: her
+  evidence: "HackOS submission timestamp"
+- id: G9
+  text: "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)"
+  source: [DQ 11, AG 10, SR 3.3, FP 3.4]
+  criterion: gate
+  tier: 1
+  check: {fn: secret_scan}
+  owner: B
+  evidence: "scan of git log --all -p; the only allowed match is the scan pattern in scripts/make_samples.py"
+  legacy: T5
+- id: G10
+  text: "No secret file is tracked (.env, *.pem, *.key, secrets/, credentials/), and .gitignore covers them"
+  source: [DQ 11, SR 3.3]
+  criterion: gate
+  tier: 1
+  check: {fn: secret_files}
+  owner: B
+  evidence: "git ls-files and .gitignore"
+- id: G11
+  text: ".env.example holds placeholders only"
+  source: [AG 10, DQ 3, DQ 11, SR 3.3, SS 11, FP 3.4]
+  criterion: gate
+  tier: 1
+  check: {fn: env_example_placeholders}
+  owner: B
+  evidence: ".env.example"
+  legacy: T6
+- id: G12
+  text: "No keys, tokens or personal data are visible in the demo video or the slide deck (Nightshift console, /config.js, terminal)"
+  source: [DQ 11, DQ 12, SR 3.1, FP 3.5, SS 8]
+  criterion: gate
+  tier: manual
+  check: manual
+  done: false
+  owner: her
+  evidence: "frame by frame check of the video around any terminal; deck screenshots"
+
+# ------------------------------------------------------------------ impact (30)
+- id: I1
+  text: "The README states the problem in one sentence in the guide's format (We are building an agent that helps [user] solve [problem] by [capability] using [data], producing [output])"
+  source: [AG 3, AG 21, AG 13]
+  criterion: impact
+  tier: 1
+  check: {readme: ['We are building an agent that helps .+ by .+produc']}
+  owner: C
+  evidence: "README first paragraph"
+  legacy: A1
+- id: I2
+  text: "The problem sentence is about the solar MVP (Is my house eligible for solar panels?)"
+  source: [HO D1, AG 8]
+  criterion: impact
+  tier: 1
+  check: {readme: ['We are building an agent that helps [^\n]*solar']}
+  owner: C
+  evidence: "README first paragraph"
+- id: I3
+  text: "One user, one decision, one data slice, one strong output (homeowner in England, solar panels, one page answer)"
+  source: [AG 8, AG 21]
+  criterion: impact
+  tier: 1
+  check: {readme: ['homeowner', 'solar']}
+  owner: C
+  evidence: "README \"What it does\""
+  legacy: A2
+- id: I4
+  text: "The README, deck and demo name a real user, a real problem and the track it answers"
+  source: [SS 1, AG 6, FP 3.5]
+  criterion: impact
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "README header, deck slide 1, video segment 0:00 to 0:20"
+- id: I5
+  text: "Track fit for Fragmented Intelligence: several small sources that disagree, registered in Zetaris, and the answer shows where they disagree"
+  source: [AG 6, AG 19, SR 7]
+  criterion: impact
+  tier: 2
+  check: {test: [tests/test_traces.py::test_sources_that_disagree_take_their_own_branch, tests/test_traces.py::test_every_fact_used_came_through_zetaris_first]}
+  owner: A
+  evidence: "Hampstead trace (planning.data still lists A4Ha1, Camden ended it 9 Jun 2026)"
+- id: I6
+  text: "Every answer leads to a decision the owner can act on (a recommendation and a next step)"
+  source: [AG 8, SS 16, AG 1]
+  criterion: impact
+  tier: 2
+  check: {test: [tests/test_traces.py::test_every_answer_has_evidence_confidence_limits_and_a_next_step]}
+  owner: A
+  evidence: "answer.solar.recommendation and next_step"
+- id: I7
+  text: "The value can be explained in 30 seconds (red flag \"you cannot explain the value clearly\")"
+  source: [AG 13 Q1, AG 18]
+  criterion: impact
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "video segment 0:00 to 0:20 and deck problem slide"
+- id: I8
+  text: "The deck covers the problem and target users, the solution, and future enhancements (heat pump, outside walls, watch this house)"
+  source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
+  criterion: impact
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "deck v3 slides"
+- id: I9
+  text: "The decision worksheet (guide section 21) is filled in the repository"
+  source: [AG 21]
+  criterion: impact
+  tier: 1
+  check: {fn: worksheet}
+  owner: C
+  evidence: "approach/worksheet.md"
+- id: I10
+  text: "The self score (guide section 13) is at least 16 of 20, honest, with one evidence link per question"
+  source: [AG 13]
+  criterion: impact
+  tier: 1
+  check: {fn: self_score, min: 16}
+  owner: C
+  evidence: "approach/worksheet.md, self score table"
+  legacy: C4
+
+# ------------------------------------------------------------------ technical (20)
+- id: T1
+  text: "Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers)"
+  source: [AG 1, AG 7, AG 14, DQ 4, DQ 6, DQ 7, DQ 15, SR 3.3, SS 1]
+  criterion: technical
+  tier: 2
+  check: {fn: fresh_clone_sample_mode}
+  owner: B
+  evidence: "git clone of HEAD into a temporary folder, env -i, SAMPLE_MODE=true, every house in samples/cache.sqlite"
+  legacy: P1
+- id: T2
+  text: "SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it"
+  source: [DQ 7, AG 5, AG 7, AG 14, SR 3.3, SS 7, SS 14]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_traces.py::test_sample_mode_reads_the_snapshot_not_the_network], readme: ['SAMPLE_MODE=true', 'real (agent )?logic']}
+  owner: C
+  evidence: "README sample mode section; test runs with sockets blocked"
+  legacy: H2
+- id: T3
+  text: "Judges can test their own inputs; the sample snapshot holds every sample house and every evaluation house (house D, the vicarage dropped on 25 Oct, excepted)"
+  source: [DQ 8, HO A7]
+  criterion: technical
+  tier: 1
+  check: {fn: sample_houses, exclude: [osm-way-460070558]}
+  owner: A
+  evidence: "samples/cache.sqlite house table"
+- id: T4
+  text: "Startup takes under 30 seconds"
+  source: [AG 11]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_api.py::test_startup_under_30_seconds]}
+  owner: B
+  evidence: "tests/test_api.py starts the server in sample mode"
+- id: T5
+  text: "Runs are bounded; the model budget is at most 300 s and each step is timed against the guide's budget (total 5 to 10 minutes)"
+  source: [AG 11, DQ 4, DQ 15]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_runtime.py]}
+  owner: A
+  evidence: "Run.model_budget_s, answer.trace.timings"
+  legacy: T4
+- id: T6
+  text: "Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout"
+  source: [AG 7, AG 11, DQ 6, DQ 10]
+  criterion: technical
+  tier: 1
+  check: {fn: timeouts}
+  owner: A
+  evidence: "every requests call in retrofit/ passes timeout="
+  legacy: P5
+- id: T7
+  text: "Retries and agent turns are capped so a run cannot hang (model retries at most 2, at most two rewrites, no unbounded loops)"
+  source: [AG 7, AG 11]
+  criterion: technical
+  tier: 1
+  check: {fn: bounded_retries}
+  owner: A
+  evidence: "retrofit/agent/llm.py retries, Run.write_and_check rounds"
+- id: T8
+  text: "The agent still answers when Zetaris, Nightshift, OpenStreetMap or planning.data is down, with a fallback event, in bounded time"
+  source: [AG 7, AG 15, AG 18, DQ 6, DQ 10, SS 8]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_failures.py::test_zetaris_down_still_answers_with_a_fallback, tests/test_failures.py::test_nightshift_down_falls_back_to_the_checked_draft, tests/test_failures.py::test_openstreetmap_down_uses_the_snapshot_outline, tests/test_failures.py::test_planning_data_down_for_a_new_house_gives_503, tests/test_failures.py::test_openstreetmap_down_for_a_new_house_is_a_clear_error]}
+  owner: A
+  evidence: "fault injection on dead ports"
+  legacy: P4
+- id: T9
+  text: "Malformed input returns 400 with a validation message; an unknown house returns 404 with a clear message; no stack traces"
+  source: [SS 6, SS 8, DQ 5, DQ 15]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_api.py::test_malformed_input_gives_400, tests/test_api.py::test_unknown_house_gives_404_with_trace_id, tests/test_traces.py::test_an_unknown_house_gets_a_clear_message]}
+  owner: A
+  evidence: "POST /run in sample mode"
+- id: T10
+  text: "A model failure retries, then falls back with a logged reason (the checked draft stays)"
+  source: [SS 6, DQ 10]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_traces.py::test_a_model_failure_is_logged_as_a_fallback]}
+  owner: A
+  evidence: "reporter event with status fallback"
+- id: T11
+  text: "A programmatic way in (POST /run), structured input and output, no interactive input; the UI does not block it"
+  source: [DQ 5, DQ 15, FP 3.4, SS 6]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_api.py::test_run_returns_the_answer_contract, tests/test_api.py::test_v1_check_matches_run, tests/test_api.py::test_owner_electricity_use_reaches_the_answer]}
+  owner: A
+  evidence: "POST /run and POST /api/v1/check"
+- id: T12
+  text: "No hardcoded outputs; answers differ across inputs, nothing reads output_examples/ at runtime, no input maps to a saved output"
+  source: [DQ 2, DQ 8, DQ 15, AG 21, SS 12, SS 14]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_traces.py::test_answers_differ_across_houses], fn: no_saved_outputs}
+  owner: A
+  evidence: "grep of retrofit/ for output_examples and samples/*.json; answers per house"
+  legacy: T7
+- id: T13
+  text: "Metamorphic: change one cached fact and the right answer changes (listed, a solar Article 4, a north roof, LIDAR noise, electricity use)"
+  source: [DQ 8, AG 18]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_metamorphic.py]}
+  owner: B
+  evidence: "temporary copy of samples/cache.sqlite"
+  legacy: T7
+- id: T14
+  text: "Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed"
+  source: [AG 10, DQ 3, DQ 9, SS 4, SS 13, SR 3.3]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_traces.py::test_logs_are_written_to_logs_and_stdout, tests/test_traces.py::test_stdout_has_one_whole_line_per_event]}
+  owner: A
+  evidence: "logs/trace-<run>.jsonl and one stdout line per event"
+- id: T15
+  text: "Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status"
+  source: [SS 4, SS 14, DQ 9]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_traces.py::test_every_event_meets_the_contract, tests/test_traces.py::test_every_event_carries_the_run_as_trace_id]}
+  owner: A
+  evidence: "retrofit/schema.py EVENT_FIELDS"
+- id: T16
+  text: "At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/"
+  source: [AG 7, AG 10, AG 12, AG 14, DQ 3, DQ 15, SR 3.3, SR 8, SS 12, FP 3.4]
+  criterion: technical
+  tier: 1
+  check: {fn: examples, min: 3}
+  owner: A
+  evidence: "input_examples/*.json, output_examples/*.json (each passes schema.check_answer)"
+  legacy: T8
+- id: T17
+  text: "The repository is light; no raw archives, model checkpoints, videos or large database files"
+  source: [AG 7, AG 12, DQ 3]
+  criterion: technical
+  tier: 1
+  check: {fn: repo_size, max_pack_mb: 5, max_file_mb: 1}
+  owner: B
+  evidence: "git count-objects and the largest tracked files"
+  legacy: P3
+- id: T18
+  text: "data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits"
+  source: [AG 7, AG 12]
+  criterion: technical
+  tier: 1
+  check: {fn: data_readme}
+  owner: C
+  evidence: "data/README.md"
+  legacy: P6
+- id: T19
+  text: "The table counts stated in README.md and data/README.md match the database schema and the sample snapshot"
+  source: [AG 12, DQ 13]
+  criterion: technical
+  tier: 1
+  check: {fn: table_counts}
+  owner: C
+  evidence: "CREATE TABLE in db/init/*.sql and tables in samples/cache.sqlite"
+- id: T20
+  text: "The README covers setup, usage and dependencies, agent roles, examples and limitations, and how to set up Zetaris and Nightshift"
+  source: [SR 3.3, DQ 3, DQ 6, SS 6, FP 3.4]
+  criterion: technical
+  tier: 1
+  check: {readme: ['^#+ .*(setup|run it)', '^#+ .*usage|^#+ .*use it from code', 'requirements\.txt', '^#+ .*agents', '^#+ .*limit', 'Participant Setup Guide|setup_zetaris', 'Nightshift']}
+  owner: C
+  evidence: "README sections"
+- id: T21
+  text: "The README has exact commands, including a curl call on a file in input_examples/"
+  source: [SS 6, SS 14, DQ 5, DQ 6]
+  criterion: technical
+  tier: 1
+  check: {readme: ['curl .*(/run|/api/v1/check)', 'input_examples/']}
+  owner: C
+  evidence: "README usage section"
+- id: T22
+  text: "The entry point exists and is documented (python -m retrofit.server, POST /run)"
+  source: [DQ 3, FP 3.4]
+  criterion: technical
+  tier: 1
+  check: {readme: ['python -m retrofit\.server', 'POST /run|/run\b'], fn: files_exist, paths: [retrofit/server.py, requirements.txt]}
+  owner: C
+  evidence: "README run section"
+- id: T23
+  text: "Nothing installs or downloads after the app starts; sample mode makes no network call"
+  source: [DQ 4, AG 11, DQ 15]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_traces.py::test_sample_mode_reads_the_snapshot_not_the_network], fn: no_runtime_installs}
+  owner: A
+  evidence: "sample runs with sockets blocked; grep of retrofit/ for pip or npm install"
+- id: T24
+  text: "No local GPU and no training at runtime (no torch, tensorflow or CUDA dependencies)"
+  source: [DQ 4, AG 10, AG 18]
+  criterion: technical
+  tier: 1
+  check: {fn: no_gpu_deps}
+  owner: B
+  evidence: "requirements.txt"
+- id: T25
+  text: "Data is allowed for prototype use and holds no sensitive personal data; owner facts in samples are demo values and say so"
+  source: [AG 6, AG 7, DQ 13]
+  criterion: technical
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "licence column in data/README.md; owner facts labelled demo values"
+  legacy: P7
+- id: T26
+  text: "The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready"
+  source: [DQ 2, DQ 13, DQ 15, AG 20]
+  criterion: technical
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "C7 pass over README, deck and form texts"
+- id: T27
+  text: "The README states limitations honestly in its own section"
+  source: [DQ 3, DQ 13, SS 6, SS 15, AG 13 Q10]
+  criterion: technical
+  tier: 1
+  check: {fn: readme_limitations, min: 3}
+  owner: C
+  evidence: "README limitations section, at least three points"
+- id: T28
+  text: "Full validation from a fresh clone (Disqualification Checklist section 14), with Zetaris and Nightshift stopped and then running, twice on Monday"
+  source: [DQ 4, DQ 7, DQ 14, DQ 16]
+  criterion: technical
+  tier: manual
+  check: manual
+  done: false
+  owner: B
+  evidence: "B8 log, Mon 26 Oct about 14:00 and 17:00"
+
+# ------------------------------------------------------------------ innovation (15)
+- id: N1
+  text: "Agents interact more than once and in both directions; not a fixed one pass chain"
+  source: [AG 9, AG 18, AG 20, DQ 9, SS 1, SS 13, SS 14]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_evaluator_and_analyst_talk_both_ways, tests/test_traces.py::test_at_least_two_named_agents_hand_off, tests/test_traces.py::test_the_listed_stop_names_who_it_hands_to]}
+  owner: A
+  evidence: "challenge and requery events between evaluator and analyst"
+- id: N2
+  text: "The planner delegates subtasks based on the input (a listed building skips the roof survey)"
+  source: [AG 9 checklist 1, SS 3]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_listed_house_skips_the_roof_survey]}
+  owner: A
+  evidence: "10 Downing Street, decision listed_stop"
+  legacy: O1
+- id: N3
+  text: "A specialist agent uses data or tools (the analyst reads every fact through Zetaris)"
+  source: [AG 9 checklist 2]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_sample_mode_reads_the_snapshot_not_the_network]}
+  owner: A
+  evidence: "10 to 18 zetaris events per run"
+  legacy: O2
+- id: N4
+  text: "An evaluator critiques the specialist's output"
+  source: [AG 9 checklist 3, SS 3]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_evaluator_and_analyst_talk_both_ways]}
+  owner: A
+  evidence: "challenge events by the evaluator, target analyst"
+  legacy: O3
+- id: N5
+  text: "The agent revises after critique (every challenge is followed by a second Zetaris query)"
+  source: [AG 9 checklist 4, SS 3]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_every_challenge_is_followed_by_a_second_query]}
+  owner: A
+  evidence: "requery events"
+  legacy: O4
+- id: N6
+  text: "A critic flags unsupported claims and can block the writer (role authority)"
+  source: [AG 9 checklist 5, SS 3, SS 13]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_the_critic_blocks_a_rewrite_that_adds_a_number, tests/test_traces.py::test_a_blocked_rewrite_is_logged_as_blocked, tests/test_critic.py]}
+  owner: A
+  evidence: "critic events needs_revision, then blocked"
+  legacy: O5
+- id: N7
+  text: "Agents write structured messages to shared memory (H-MEM, remembered with the date the owner said it)"
+  source: [AG 9 checklist 6, SS 3]
+  criterion: innovation
+  tier: 4
+  check: {test: [tests/test_memory_flow.py]}
+  owner: A
+  evidence: "tests/test_memory_flow.py with the H-MEM service running"
+  legacy: O6
+- id: N8
+  text: "The workflow branches on confidence (unsure data gives Check with the council and Ask the council first)"
+  source: [AG 9 checklist 7, SS 3]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_unsure_data_says_check_with_the_council_never_allowed, tests/test_traces.py::test_sources_that_disagree_take_their_own_branch]}
+  owner: A
+  evidence: "Muswell Hill (Haringey coverage), Hampstead (sources disagree)"
+  legacy: O7
+- id: N9
+  text: "A fallback path activates when data or an API fails"
+  source: [AG 9 checklist 8, SS 3]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_failures.py::test_zetaris_down_still_answers_with_a_fallback, tests/test_failures.py::test_nightshift_down_falls_back_to_the_checked_draft]}
+  owner: A
+  evidence: "fallback events"
+  legacy: O8
+- id: N10
+  text: "The final answer has traceable evidence (every rule with clause, in force date and URL; every fact names its source)"
+  source: [AG 9 checklist 9, AG 8, DQ 9]
+  criterion: innovation
+  tier: 2
+  check: {test: [tests/test_traces.py::test_every_answer_meets_the_contract, tests/test_traces.py::test_every_answer_has_evidence_confidence_limits_and_a_next_step]}
+  owner: A
+  evidence: "answer.solar.rules and facts"
+  legacy: O9
+- id: N11
+  text: "The README shows the architecture as a diagram with the loops (Mermaid), not an ASCII chain"
+  source: [SS 2, SS 15, SS 1]
+  criterion: innovation
+  tier: 1
+  check: {fn: readme_diagram}
+  owner: C
+  evidence: "README architecture section"
+- id: N12
+  text: "The README has an agents table with a \"can block or retry\" column"
+  source: [SS 6]
+  criterion: innovation
+  tier: 1
+  check: {readme: ['\|\s*Agent\s*\|.*\|.*(block or retry)']}
+  owner: C
+  evidence: "README agents table"
+
+# ------------------------------------------------------------------ demo (15)
+- id: D1
+  text: "The demo video is 1 to 4 minutes long"
+  source: [AG 14, SR 2, SR 3.1, DQ 12, FP 3.5, SS 8]
+  criterion: demo
+  tier: 4
+  check: {fn: video_duration, path: ~/Documents/hackathon/retrofit/submission/video.mp4}
+  owner: her
+  evidence: "ffprobe on the final video"
+  legacy: H4
+- id: D2
+  text: "The video shows a real run, the main workflow, the key features, and Zetaris and Meterless in action (Zetaris queries, the H-MEM feature, Nightshift calls)"
+  source: [SR 3.1, DQ 12, FP 3.5, SS 8]
+  criterion: demo
+  tier: manual
+  check: manual
+  done: false
+  owner: her
+  evidence: "video; script segments 0:50 to 2:50"
+- id: D3
+  text: "The video shows at least one collaboration moment in the logs (a challenge and second query, the critic blocking, a fallback)"
+  source: [SS 1, SS 8]
+  criterion: demo
+  tier: manual
+  check: manual
+  done: false
+  owner: her
+  evidence: "video segment 1:40 to 2:20"
+- id: D4
+  text: "The video script has six segments in 3:30 with her lines, a shot list, the demo path (Hampstead source conflict, house F electricity recall) and the recording checklist"
+  source: [SS 8, HO C6]
+  criterion: demo
+  tier: 4
+  check: {fn: video_script, path: ~/Documents/hackathon/retrofit/submission/video-script.md}
+  owner: C
+  evidence: "~/Documents/hackathon/retrofit/submission/video-script.md"
+- id: D5
+  text: "Audio is clear and screen text is readable"
+  source: [FP 3.5]
+  criterion: demo
+  tier: manual
+  check: manual
+  done: false
+  owner: her
+  evidence: "playback check before upload"
+- id: D6
+  text: "The video link opens in a private browser window without asking for access"
+  source: [DQ 12, FP 3.5, FP 5, FP 6]
+  criterion: demo
+  tier: manual
+  check: manual
+  done: false
+  owner: her
+  evidence: "private window test, Tue 27 Oct"
+- id: D7
+  text: "The demo path is not hardcoded and works more than once (the captioned demo mode runs on a real sample mode run or a labelled replay)"
+  source: [SR 3.1, DQ 8]
+  criterion: demo
+  tier: manual
+  check: manual
+  done: false
+  owner: A
+  evidence: "web/demo.js (?demo=1)"
+- id: D8
+  text: "The deck covers the agent workflow or architecture and the technical stack"
+  source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
+  criterion: demo
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "deck v3 slides"
+  legacy: H5
+
+# ------------------------------------------------------------------ product and UX (10)
+- id: U1
+  text: "Every answer carries evidence, confidence, limitations and a next step"
+  source: [AG 8, SS 6, SS 16]
+  criterion: product_ux
+  tier: 2
+  check: {test: [tests/test_traces.py::test_every_answer_has_evidence_confidence_limits_and_a_next_step]}
+  owner: A
+  evidence: "answer.solar fields"
+- id: U2
+  text: "An unsure answer never says Allowed; it says Check with the council, with the reason on the card"
+  source: [AG 20, HO D3]
+  criterion: product_ux
+  tier: 2
+  check: {test: [tests/test_traces.py::test_unsure_data_says_check_with_the_council_never_allowed, tests/test_cards.py::test_unsure_never_says_allowed]}
+  owner: A
+  evidence: "Muswell Hill"
+  legacy: C3
+- id: U3
+  text: "The output is not mostly generic text; no card line is identical on two houses with different facts, and every line holds a fact of its house"
+  source: [AG 18, HO A2]
+  criterion: product_ux
+  tier: 3
+  check: {test: [tests/test_cards.py::test_no_line_identical_on_two_houses_with_different_facts, tests/test_cards.py::test_every_line_holds_a_fact_of_its_house]}
+  owner: A
+  evidence: "card lines of every sample house"
+- id: U4
+  text: "Wording rules on every answer: the not advice line, money marked as an estimate, the certificate line on allowed answers, lines that start with a capital and have no nested brackets"
+  source: [AG 20, HO D5]
+  criterion: product_ux
+  tier: 3
+  check: {test: [tests/test_traces.py::test_allowed_answers_name_the_certificate, tests/test_cards.py::test_money_is_marked_as_an_estimate, tests/test_cards.py::test_not_advice_line, tests/test_cards.py::test_allowed_answers_point_to_quotes_and_a_certificate, tests/test_cards.py::test_lines_start_with_a_capital_and_have_no_nested_brackets]}
+  owner: A
+  evidence: "answer.solar.limitations and next_step"
+  legacy: C3
+- id: U5
+  text: "Every possible solar answer (status and recommendation) has a fixture and reads right"
+  source: [AG 13, HO B5]
+  criterion: product_ux
+  tier: 3
+  check: {test: [tests/test_cards.py::test_every_solar_answer_has_a_fixture]}
+  owner: B
+  evidence: "tests/test_cards.py fixtures"
+  legacy: C2
+- id: U6
+  text: "Status and recommendation agree; no Probably not worth it next to a payback range"
+  source: [HO A1]
+  criterion: product_ux
+  tier: 2
+  check: {test: [tests/test_traces.py::test_not_worth_it_never_shows_a_payback]}
+  owner: A
+  evidence: "Trees over the roof"
+- id: U7
+  text: "The owner's yearly electricity use is compared with what the roof makes, says who said it and when, and a correction changes the card"
+  source: [HO D4]
+  criterion: product_ux
+  tier: 2
+  check: {test: [tests/test_metamorphic.py::test_electricity_use_changes_the_card, tests/test_api.py::test_owner_electricity_use_reaches_the_answer]}
+  owner: A
+  evidence: "answer.solar.usage"
+- id: U8
+  text: "The page is intuitive and accessible (AA contrast in both themes, keyboard, labels, works at 360 px)"
+  source: [SR 7, HO A6]
+  criterion: product_ux
+  tier: manual
+  check: manual
+  done: false
+  owner: A
+  evidence: "accessibility pass on web/"
+- id: U9
+  text: "The deck shows real product screenshots"
+  source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
+  criterion: product_ux
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "deck v3 product slide"
+- id: U10
+  text: "Answers are right against an independent source (the frozen 15 house evaluation, solar only, Historic England)"
+  source: [AG 13, SS 1, HO B6]
+  criterion: product_ux
+  tier: 3
+  check: {test: [tests/test_eval_sample.py], fn: eval_results}
+  owner: B
+  evidence: "eval/results.json (live) and eval/results-sample.json, eval/cases.json hash unchanged"
+  legacy: C1
+
+# ------------------------------------------------------------------ sponsor technology (10)
+- id: S1
+  text: "Zetaris is the data layer and load bearing; every fact the agent uses comes through a Zetaris read first"
+  source: [AG 10, DQ 1, DQ 10, DQ 15, SR 4, SR 8, SS 14]
+  criterion: sponsor
+  tier: 2
+  check: {test: [tests/test_traces.py::test_every_fact_used_came_through_zetaris_first]}
+  owner: A
+  evidence: "zetaris events before the answer"
+  legacy: P2
+  hard: true
+- id: S2
+  text: "Zetaris answers live and the datasources are registered (retrofit_pg, PLANNING_DATA, PVGIS)"
+  source: [AG 10, DQ 10]
+  criterion: sponsor
+  tier: 4
+  check: {fn: zetaris_live}
+  owner: A
+  evidence: "a query through ZETARIS_REST_URL"
+  legacy: T1
+  hard: true
+- id: S3
+  text: "A Meterless Engine (H-MEM) powers a real feature and its test passes (owner's electricity use remembered across sessions, correction supersedes)"
+  source: [DQ 1, DQ 10, DQ 15, SR 4, SR 8, AG 18, AG 20]
+  criterion: sponsor
+  tier: 4
+  check: {test: [tests/test_memory_flow.py]}
+  owner: A
+  evidence: "tests/test_memory_flow.py with H-MEM running"
+  legacy: T2
+  hard: true
+- id: S4
+  text: "The H-MEM reference conformance suite passes (13 of 13)"
+  source: [SR 3.3, DQ 10]
+  criterion: sponsor
+  tier: 4
+  check: {fn: hmem_conformance}
+  owner: A
+  evidence: "cd hmem && npm run conformance"
+- id: S5
+  text: "Meterless Nightshift is the primary AI provider; every model call goes through it and real requests pass"
+  source: [AG 10, DQ 1, DQ 10, DQ 15, SR 4, SR 8]
+  criterion: sponsor
+  tier: 2
+  check: {test: [tests/test_traces.py::test_recorded_live_runs_name_the_model_and_keep_a_receipt], fn: single_model_client}
+  owner: A
+  evidence: "retrofit/agent/llm.py is the only model client; recorded receipts in samples/"
+  hard: true
+- id: S6
+  text: "NVIDIA Nemotron is pinned (not meterless/auto) and the model that answered is logged for every request"
+  source: [DQ 9, SR 4, AG 10]
+  criterion: sponsor
+  tier: 1
+  check: {fn: model_pinned}
+  owner: B
+  evidence: "METERLESS_MODEL in .env.example and the default in retrofit/agent/llm.py"
+  legacy: T3
+- id: S7
+  text: "The models the README names match the models in the logs"
+  source: [DQ 13]
+  criterion: sponsor
+  tier: 1
+  check: {fn: readme_model_matches_logs}
+  owner: C
+  evidence: "README sponsor section and samples/*.json receipts"
+- id: S8
+  text: "Each sponsor call has a timeout and a fallback; sponsor errors are logged clearly"
+  source: [DQ 10, AG 15]
+  criterion: sponsor
+  tier: 2
+  check: {test: [tests/test_failures.py::test_sponsor_errors_are_logged_with_the_cause]}
+  owner: A
+  evidence: "fallback and failed events name the service and the cause"
+- id: S9
+  text: "Sponsor settings come from environment variables"
+  source: [DQ 10, AG 10]
+  criterion: sponsor
+  tier: 1
+  check: {fn: sponsor_settings_from_env}
+  owner: B
+  evidence: "env() for ZETARIS_*, METERLESS_*, HMEM_URL"
+- id: S10
+  text: "The README sponsor section covers: the Zetaris role, the H-MEM feature and its test, how the app connects to Nightshift, Nemotron, Cursor, and what was unique"
+  source: [SR 3.4, AG 14, FP 3.7, SS 5, DQ 10]
+  criterion: sponsor
+  tier: 1
+  check: {readme: ['^#+ .*sponsor', 'Zetaris', 'H-MEM', 'test_memory_flow', 'Nightshift', 'Nemotron', 'Cursor', '(?i)unique']}
+  owner: C
+  evidence: "README sponsor section"
+  legacy: H3
+- id: S11
+  text: "Cursor use is stated exactly as it happened, or as not used; never invented"
+  source: [HO D7, DQ 13, SR 3.4]
+  criterion: sponsor
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "README sponsor section; her 20 minute Cursor task if she does it"
+- id: S12
+  text: "The deck says how Zetaris and Meterless were used and what was unique about the sponsor use"
+  source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
+  criterion: sponsor
+  tier: manual
+  check: manual
+  done: false
+  owner: C
+  evidence: "deck v3 stack slide"
+- id: S13
+  text: "The form texts explain each sponsor (Zetaris, Meterless, Cursor, NVIDIA) and finish with what was unique"
+  source: [FP 3.7, FP 4, SR 3.4]
+  criterion: sponsor
+  tier: 4
+  check: {fn: local_file_mentions, path: ~/Documents/hackathon/retrofit/submission/form.md, patterns: [Zetaris, Meterless, Cursor, NVIDIA, '(?i)unique']}
+  owner: C
+  evidence: "~/Documents/hackathon/retrofit/submission/form.md"
+- id: S14
+  text: "Colab links in the README if agents run in Google Colab"
+  source: [SR 3.3, DQ 3, FP 1]
+  criterion: sponsor
+  tier: 1
+  check: na
+  owner: B
+  evidence: "does not apply; nothing runs in Colab"
+
+# Closing statements: the report ends with these, each answered from the requirement ids listed.
+closing:
+  guide_22:
+    - {text: "We understand the problem and the user.", ids: [I1, I3, I4, I7]}
+    - {text: "We can access the data reliably through Zetaris.", ids: [S1, S2, T8]}
+    - {text: "We can build a narrow working version in 144 hours, with Zetaris, a Meterless Engine and Nightshift integrated.", ids: [S1, S3, S5, T1]}
+    - {text: "We can show agents doing real work.", ids: [N1, N2, N4, N5, N6, N8]}
+    - {text: "We can run it cleanly and explain it in a 1 to 4 minute demo.", ids: [T1, T2, D1, D2]}
+  judges_should_say:
+    - {text: "I understand the problem this solves and who it's for.", ids: [I1, I3, I4]}
+    - {text: "It clearly answers the track it was submitted to.", ids: [G6, G7, I5]}
+    - {text: "I can run it without manual setup.", ids: [T1, T2, T20, T21]}
+    - {text: "Zetaris and Meterless do real work in this build.", ids: [S1, S3, S5]}
+    - {text: "The agents have distinct responsibilities.", ids: [N12, T15, N1]}
+    - {text: "The logs prove real collaboration, not a linear chain.", ids: [N1, N5, N6, T14]}
+    - {text: "The output is something the user could act on.", ids: [I6, U1, U2]}
+    - {text: "The team made thoughtful trade-offs and was honest about limits.", ids: [T26, T27, U10]}
+  collaboration_checklist: [N2, N3, N4, N5, N6, N7, N8, N9, N10]
