@@ -357,7 +357,7 @@ async function main() {
   }
   if (!viewer) {
     // No Google key (a fresh clone, or a judge's machine): OpenStreetMap tiles on a flat globe, same overlays.
-    viewer = new Cesium.Viewer("map", { ...opts, baseLayer: new Cesium.ImageryLayer(new Cesium.OpenStreetMapImageryProvider({ url: "https://tile.openstreetmap.org/" })) });
+    viewer = new Cesium.Viewer("map", { ...opts, baseLayer: new Cesium.ImageryLayer(new Cesium.OpenStreetMapImageryProvider({ url: "https://tile.openstreetmap.org/", maximumLevel: 19 })) });
     CLASSIFY = () => Cesium.ClassificationType.TERRAIN;
     if (!STATIC) $("hint").textContent = "Map: © OpenStreetMap contributors. Add a Google key for 3D.";
   }
