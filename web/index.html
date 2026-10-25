@@ -5,63 +5,79 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Retrofit Check</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 <script>window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/";</script>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Cesium.js"></script>
 <script src="/config.js"></script>
+<script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) { /* no storage */ }</script>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-<div id="map"></div>
-
-<div id="ctrl">
-  <button class="cb" id="rl" title="Turn left">⟲</button>
-  <button class="cb" id="rr" title="Turn right">⟳</button>
-  <button class="cb" id="zi" title="Closer">+</button>
-  <button class="cb" id="zo" title="Further">−</button>
-  <button class="cb txt" id="reset">Reset</button>
-  <span class="hint" id="hint">Drag to turn around the house</span>
-</div>
-
-<aside id="panel">
-  <div class="brand">RETROFIT CHECK</div>
-  <div class="q">Which energy upgrades is my house eligible for?</div>
-  <form class="search" id="searchForm">
-    <span>⌕</span><input id="addr" placeholder="Postcode or street in England" autocomplete="off"><button class="go" type="submit">Find</button>
+<header id="top">
+  <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40" width="40" height="40"><rect width="40" height="40" rx="11" fill="#2F5BEA"/><path d="M9 26 L20 15 L31 26 V33 H9 Z" fill="#FFFFFF"/><circle cx="31" cy="9" r="5.5" fill="#FFD21F"/></svg></div>
+  <span class="brandName">Retrofit Check</span>
+  <form class="search" id="searchForm" role="search">
+    <label class="sr" for="addr">Postcode or street in England</label>
+    <svg aria-hidden="true" viewBox="0 0 20 20" width="18" height="18"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M13 13 L18 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <input id="addr" placeholder="Postcode or street in England" autocomplete="off">
+    <button class="go" type="submit">Find</button>
   </form>
-  <div class="ex" id="examples"></div>
-  <div class="tap" id="tap">Now tap the roof of your house.</div>
-  <div id="err"></div>
+  <div class="here hid" id="here"></div>
+  <span class="meta">Rules for England · demo data</span>
+  <button class="theme" id="theme" type="button" aria-label="Switch between light and dark">◐</button>
+</header>
 
-  <div id="houseBox" class="hid">
-    <div class="place" id="place"></div>
-    <div class="ctx" id="ctx"></div>
-    <div class="you">
-      <label>Heating now
-        <select id="heating">
-          <option value="">Not sure</option><option value="gas">Gas boiler</option><option value="oil">Oil</option>
-          <option value="lpg">LPG</option><option value="electric">Electric</option><option value="heat_pump">Heat pump</option>
-        </select>
-      </label>
-      <label>Gas use <input id="gas" type="number" min="0" step="100" placeholder="kWh a year" title="From your bill or annual statement"></label>
-      <button class="link" id="noteToggle" type="button">Tell us something</button>
+<main id="app">
+  <section id="stage" aria-label="Map of the house">
+    <div id="map"></div>
+    <div id="ctrl">
+      <button class="cb" id="rl" type="button" aria-label="Turn left" title="Turn left">⟲</button>
+      <button class="cb" id="rr" type="button" aria-label="Turn right" title="Turn right">⟳</button>
+      <button class="cb" id="zi" type="button" aria-label="Closer" title="Closer">+</button>
+      <button class="cb" id="zo" type="button" aria-label="Further" title="Further">−</button>
+      <button class="cb txt" id="reset" type="button">Reset</button>
     </div>
-    <div class="note hid" id="noteBox">
-      <textarea id="note" rows="2" placeholder="For example: the lane on the side is our private drive"></textarea>
-      <button class="go small" id="noteSend" type="button">Check again</button>
-    </div>
-    <div class="mem" id="mem"></div>
-    <div class="h">What you can do here</div>
-    <div id="rows"></div>
-    <div class="foot" id="foot"></div>
-  </div>
-</aside>
+    <span class="hint" id="hint">Drag to turn around the house</span>
+    <span class="ind">Map · indicative</span>
+  </section>
 
-<section id="trace" class="closed">
-  <button id="traceToggle" type="button"><span id="traceDot"></span> How the agent worked <span id="traceCount"></span></button>
-  <div id="traceBody"></div>
-</section>
+  <aside id="panel" aria-live="polite" aria-busy="false">
+    <span class="eyebrow">RETROFIT CHECK · SOLAR</span>
+    <h1 class="q" id="question">Is my house eligible for solar panels?</h1>
+    <div class="ex" id="examples" role="group" aria-label="Example houses"></div>
+    <div class="tap" id="tap">Now tap the roof of your house.</div>
+    <div id="err" role="alert"></div>
+
+    <div id="houseBox" class="hid">
+      <h2 class="place" id="place"></h2>
+      <button class="factsLine" id="factsToggle" type="button" aria-expanded="false" aria-controls="facts"><span id="factsLine">Checking…</span> <b>All 7 facts ›</b></button>
+      <div id="facts" class="facts hid">
+        <h3 class="h">Your house: 7 facts</h3>
+        <dl id="factList"></dl>
+        <form class="elec" id="elecForm">
+          <label for="elec">Your electricity use in kWh a year, from your bill</label>
+          <div class="row2"><input id="elec" type="number" min="100" max="100000" step="10" inputmode="numeric" placeholder="for example 3100"><button class="go small" type="submit">Check again</button></div>
+        </form>
+        <button class="link" id="noteToggle" type="button" aria-expanded="false" aria-controls="noteBox">Something wrong? Tell us</button>
+        <div class="note hid" id="noteBox">
+          <label for="note" class="sr">Tell us what is wrong</label>
+          <textarea id="note" rows="2" placeholder="For example: the lane on the side is our private drive"></textarea>
+          <button class="go small" id="noteSend" type="button">Check again</button>
+        </div>
+      </div>
+      <div id="card"></div>
+      <p class="next">Coming next: heat pump, outside wall insulation.</p>
+      <p class="foot" id="foot"></p>
+    </div>
+  </aside>
+
+  <section id="trace" aria-label="How we checked">
+    <button id="traceToggle" type="button" aria-expanded="true" aria-controls="traceBody"><span id="traceDot" aria-hidden="true"></span>How we checked <span id="traceCount"></span><span class="every">every query, every challenge</span></button>
+    <ol id="traceBody"></ol>
+  </section>
+</main>
 
 <script src="/static/app.js"></script>
 <script src="/static/demo.js"></script>
