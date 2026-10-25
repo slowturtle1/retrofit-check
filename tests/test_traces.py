@@ -259,7 +259,6 @@ def test_the_critic_blocks_a_rewrite_that_adds_a_number(dartmouth, monkeypatch):
     assert critic[1]["retry_count"] == 1
 
 
-@pytest.mark.pending("A5")
 def test_a_blocked_rewrite_is_logged_as_blocked(dartmouth, monkeypatch):
     rec, v = dartmouth
     monkeypatch.setattr(explain, "rewrite", lambda result, v, draft, on_call, feedback=None: {"one": draft["one"], "why": draft["why"] + " It saves £999 a year."})
@@ -268,7 +267,6 @@ def test_a_blocked_rewrite_is_logged_as_blocked(dartmouth, monkeypatch):
     assert any(e["agent_name"] == "critic" and e["status"] == "blocked" for e in run.events)
 
 
-@pytest.mark.pending("A5")
 def test_a_model_failure_is_logged_as_a_fallback(dartmouth, monkeypatch):
     rec, v = dartmouth
     def down(*a, **k):
