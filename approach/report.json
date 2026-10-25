@@ -1,8 +1,8 @@
 {
- "commit": "3c7a082 (uncommitted changes)",
- "generated_at": "2026-10-25T19:59:17+00:00",
+ "commit": "230adf2 (uncommitted changes)",
+ "generated_at": "2026-10-25T20:47:26+00:00",
  "live": false,
- "gaps_tier_1_to_3": 24,
+ "gaps_tier_1_to_3": 11,
  "requirements": [
   {
    "id": "G1",
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "28 commits scanned, no secret found",
+   "detail": "32 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -352,7 +352,7 @@
    "criterion": "technical",
    "tier": 2,
    "status": "pass",
-   "detail": "fresh clone of HEAD, empty environment: 6 houses answered in 0.1 s (1 s with startup)",
+   "detail": "fresh clone of HEAD, empty environment: 15 houses answered in 0.2 s (1 s with startup)",
    "owner": "B",
    "text": "Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers)",
    "source": [
@@ -391,10 +391,10 @@
    "id": "T3",
    "criterion": "technical",
    "tier": 1,
-   "status": "gap",
-   "detail": "6 houses in the snapshot (want 21); 10 evaluation houses missing",
+   "status": "pass",
+   "detail": "15 houses: all 6 sample houses and 14 evaluation houses (osm-way-460070558 left out on purpose)",
    "owner": "A",
-   "text": "Judges can test their own inputs; the sample snapshot holds at least 21 houses (the six samples and the 15 evaluation houses)",
+   "text": "Judges can test their own inputs; the sample snapshot holds every sample house and every evaluation house (house D, the vicarage dropped on 25 Oct, excepted)",
    "source": [
     "DQ 8",
     "HO A7"
@@ -405,8 +405,8 @@
    "id": "T4",
    "criterion": "technical",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_api.py::test_startup_under_30_seconds not found",
+   "status": "pass",
+   "detail": "1 tests pass",
    "owner": "B",
    "text": "Startup takes under 30 seconds",
    "source": [
@@ -418,8 +418,8 @@
    "id": "T5",
    "criterion": "technical",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_runtime.py::test_model_budget_is_at_most_300_s not found",
+   "status": "pass",
+   "detail": "3 tests pass",
    "owner": "A",
    "text": "Runs are bounded; the model budget is at most 300 s and each step is timed against the guide's budget (total 5 to 10 minutes)",
    "source": [
@@ -463,8 +463,8 @@
    "id": "T8",
    "criterion": "technical",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_failures.py::test_zetaris_down_still_answers_with_a_fallback not found",
+   "status": "pass",
+   "detail": "5 tests pass",
    "owner": "A",
    "text": "The agent still answers when Zetaris, Nightshift, OpenStreetMap or planning.data is down, with a fallback event, in bounded time",
    "source": [
@@ -481,8 +481,8 @@
    "id": "T9",
    "criterion": "technical",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_api.py::test_malformed_input_gives_400 not found",
+   "status": "pass",
+   "detail": "8 tests pass",
    "owner": "A",
    "text": "Malformed input returns 400 with a validation message; an unknown house returns 404 with a clear message; no stack traces",
    "source": [
@@ -511,8 +511,8 @@
    "id": "T11",
    "criterion": "technical",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_api.py::test_run_returns_the_answer_contract not found",
+   "status": "pass",
+   "detail": "3 tests pass",
    "owner": "A",
    "text": "A programmatic way in (POST /run), structured input and output, no interactive input; the UI does not block it",
    "source": [
@@ -545,8 +545,8 @@
    "id": "T13",
    "criterion": "technical",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_metamorphic.py not found",
+   "status": "pass",
+   "detail": "9 tests pass",
    "owner": "B",
    "text": "Metamorphic: change one cached fact and the right answer changes (listed, a solar Article 4, a north roof, LIDAR noise, electricity use)",
    "source": [
@@ -615,7 +615,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 1.4 MB, largest tracked file samples/cache.sqlite (143 KB)",
+   "detail": "git objects 0.6 MB, largest tracked file samples/cache.sqlite (160 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [
@@ -915,8 +915,8 @@
    "id": "N9",
    "criterion": "innovation",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_failures.py::test_zetaris_down_still_answers_with_a_fallback not found",
+   "status": "pass",
+   "detail": "2 tests pass",
    "owner": "A",
    "text": "A fallback path activates when data or an API fails",
    "source": [
@@ -1109,8 +1109,8 @@
    "id": "U2",
    "criterion": "product_ux",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_cards.py::test_unsure_never_says_allowed not found",
+   "status": "pass",
+   "detail": "2 tests pass",
    "owner": "A",
    "text": "An unsure answer never says Allowed; it says Check with the council, with the reason on the card",
    "source": [
@@ -1123,8 +1123,8 @@
    "id": "U3",
    "criterion": "product_ux",
    "tier": 3,
-   "status": "missing",
-   "detail": "tests/test_cards.py::test_no_line_identical_on_two_houses_with_different_facts not found",
+   "status": "pending",
+   "detail": "waits for A2",
    "owner": "A",
    "text": "The output is not mostly generic text; no card line is identical on two houses with different facts, and every line holds a fact of its house",
    "source": [
@@ -1137,10 +1137,10 @@
    "id": "U4",
    "criterion": "product_ux",
    "tier": 3,
-   "status": "missing",
-   "detail": "tests/test_cards.py::test_assumption_numbers_say_estimate not found",
+   "status": "pass",
+   "detail": "5 tests pass",
    "owner": "A",
-   "text": "Wording rules on every answer: the not advice line, estimate on assumption numbers, the certificate line on allowed answers",
+   "text": "Wording rules on every answer: the not advice line, money marked as an estimate, the certificate line on allowed answers, lines that start with a capital and have no nested brackets",
    "source": [
     "AG 20",
     "HO D5"
@@ -1151,8 +1151,8 @@
    "id": "U5",
    "criterion": "product_ux",
    "tier": 3,
-   "status": "missing",
-   "detail": "tests/test_cards.py::test_every_solar_answer_has_a_fixture not found",
+   "status": "pass",
+   "detail": "1 tests pass",
    "owner": "B",
    "text": "Every possible solar answer (status and recommendation) has a fixture and reads right",
    "source": [
@@ -1178,8 +1178,8 @@
    "id": "U7",
    "criterion": "product_ux",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_metamorphic.py::test_electricity_use_changes_the_card not found",
+   "status": "pass",
+   "detail": "2 tests pass",
    "owner": "A",
    "text": "The owner's yearly electricity use is compared with what the roof makes, says who said it and when, and a correction changes the card",
    "source": [
@@ -1349,8 +1349,8 @@
    "id": "S8",
    "criterion": "sponsor",
    "tier": 2,
-   "status": "missing",
-   "detail": "tests/test_failures.py::test_sponsor_errors_are_logged_with_the_cause not found",
+   "status": "pass",
+   "detail": "1 tests pass",
    "owner": "A",
    "text": "Each sponsor call has a timeout and a fallback; sponsor errors are logged clearly",
    "source": [

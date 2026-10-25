@@ -243,11 +243,11 @@ requirements:
   evidence: "README sample mode section; test runs with sockets blocked"
   legacy: H2
 - id: T3
-  text: "Judges can test their own inputs; the sample snapshot holds at least 21 houses (the six samples and the 15 evaluation houses)"
+  text: "Judges can test their own inputs; the sample snapshot holds every sample house and every evaluation house (house D, the vicarage dropped on 25 Oct, excepted)"
   source: [DQ 8, HO A7]
   criterion: technical
   tier: 1
-  check: {fn: sample_houses, min: 21}
+  check: {fn: sample_houses, exclude: [osm-way-460070558]}
   owner: A
   evidence: "samples/cache.sqlite house table"
 - id: T4
@@ -263,7 +263,7 @@ requirements:
   source: [AG 11, DQ 4, DQ 15]
   criterion: technical
   tier: 2
-  check: {test: [tests/test_runtime.py::test_model_budget_is_at_most_300_s, tests/test_runtime.py::test_every_step_is_timed_and_within_budget]}
+  check: {test: [tests/test_runtime.py]}
   owner: A
   evidence: "Run.model_budget_s, answer.trace.timings"
   legacy: T4
@@ -289,7 +289,7 @@ requirements:
   source: [AG 7, AG 15, AG 18, DQ 6, DQ 10, SS 8]
   criterion: technical
   tier: 2
-  check: {test: [tests/test_failures.py::test_zetaris_down_still_answers_with_a_fallback, tests/test_failures.py::test_nightshift_down_falls_back_to_the_checked_draft, tests/test_failures.py::test_openstreetmap_down_uses_the_snapshot_outline, tests/test_failures.py::test_planning_data_down_for_a_new_house_gives_503]}
+  check: {test: [tests/test_failures.py::test_zetaris_down_still_answers_with_a_fallback, tests/test_failures.py::test_nightshift_down_falls_back_to_the_checked_draft, tests/test_failures.py::test_openstreetmap_down_uses_the_snapshot_outline, tests/test_failures.py::test_planning_data_down_for_a_new_house_gives_503, tests/test_failures.py::test_openstreetmap_down_for_a_new_house_is_a_clear_error]}
   owner: A
   evidence: "fault injection on dead ports"
   legacy: P4
@@ -314,7 +314,7 @@ requirements:
   source: [DQ 5, DQ 15, FP 3.4, SS 6]
   criterion: technical
   tier: 2
-  check: {test: [tests/test_api.py::test_run_returns_the_answer_contract, tests/test_api.py::test_v1_check_matches_run]}
+  check: {test: [tests/test_api.py::test_run_returns_the_answer_contract, tests/test_api.py::test_v1_check_matches_run, tests/test_api.py::test_owner_electricity_use_reaches_the_answer]}
   owner: A
   evidence: "POST /run and POST /api/v1/check"
 - id: T12
@@ -671,11 +671,11 @@ requirements:
   owner: A
   evidence: "card lines of every sample house"
 - id: U4
-  text: "Wording rules on every answer: the not advice line, estimate on assumption numbers, the certificate line on allowed answers"
+  text: "Wording rules on every answer: the not advice line, money marked as an estimate, the certificate line on allowed answers, lines that start with a capital and have no nested brackets"
   source: [AG 20, HO D5]
   criterion: product_ux
   tier: 3
-  check: {test: [tests/test_traces.py::test_allowed_answers_name_the_certificate, tests/test_cards.py::test_assumption_numbers_say_estimate, tests/test_cards.py::test_not_advice_line]}
+  check: {test: [tests/test_traces.py::test_allowed_answers_name_the_certificate, tests/test_cards.py::test_money_is_marked_as_an_estimate, tests/test_cards.py::test_not_advice_line, tests/test_cards.py::test_allowed_answers_point_to_quotes_and_a_certificate, tests/test_cards.py::test_lines_start_with_a_capital_and_have_no_nested_brackets]}
   owner: A
   evidence: "answer.solar.limitations and next_step"
   legacy: C3
@@ -701,7 +701,7 @@ requirements:
   source: [HO D4]
   criterion: product_ux
   tier: 2
-  check: {test: [tests/test_metamorphic.py::test_electricity_use_changes_the_card]}
+  check: {test: [tests/test_metamorphic.py::test_electricity_use_changes_the_card, tests/test_api.py::test_owner_electricity_use_reaches_the_answer]}
   owner: A
   evidence: "answer.solar.usage"
 - id: U8

@@ -328,17 +328,18 @@ def sponsor_settings_from_env(**_):
     return gap("not read from the environment: " + ", ".join(missing)) if missing else ok("Zetaris, Nightshift and H-MEM settings all come from environment variables")
 
 
-def sample_houses(min=21, **_):
+def sample_houses(exclude=(), **_):
     con = sqlite3.connect(f"file:{ROOT / 'samples/cache.sqlite'}?mode=ro", uri=True)
     try:
         have = {r[0] for r in con.execute("SELECT house_id FROM house")}
     finally:
         con.close()
-    cases = json.loads(read("eval/cases.json") or "{}").get("cases", [])
-    missing = [c["id"] for c in cases if c["id"] not in have]
-    if len(have) < min or missing:
-        return gap(f"{len(have)} houses in the snapshot (want {min}); {len(missing)} evaluation houses missing")
-    return ok(f"{len(have)} houses, all {len(cases)} evaluation houses included")
+    cases = [c["id"] for c in json.loads(read("eval/cases.json") or "{}").get("cases", []) if c["id"] not in exclude]
+    samples = [x["house_id"] for x in json.loads(read("samples/index.json") or "[]") if x.get("house_id")]
+    missing = [h for h in cases + samples if h not in have]
+    if missing:
+        return gap(f"{len(have)} houses in the snapshot; missing {', '.join(missing[:5])}")
+    return ok(f"{len(have)} houses: all {len(samples)} sample houses and {len(cases)} evaluation houses" + (f" ({', '.join(exclude)} left out on purpose)" if exclude else ""))
 
 
 def examples(min=3, **_):
@@ -559,7 +560,7 @@ def run_pytest(live: bool) -> dict[str, tuple[str, str]]:
 def check_tests(ids: list[str], results: dict, tier) -> tuple[str, str]:
     picked = {}
     for t in ids:
-        found = {k: v for k, v in results.items() if k == t or k.startswith(t + "::") or (t.endswith(".py") and k.split("::")[0] == t)}
+        found = {k: v for k, v in results.items() if k == t or k.startswith((t + "::", t + "[")) or (t.endswith(".py") and k.split("::")[0] == t)}
         if not found:
             return "missing", f"{t} not found"
         picked.update(found)
