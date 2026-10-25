@@ -56,9 +56,9 @@
       <div id="facts" class="facts hid">
         <h3 class="h">Your house: 7 facts</h3>
         <dl id="factList"></dl>
-        <form class="elec" id="elecForm">
+        <form class="elec" id="elecForm" novalidate>
           <label for="elec">Your electricity use in kWh a year, from your bill</label>
-          <div class="row2"><input id="elec" type="number" min="100" max="100000" step="10" inputmode="numeric" placeholder="for example 3100"><button class="go small" type="submit">Check again</button></div>
+          <div class="row2"><input id="elec" type="number" min="100" max="100000" step="1" inputmode="numeric" placeholder="for example 3100" aria-describedby="err"><button class="go small" type="submit">Check again</button></div>
         </form>
         <button class="link" id="noteToggle" type="button" aria-expanded="false" aria-controls="noteBox">Something wrong? Tell us</button>
         <div class="note hid" id="noteBox">

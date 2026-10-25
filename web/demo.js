@@ -30,7 +30,8 @@
   const runOf = async (key) => (await (await fetch(STATIC ? "samples/index.json" : "/api/samples")).json()).find((x) => x.key === key);
   const play = async (key) => { const x = await runOf(key); if (x) await replay(STATIC ? x.file.replace(/\.json$/, "") : x.key, 350); };
   const solar = () => (state.answer ? state.answer.solar : null);
-  const money = (s) => { const n = s.numbers || {}; return n.cost_gbp ? ` Rough cost ${gbp(n.cost_gbp[0])} to ${gbp(n.cost_gbp[1])}, pays back in ${n.payback_years[0]} to ${n.payback_years[1]} years.` : ""; };
+  const money = (s) => { const n = s.numbers || {};
+    return (n.cost_gbp ? ` Rough cost ${gbp(n.cost_gbp[0])} to ${gbp(n.cost_gbp[1])}.` : "") + (n.payback_years ? ` Pays back in ${n.payback_years[0]} to ${n.payback_years[1]} years.` : ""); };
 
   async function demo() {
     await wait(1500);

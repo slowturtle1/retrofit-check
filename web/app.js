@@ -103,7 +103,10 @@ function factsLine(a) {
   const f = Object.fromEntries((a.house_facts || []).map((x) => [x.key, x]));
   const bits = [];
   if (f.listed) bits.push(f.listed.value);
-  if (f.conservation_area) bits.push(f.conservation_area.value === "None" ? "not in a conservation area" : String(f.conservation_area.value).replace(/ \((\d{4})\)$/, " conservation area, $1"));
+  if (f.conservation_area) {
+    const ca = String(f.conservation_area.value);
+    bits.push(ca === "None" ? "not in a conservation area" : / \(\d{4}\)$/.test(ca) ? ca.replace(/ \((\d{4})\)$/, " conservation area, $1") : /conservation area/i.test(ca) ? ca : `${ca} conservation area`);
+  }
   const roof = f.roof && /^([a-z ]+) slope, ([\d.]+)°/.exec(f.roof.value || "");
   if (roof) bits.push(`${roof[1]} roof ${roof[2]}°`);
   if (f.electricity_use && f.electricity_use.value) bits.push(`${f.electricity_use.value} (you)`);
@@ -126,16 +129,18 @@ function chain(s) {
   return bits.filter(Boolean).map(esc).join(" → ");
 }
 
-function moneyRows(n) {
+const IF_YES = { check_with_council: "If the council says yes:", needs_permission: "If you get planning permission:", needs_consent: "If you get listed building consent:" };
+
+function moneyRows(n, status) {
   const rows = [];
   if (n.cost_gbp) rows.push(["Rough cost", range(n.cost_gbp, gbp)]);
   if (n.value_gbp_year) rows.push(["Value a year", range(n.value_gbp_year, gbp)]);
   if (n.payback_years) rows.push(["Pays back in", `${range(n.payback_years)} years`]);
-  return rows.length ? `<div class="money">${rows.map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div>` : "";
+  return rows.length ? `${IF_YES[status] ? `<p><b>${IF_YES[status]}</b></p>` : ""}<div class="money">${rows.map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div>` : "";
 }
 
 function sources(s) {
-  const rules = s.rules.map((r) => `<li class="src"><b>${esc(r.clause)}</b>, in force ${esc(fmtDate(r.in_force))}${r.amended_by ? ", last change " + esc(r.amended_by) : ""}. ${esc(r.plain || "")} ${r.source_url ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener">Read the rule</a>` : ""}</li>`);
+  const rules = s.rules.map((r) => `<li class="src"><b>${esc(r.clause)}</b>, in force ${esc(fmtDate(r.in_force))}${r.amended_by ? ", last change " + esc(r.amended_by) : ""}. ${esc(r.plain || "")} ${/^https?:/.test(r.source_url || "") ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener">Read the rule</a>` : ""}</li>`);
   const facts = s.facts.map((f) => { const url = /^https?:/.test(f.source || ""); return `<li class="src"><b>${esc(f.fact)}</b>: ${esc(String(f.value).replace(/\.$/, ""))}. ${url ? `<a href="${esc(f.source)}" target="_blank" rel="noopener">Source</a>` : esc(f.source)}${f.date ? ", " + esc(fmtDate(f.date)) : ""}</li>`; });
   return `<ul class="srcs">${[...rules, ...facts].join("")}</ul>`;
 }
@@ -148,7 +153,7 @@ function renderCard() {
   const pct = Math.round((conf.score || 0) * 100);
   const who = s.written_by === "nemotron" ? `Explained by Nemotron via Nightshift, checked by ${esc(s.checked_by || "code")}.`
     : `Written from the rules in code.${state.live ? " Nemotron is rewriting it now." : ""}`;
-  const addElec = !s.usage && !STATIC && s.numbers && s.numbers.kwh_year;
+  const addElec = !s.usage && !STATIC && !state.replay && s.numbers && s.numbers.kwh_year;
   $("card").innerHTML = `<div class="card ${state.open ? "open" : ""}">
     <button class="ch" id="cardHead" type="button" aria-expanded="${state.open}" aria-controls="cardBody">
       <span class="sun">${SUN}</span>
@@ -168,7 +173,7 @@ function renderCard() {
     <div class="cb2" id="cardBody">
       <div class="sec"><h3><span class="n">1</span>Why this answer</h3><p>${esc(l.why)}</p><div class="chain">${chain(s)}</div></div>
       <div class="sec"><h3><span class="n">2</span>What you can do</h3><p>${esc(l.get)}</p></div>
-      <div class="sec"><h3><span class="n">3</span>Money: cost, help with cost, payback</h3>${moneyRows(s.numbers || {})}<p>${esc(l.cost)}</p></div>
+      <div class="sec"><h3><span class="n">3</span>Money: cost, help with cost, payback</h3>${moneyRows(s.numbers || {}, s.status)}<p>${esc(l.cost)}</p></div>
       <div class="sec"><h3><span class="n">4</span>Next step</h3><p>${esc(s.next_step)}</p><ul class="lims">${(s.limitations || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
       <div class="sec"><h3><span class="n">5</span>Sources</h3>${sources(s)}</div>
       <div class="who">${who}</div>
@@ -180,7 +185,8 @@ function renderCard() {
 
 function renderAll() {
   const a = state.answer;
-  if (a) { renderFacts(); $("foot").textContent = `Checked ${fmtDate(new Date().toISOString())}. Rules for England, demo data for London. The rules decide the answer in code; the agents plan, challenge the evidence and explain. Not legal or financial advice.`; }
+  const day = (state.result && state.result.today) || (a && /^(\d{4})(\d{2})(\d{2})/.test(a.trace_id || "") ? a.trace_id.replace(/^(\d{4})(\d{2})(\d{2}).*/, "$1-$2-$3") : null);
+  if (a) { renderFacts(); $("foot").textContent = `Checked ${day ? fmtDate(day) : "on an unknown date"}. Rules for England, demo data for London. The rules decide the answer in code; the agents plan, challenge the evidence and explain. Not legal or financial advice.`; }
   renderCard();
 }
 
@@ -203,7 +209,7 @@ function trace(e) {
     case "memory_write": kind = "h-mem"; txt = `Remember ${e.kind}: ${e.content}${e.result && e.result.superseded ? " (replaces: " + e.result.superseded.content + ")" : ""}`; break;
     case "intake": txt = `Read your note: ${JSON.stringify(e.understood)}`; break;
     case "challenge": tag = `<span class="tag challenge">challenge</span>`; txt = e.text; break;
-    case "requery": tag = `<span class="tag again">checked again</span>`; kind = "zetaris"; txt = `${e.about}: ${e.text}`; break;
+    case "requery": tag = e.ok === false || e.status === "fallback" ? `<span class="tag soft">not settled</span>` : `<span class="tag again">checked again</span>`; kind = "zetaris"; txt = `${e.about}: ${e.text}`; break;
     case "answer": txt = e.answer ? `Answer: ${e.answer.solar.status_text} · ${e.answer.solar.recommendation || ""}` : "Answer from the rules"; break;
     case "answer_update": kind = "nemotron"; txt = "Nemotron's plain words passed the checks"; break;
     case "done": txt = `Done in ${e.seconds} s`; break;
@@ -227,35 +233,62 @@ function handle(e) {
   if (e.type === "error") { $("err").style.display = "block"; $("err").textContent = e.text; }
 }
 
-function resetForRun() {
+// The owner's inputs belong to one house: a new house or a replay clears them; replays cannot run a check.
+function setInputs(on) { $("elecForm").classList.toggle("hid", !on); $("noteToggle").classList.toggle("hid", !on); if (!on) $("noteBox").classList.add("hid"); }
+
+function resetForRun(sameHouse = false) {
   if (source) source.close();
+  if (!sameHouse) { $("elec").value = ""; $("note").value = ""; $("elec").removeAttribute("aria-invalid"); $("houseBox").classList.add("hid"); }
   state = { ...state, answer: null, result: null, old: false, open: false, live: true };
   $("card").innerHTML = ""; $("err").style.display = "none"; $("traceBody").innerHTML = ""; evCount = 0;
   $("traceDot").classList.add("live"); $("tap").classList.remove("on"); tapMode = false; $("panel").setAttribute("aria-busy", "true");
   if (viewer) clearOverlay();
 }
 
-async function startCheck(body) {
-  resetForRun();
-  state.request = body;
-  const payload = { ...body, note: $("note").value.trim() || null, elec_kwh: +$("elec").value || null };
-  const r = await fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
-  if (!r.ok) { handle({ type: "error", text: (await r.text()).slice(0, 200) }); return; }
-  const { run_id } = await r.json();
-  source = new EventSource(`/api/runs/${run_id}/events`);
-  source.onmessage = (m) => handle(JSON.parse(m.data));
-  source.addEventListener("end", () => { source.close(); state.live = false; renderCard(); });
+async function apiError(r) {
+  const text = await r.text();
+  try { const j = JSON.parse(text); return (j.error && j.error.message) || (typeof j.detail === "string" ? j.detail : "the input was not accepted"); } catch (e) { return text.slice(0, 160) || `error ${r.status}`; }
+}
+
+// said: what the owner typed for this same house (electricity use, a note); absent for a new house.
+async function startCheck(body, said) {
+  resetForRun(!!said);
+  state.request = body; state.replay = false;
+  if (!STATIC) setInputs(true);
+  const payload = { ...body, note: (said && said.note) || null, elec_kwh: (said && said.elec_kwh) || null };
+  try {
+    const r = await fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+    if (!r.ok) { handle({ type: "error", text: `The check could not start: ${await apiError(r)}` }); return; }
+    const { run_id } = await r.json();
+    source = new EventSource(`/api/runs/${run_id}/events`);
+    source.onmessage = (m) => handle(JSON.parse(m.data));
+    source.addEventListener("end", () => { source.close(); state.live = false; renderCard(); });
+    source.onerror = () => { if (!state.live) return; source.close(); handle({ type: "error", text: "Lost the connection to the server before the check finished. Try again." }); };
+  } catch (e) { handle({ type: "error", text: "Could not reach the server. Is it running?" }); }
+}
+
+// Send what the owner typed, for the house on screen; the number is checked first.
+function sendSaid() {
+  if (!state.request || state.live) return;
+  const el = $("elec");
+  if (el.value && !el.checkValidity()) {
+    el.setAttribute("aria-invalid", "true"); el.focus();
+    $("err").style.display = "block"; $("err").textContent = "Electricity use must be a whole number of kWh a year, between 100 and 100,000. You find it on your bill.";
+    return;
+  }
+  el.removeAttribute("aria-invalid");
+  startCheck(state.request, { elec_kwh: +el.value || null, note: $("note").value.trim() || null });
 }
 
 async function replay(name, maxGapMs = 1200) {
-  resetForRun();
+  resetForRun(); state.replay = true; setInputs(false);
   const r = await fetch(api.run(name));
   if (!r.ok) { handle({ type: "error", text: "no recorded run " + name }); return; }
   const run = await r.json();
   $("hint").textContent = `Replay of a recorded run · ${run.run_id}`;
   let prev = 0;
   for (const e of run.events) { await new Promise((ok) => setTimeout(ok, Math.min(maxGapMs, Math.max(40, (e.t - prev) * 1000)))); prev = e.t; handle(e); }
-  state.live = false; renderCard();
+  state.live = false; $("traceDot").classList.remove("live"); $("panel").setAttribute("aria-busy", "false"); renderCard();
 }
 
 /* ---------------- search, tap and inputs ---------------- */
@@ -280,8 +313,8 @@ $("searchForm").onsubmit = async (ev) => {
 };
 $("factsToggle").onclick = () => openFacts($("facts").classList.contains("hid"));
 $("noteToggle").onclick = () => { const open = $("noteBox").classList.toggle("hid") === false; $("noteToggle").setAttribute("aria-expanded", String(open)); };
-$("noteSend").onclick = () => { if (state.request) startCheck(state.request); };
-$("elecForm").onsubmit = (ev) => { ev.preventDefault(); if (state.request && !state.live) startCheck(state.request); };
+$("noteSend").onclick = sendSaid;
+$("elecForm").onsubmit = (ev) => { ev.preventDefault(); sendSaid(); };
 $("traceToggle").onclick = () => { const closed = $("trace").classList.toggle("closed"); $("traceToggle").setAttribute("aria-expanded", String(!closed)); };
 $("theme").onclick = () => {
   const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
@@ -312,11 +345,17 @@ async function main() {
   }
   const opts = { baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false };
   if (window.GOOGLE_MAPS_API_KEY) {
-    viewer = new Cesium.Viewer("map", { ...opts, baseLayer: false });
-    viewer.scene.globe.show = false;
-    try { viewer.scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset(window.GOOGLE_MAPS_API_KEY)); }
-    catch (e) { $("err").style.display = "block"; $("err").textContent = "Google 3D did not load: " + (e && e.message ? e.message : e); return; }
-  } else {
+    try {
+      viewer = new Cesium.Viewer("map", { ...opts, baseLayer: false });
+      viewer.scene.globe.show = false;
+      viewer.scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset(window.GOOGLE_MAPS_API_KEY));
+    } catch (e) {   // key set but refused: same page on the OSM map
+      $("err").style.display = "block"; $("err").textContent = "Google 3D did not load, so the page uses the OpenStreetMap map. " + (e && e.message ? e.message : e);
+      if (viewer) viewer.destroy();
+      viewer = null; window.GOOGLE_MAPS_API_KEY = "";
+    }
+  }
+  if (!viewer) {
     // No Google key (a fresh clone, or a judge's machine): OpenStreetMap tiles on a flat globe, same overlays.
     viewer = new Cesium.Viewer("map", { ...opts, baseLayer: new Cesium.ImageryLayer(new Cesium.OpenStreetMapImageryProvider({ url: "https://tile.openstreetmap.org/" })) });
     CLASSIFY = () => Cesium.ClassificationType.TERRAIN;
@@ -329,7 +368,7 @@ async function main() {
     const p = (viewer.scene.pickPositionSupported && viewer.scene.pickPosition(click.position)) || viewer.camera.pickEllipsoid(click.position);  // flat map: the ellipsoid
     if (!p) return;
     const c = Cesium.Cartographic.fromCartesian(p);
-    startCheck({ lat: c.latitude / D2R, lon: c.longitude / D2R, label: $("addr").value.trim() || null });
+    startCheck({ lat: c.latitude / D2R, lon: c.longitude / D2R, label: $("addr").value.trim() || null });   // a new house: inputs cleared
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   const rp = new URLSearchParams(location.search).get("replay");
   if (rp) replay(rp);
