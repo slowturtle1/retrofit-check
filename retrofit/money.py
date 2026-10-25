@@ -24,7 +24,7 @@ def _r(x: float, step: int = 10) -> int:
 
 def solar(v: dict, p: dict) -> dict:
     n = v.get("numbers") or {}
-    if v["status"] not in ("allowed", "allowed_with_conditions") or set(v["uncertain"]) & UNSURE:
+    if v["status"] not in ("allowed", "allowed_with_conditions"):
         return {"recommendation": COUNCIL}
     if not n.get("kwp"):
         return {"recommendation": NOT_WORTH, "why": "No roof slope faces between east and west."}
@@ -38,9 +38,11 @@ def solar(v: dict, p: dict) -> dict:
     why = None
     if kwp < MIN_KWP:
         why = f"Only about {kwp} kWp of usable roof: fixed costs such as scaffolding make a system this small poor value."
+        payback = None   # the per kW cost series leave out those fixed costs, so a payback here would flatter it
     elif "lidar_noisy" in v["uncertain"]:
         why = "The roof reading is rough (trees or chimneys); an installer's survey will confirm the space."
-    return {"recommendation": NOT_WORTH if weak else WORTH, "why": why, "cost": cost, "value_year": value, "payback_years": payback,
+    rec = COUNCIL if set(v["uncertain"]) & UNSURE else NOT_WORTH if weak else WORTH
+    return {"recommendation": rec, "why": why, "cost": cost, "value_year": value, "payback_years": payback,
             "uses": ["solar_cost_gb_median", "solar_cost_london_mean", "elec_rate", "seg_low", "seg_high", "self_use_low", "self_use_high"],
             "note": "MCS certified installer needed for export payments."}
 

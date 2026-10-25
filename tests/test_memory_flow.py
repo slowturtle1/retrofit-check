@@ -77,15 +77,30 @@ def test_gas_then_oil_changes_the_answer_and_cites_the_owner(hmem_url):
     assert said_on == date.today().isoformat()
 
 
-def test_gas_use_is_asked_once_and_recalled_next_time(hmem_url):
-    """Session 1: the owner gives gas use. Session 2: the agent recalls it, cites the owner and does not ask again."""
+def test_electricity_use_is_remembered_compared_and_corrected(hmem_url):
+    """D4, the H-MEM feature. Session 1: the owner gives yearly electricity use and the solar card compares it with
+    what the roof makes. Session 2: nothing typed; the agent recalls it with its date and does not ask again.
+    Session 3: the owner corrects it; the old value is kept as history and the card changes."""
     from retrofit.agent import memory
     from retrofit.agent.run import Run
 
-    house = "osm-way-gas-test"
-    memory.remember(house, "gas_use", "Gas use: 12000 kWh a year", "you told us")
-    run = Run(use_model=False)
-    ctx = run.recall(house)
-    ctx = run.intake(house, None, None, ctx, gas_kwh=None)
-    assert ctx["gas_kwh"] == 12000.0 and ctx["gas_said_on"] == date.today().isoformat()
-    assert any("No need to ask again" in e.get("text", "") for e in run.events)
+    way, house, today = 1106478076, "osm-way-1106478076", date.today()
+    said = today.strftime("%-d %b %Y")
+
+    first = Run(offline=True, use_memory=True).check(way=way, elec_kwh=3100)["answer"]
+    assert first["solar"]["usage"]["text"] == f"Your roof could make about 94% of the 3,100 kWh you use a year (you told us, {said})."
+    fact = next(f for f in first["house_facts"] if f["key"] == "electricity_use")
+    assert fact["value"] == "3,100 kWh a year" and fact["source"] == "you told us" and fact["date"] == today.isoformat()
+
+    run = Run(offline=True, use_memory=True)
+    second = run.check(way=way)
+    assert second["answer"]["solar"]["usage"] == first["solar"]["usage"]
+    assert any(e["type"] == "memory_recall" and e["agent_name"] == "memory" and e["target_agent"] == "planner" for e in second["events"])
+    assert any("No need to ask again" in (e.get("text") or "") for e in second["events"])
+
+    run = Run(offline=True, use_memory=True)
+    third = run.check(way=way, elec_kwh=4500)["answer"]
+    assert third["solar"]["usage"]["share_pct"] == 65 and "4,500 kWh" in third["solar"]["usage"]["text"]
+    assert any("keep the old note as history" in (e.get("text") or "") for e in run.events)
+    live = [m for m in memory.recall(house) if m["kind"] == "elec_use"]
+    assert [m["content"] for m in live] == ["Electricity use: 4500 kWh a year"]

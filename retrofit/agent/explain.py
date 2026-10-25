@@ -61,7 +61,102 @@ def evidence_text(result: dict, v: dict) -> str:
     return "\n".join(lines)
 
 
+def _true(x) -> bool:
+    return str(x).lower() in ("true", "t", "1")
+
+
+def _gbp(pair) -> str:
+    return f"£{int(pair[0]):,} to £{int(pair[1]):,}"
+
+
+def solar_lines(result: dict, v: dict) -> dict:
+    """The solar card, built from this house's facts: its name, listing, area, roads, roof, numbers and council.
+    General law stays in the rules list (Sources) with its link; each line here applies it to this house."""
+    n, m = v["numbers"] or {}, (result.get("money") or {}).get("solar") or {}
+    label = "This house"
+    council = result.get("council") or "the council"
+    areas = result.get("areas") or []
+    ca = next((a for a in areas if a["dataset"] == "conservation-area"), None)
+    ca_name = f"{ca['name']} Conservation Area" + (f" ({ca['start_date'][:4]})" if ca.get("start_date") else "") if ca else None
+    roads = list(dict.fromkeys(f"{compass(w['facing_deg'])} wall faces {w['highway_name']}" for w in result.get("walls") or []
+                               if _true(w.get("fronts_highway")) and w.get("highway_name")))
+    planes = result.get("planes") or []
+    best = next((p for p in planes if p["facing"] == n.get("facing")), None)
+    side = compass_name(n.get("facing"))
+    slope = f"{side} roof slope" + (f" ({best['pitch_deg']}°)" if best else "")
+    noise = (result.get("survey") or {}).get("noise_pct")
+    a4 = [re.sub(r", from \d{4}-\d{2}-\d{2}\)", ")", f["value"]) for f in v["facts"] if f["fact"] == "article-4"]
+    disagree = next((f["value"] for f in v["facts"] if f["fact"] == "sources disagree"), None)
+    if disagree and (d := re.search(r"lists (\S+) with no end date; the council ended it on (\d{4}-\d{2}-\d{2})", disagree)):
+        disagree = f"planning.data still lists Article 4 {d.group(1)}, but {council} ended it on {_d(d.group(2))}, so we follow {council}."
+    unsure = set(v["uncertain"])
+
+    if v["status"] == "needs_consent":
+        listing = next((a for a in areas if a["dataset"].startswith("listed")), {})
+        grade = f"Grade {listing['grade']} listed" if listing.get("grade") else "Listed"
+        since = f" since {_d(listing.get('start_date'))}" if listing.get("start_date") else ""
+        return {"one": f"{grade}{since}: panels need listed building consent first.",
+                "why": (f"{label} has been {grade}{since}" if since else f"{label} is {grade}") + ", so panels are not permitted development here and {council} decides. "
+                       "The roof was not measured, because consent comes first.",
+                "get": f"Ask {council}'s conservation officer whether panels on a roof slope hidden from the street could get consent.",
+                "cost": f"No cost estimate for a {grade} house until consent is clear. Listed building consent is free to apply for."}
+    if v["status"] == "needs_permission":
+        ref = a4[0].split(":")[0] if a4 else "An Article 4 direction"
+        return {"one": f"{ref} removes the right to add panels here: you need planning permission.",
+                "why": f"{label} is covered by {ref}, which takes away permitted development for solar panels, so {council} must approve them.",
+                "get": f"Your {slope} could make about {n['kwh_year']:,} kWh a year if {council} approves." if n else f"Ask {council} before you plan panels.",
+                "cost": f"A householder application to {council} costs £548. Cost of the panels is shown once permission is likely." }
+    if v["status"] == "check_with_council" or unsure & {"article4_unknown", "article4_coverage_unknown", "listed_point_only"}:
+        if "article4_unknown" in unsure or v["status"] == "check_with_council":
+            ref = a4[0].split(":")[0] if a4 else "An Article 4 direction"
+            one, why = (f"{ref} covers {label} and we do not know what it removes.",
+                        f"{council} has not published what {ref} takes away, so we will not guess whether panels need permission.")
+        elif "article4_coverage_unknown" in unsure:
+            one = f"{council} has not published Article 4 directions for {ca_name or 'its conservation areas'}, so we cannot rule one out."
+            why = (f"{label} is not listed and sits in {ca_name}. " if ca_name else f"{label} is not listed. ") + \
+                  f"Panels on the {slope} would be permitted development unless an Article 4 direction removes that right, and {council} keeps that record itself."
+        else:
+            one, why = (f"The listing near {label} was found as a point only, so it may belong to the building next door.",
+                        "If the house is listed, panels need listed building consent; if it is not, they are likely permitted development.")
+        get = f"Your {slope} could make about {n['kwh_year']:,} kWh a year from about {n['kwp']} kWp if {council} says yes." if n else f"Ask {council} first."
+        cost = (f"If {council} says yes: about {_gbp(m['cost'])} to install {n['kwp']} kWp, worth about {_gbp(m['value_year'])} a year."
+                if m.get("cost") else f"Cost is shown once {council} confirms.")
+        return {"one": one, "why": why, "get": get, "cost": cost}
+
+    # Allowed under permitted development
+    if not n:
+        return {"one": f"Allowed, but no roof slope at {label} faces between east and west.",
+                "why": f"{label} is not listed" + (f" and sits in {ca_name}" if ca_name else "") + ". Panels are allowed, but a roof facing north makes little.",
+                "get": "Little direct sun on this roof.", "cost": f"No cost estimate for {label}: the roof gets too little sun."}
+    one = f"Your {slope} has room for about {n['kwp']} kWp, about {n['kwh_year']:,} kWh a year."
+    why = [f"{label} is not listed" + (f" and sits in {ca_name}." if ca_name else " and is not in a conservation area.")]
+    if ca_name and roads:
+        why.append(f"In a conservation area panels cannot go on a wall that faces a road: your {' and your '.join(roads)}. Roof slopes are fine, so the {side} slope can take them.")
+    elif ca_name:
+        why.append(f"In a conservation area panels cannot go on a wall that faces a road; roof slopes are fine, so the {side} slope can take them.")
+    else:
+        why.append(f"Panels on the {side} slope are permitted development if they stay within 20 cm of the roof and below the ridge.")
+    if disagree:
+        why.append(disagree)
+    elif a4 and ca_name:
+        refs = "; ".join(x.split(":")[0] for x in a4)
+        why.append(f"The Article 4 directions on file here ({refs}) do not cover solar panels.")
+    if "lidar_noisy" in unsure and noise is not None:
+        why.append(f"The roof reading is rough ({noise}% of it is trees or chimneys), so an installer should measure it.")
+    get = f"About {n['kwp']} kWp on the {side} slope, about {n['kwh_year']:,} kWh a year."
+    if m.get("payback_years"):
+        cost = (f"For {n['kwp']} kWp: about {_gbp(m['cost'])} to install, worth about {_gbp(m['value_year'])} a year, "
+                f"so about {m['payback_years'][0]} to {m['payback_years'][1]} years to pay back. No VAT on panels until 31 Mar 2027.")
+    elif m.get("cost"):
+        cost = f"For {n['kwp']} kWp: about {_gbp(m['cost'])} to install. {m.get('why') or ''}".strip()
+    else:
+        cost = "No VAT on panels until 31 Mar 2027."
+    return {"one": one, "why": " ".join(why), "get": get, "cost": cost}
+
+
 def template(result: dict, v: dict) -> dict:
+    if v["measure"] == "solar":
+        return {**solar_lines(result, v), "writer": "template"}
     ev = evidence(result, v)
     area = " and ".join(a if "conservation area" in a.lower() or v["measure"] == "" else a + " Conservation Area" for a in result["protected"]) if result["protected"] else ""
     rules, grants, n = ev["rules"], ev["grants"], v["numbers"]

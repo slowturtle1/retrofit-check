@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import date
 
 from . import schema
+from .rules import HEADLINES
 
 GENERAL_LIMITS = [
     "Rules for England, demo data for London.",
@@ -16,28 +17,58 @@ GENERAL_LIMITS = [
     "Not legal or financial advice.",
 ]
 
-LDC = "If you want it in writing, apply to the council for a lawful development certificate."
+LDC = "If you want it in writing, apply to {council} for a lawful development certificate."
 
 NEXT = {
-    "needs_consent": "Talk to the council's conservation officer before you plan anything.",
-    "needs_permission": "Ask the council about a planning application before you plan anything.",
-    "check_with_council": "Ask the council which permitted development rights the Article 4 direction removes.",
+    "needs_consent": "Talk to {council}'s conservation officer before you plan anything.",
+    "needs_permission": "Ask {council} about a planning application before you plan anything.",
+    "check_with_council": "Ask {council}'s planning team whether an Article 4 direction removes the right to add solar panels here.",
 }
 NEXT_BY_RECOMMENDATION = {
     "Worth getting quotes": "Get quotes from two or three MCS certified installers.",
-    "Ask the council first": "Ask the council's planning team before you get quotes.",
+    "Ask the council first": "Ask {council}'s planning team before you get quotes.",
     "Probably not worth it for this house": "Ask one MCS certified installer to look at the roof only if you still want panels.",
 }
 
 
-def next_step(v: dict, recommendation: str | None) -> str:
-    step = NEXT.get(v["status"]) or NEXT_BY_RECOMMENDATION.get(recommendation or "", "Ask the council's planning team.")
-    return f"{step} {LDC}" if v["status"].startswith("allowed") else step
+def shown_status(v: dict) -> str:
+    """D3: when the legal answer itself is open, the card says so and never says allowed."""
+    return "check_with_council" if set(v["uncertain"]) & schema.UNSURE else v["status"]
 
 
-def limitations(v: dict, prices: dict, uncertain_text: dict) -> list[str]:
+def next_step(v: dict, recommendation: str | None, council: str | None = None) -> str:
+    status = shown_status(v)
+    step = NEXT.get(status) or NEXT_BY_RECOMMENDATION.get(recommendation or "", "Ask {council}'s planning team.")
+    step = step.format(council=council or "the council")
+    return f"{step} {LDC.format(council=council or 'the council')}" if status.startswith("allowed") else step
+
+
+def confidence_text(res: dict, v: dict, level: str) -> str:
+    """One line for the card: the level and the reason, in this house's terms."""
+    council = res.get("council") or "the council"
+    noise = (res.get("survey") or {}).get("noise_pct")
+    u = set(v["uncertain"])
+    if level == "low":
+        if "article4_coverage_unknown" in u:
+            return f"Low: {council} has not published its conservation area Article 4 directions, so one could exist."
+        if "listed_point_only" in u:
+            return "Low: the listing was found as a point only, so it may belong to the building next door."
+        return "Low: an Article 4 direction covers this house and what it removes is not on file."
+    if level == "medium":
+        if "lidar_noisy" in u:
+            return f"Medium: the rules are clear, but the roof reading is rough ({noise}% trees or chimneys)."
+        if "no_sunny_roof" in u:
+            return "Medium: the rules are clear, but no roof slope faces between east and west."
+        return f"Medium: planning.data and {council} disagree about an Article 4 direction; we follow {council}."
+    if v["status"] == "needs_consent":
+        return "High: the listing is on Historic England's register with an outline that covers this building."
+    clean = f", and the roof reading is clean ({noise}% trees or chimneys)" if noise is not None else ""
+    return f"High: the listing, conservation area and Article 4 records agree{clean}."
+
+
+def limitations(v: dict, prices: dict, uncertain_text: dict, money: dict | None = None) -> list[str]:
     out = [uncertain_text.get(u, u) for u in v["uncertain"]]
-    if any(str(p.get("kind")) == "assumption" for k, p in prices.items() if k.startswith("self_use")):
+    if (money or {}).get("value_year") and any(str(p.get("kind")) == "assumption" for k, p in prices.items() if k.startswith("self_use")):
         out.append("How much of the electricity you use at home is an estimate (a quarter to a half without a battery).")
     return out + GENERAL_LIMITS
 
@@ -101,16 +132,18 @@ def build(rec: dict, mode: str, uncertain_text: dict) -> dict:
         if m.get(k):
             numbers[out] = list(m[k])
     events = rec.get("events", [])
+    conf = schema.confidence(v)
     return {
         "schema": schema.VERSION,
         "trace_id": rec["run_id"], "run_id": rec["run_id"], "mode": mode, "seconds": rec.get("seconds"),
         "question": schema.QUESTION,
         "house": {k: res["house"].get(k) for k in ("house_id", "label", "lat", "lon", "building", "footprint_m2", "source")},
         "solar": {
-            "status": v["status"], "status_text": v["headline"], "recommendation": m.get("recommendation"),
-            "confidence": schema.confidence(v),
-            "limitations": limitations(v, res.get("prices") or {}, uncertain_text),
-            "next_step": next_step(v, m.get("recommendation")),
+            "status": shown_status(v), "status_text": HEADLINES[shown_status(v)], "rules_status": v["status"],
+            "recommendation": m.get("recommendation"),
+            "confidence": {**conf, "text": confidence_text(res, v, conf["level"])},
+            "limitations": limitations(v, res.get("prices") or {}, uncertain_text, m),
+            "next_step": next_step(v, m.get("recommendation"), res.get("council")),
             "facts": facts(v, owner),
             "rules": [{"id": k, **{f: res["rules"][k].get(f) for f in ("clause", "plain", "in_force", "amended_by", "source_url")}}
                       for k in v["rules"] + v["conditions"] if k in res["rules"]],

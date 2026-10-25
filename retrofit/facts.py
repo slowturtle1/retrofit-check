@@ -55,7 +55,7 @@ def gather(house: dict, z: Zetaris, step: Step, refresh: bool = False) -> dict:
     walls = _timed(step, "osm_walls", "OpenStreetMap API", osm.walls, house)
     roof, pv = None, None
     if listed:
-        step({"type": "decision", "text": "The building is listed, so every one of the three upgrades needs listed building consent whatever the roof is like. Skipping the LIDAR roof survey and PVGIS.", "branch": "listed_stop"})
+        step({"type": "decision", "text": "The building is listed, so panels need listed building consent whatever the roof is like. Skipping the LIDAR roof survey and PVGIS.", "branch": "listed_stop"})
     else:
         roof = _timed(step, "lidar_roof", "Environment Agency LIDAR DSM 1 m", lidar.measure, house["coords"])
         if roof["noise_pct"] > NOISE_LIMIT:

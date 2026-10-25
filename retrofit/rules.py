@@ -224,5 +224,5 @@ HEADLINES = {
     "allowed_with_conditions": "Allowed under permitted development, if conditions are met",
     "needs_permission": "Needs planning permission",
     "needs_consent": "Needs listed building consent",
-    "check_with_council": "Check with your council",
+    "check_with_council": "Check with the council",
 }

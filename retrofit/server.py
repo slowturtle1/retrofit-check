@@ -50,6 +50,7 @@ class CheckIn(BaseModel):
     note: str | None = None
     heating: str | None = None
     gas_kwh: float | None = None
+    elec_kwh: float | None = None
     use_model: bool = True
 
 
@@ -103,7 +104,7 @@ def start_check(body: CheckIn):
 
     def work():
         try:
-            run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh)
+            run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh, elec_kwh=body.elec_kwh)
         except LookupError as e:
             run.emit({"type": "error", "code": "not_found", "text": str(e)[:300]})
         except Exception as e:  # shown in the trace; the page stays usable
@@ -127,7 +128,7 @@ def check_sync(body: CheckSyncIn):
         return _err(400, "bad_request", "Give an OpenStreetMap way id ('way') or a point ('lat' and 'lon').")
     run = Run(use_model=body.use_model and not SAMPLE, offline=SAMPLE)
     try:
-        rec = run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh)
+        rec = run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh, elec_kwh=body.elec_kwh)
     except LookupError as e:
         return _err(404, "not_found", str(e))
     except Exception as e:  # noqa: BLE001  structured, no stack trace

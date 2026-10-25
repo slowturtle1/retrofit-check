@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
 USER_AGENT = "retrofit-check-hackathon/0.1 (Open Agent Hackathon 2026)"
+# What the check answers. Heat pump and outside wall insulation are still computed by rules.py, but not shown (next version).
+MEASURES = ("solar",)
 
 
 def env(name: str, default: str | None = None) -> str:

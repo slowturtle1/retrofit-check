@@ -21,7 +21,7 @@ from typing import Callable
 from .. import facts as facts_mod
 from .. import answer as answer_mod
 from .. import money, rules, schema
-from ..config import ROOT
+from ..config import MEASURES, ROOT
 from ..sources import osm
 from ..zetaris import Zetaris
 from . import evaluator, explain, llm, memory
@@ -65,7 +65,8 @@ def _keyword_intake(note: str) -> dict:
 
 
 class Run:
-    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float = 900, offline: bool = False):
+    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float = 900, offline: bool = False,
+                 use_memory: bool | None = None):
         self.id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:6]
         self.events: list[dict] = []
         self._emit = emit
@@ -73,6 +74,7 @@ class Run:
         self.model_budget_s = model_budget_s
         self.started = time.time()
         self.offline = offline
+        self._use_memory = use_memory   # None: H-MEM when it runs, never in sample mode
         if offline:  # sample mode: same agent, the Zetaris tables come from a local snapshot, no model, no network
             from ..offline import OfflineZetaris
             self.z = OfflineZetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}))
@@ -106,7 +108,9 @@ class Run:
         self.emit({"type": "model", **c})
 
     def _mem(self) -> bool:
-        return not self.offline and memory.available()
+        if self._use_memory is None:
+            self._use_memory = not self.offline and memory.available()
+        return self._use_memory
 
     # ------------------------------------------------------------------ steps
 
@@ -138,11 +142,11 @@ class Run:
         return house
 
     def recall(self, house_id: str) -> dict:
-        if self.offline:
-            self.say("Sample mode: H-MEM is not used, so nothing from earlier visits is recalled.")
+        if self.offline and not self._mem():
+            self.say("Sample mode: H-MEM is not used, so nothing from earlier visits is recalled.", agent="memory")
             return {}
-        if not memory.available():
-            self.say("H-MEM is not running, so nothing from earlier visits can be used.", level="warn")
+        if not self._mem():
+            self.say("H-MEM is not running, so nothing from earlier visits can be used.", level="warn", agent="memory", status="fallback")
             return {}
         mems = memory.recall(house_id)
         self.emit({"type": "memory_recall", "memories": mems})
@@ -164,13 +168,21 @@ class Run:
                     ctx["gas_said_on"] = m["learnedAt"][:10]
                 except (IndexError, ValueError):
                     pass
+            elif kind == "elec_use":
+                try:
+                    ctx["elec_kwh"] = float(content.split(":", 1)[1].split()[0].replace(",", ""))
+                    ctx["elec_said_on"] = m["learnedAt"][:10]
+                    ctx["elec_memory"] = m["id"]
+                except (IndexError, ValueError):
+                    pass
             elif kind == "outcome":
                 ctx["last_outcome"] = m
         if mems:
-            self.say(f"I remember {len(mems)} thing(s) about this house from earlier.")
+            self.say(f"I remember {len(mems)} thing(s) about this house from earlier.", agent="memory")
         return ctx
 
-    def intake(self, house_id: str, note: str | None, heating: str | None, ctx: dict, gas_kwh: float | None = None) -> dict:
+    def intake(self, house_id: str, note: str | None, heating: str | None, ctx: dict, gas_kwh: float | None = None,
+               elec_kwh: float | None = None) -> dict:
         today = date.today().isoformat()
         said: dict = {}
         if note:
@@ -191,12 +203,23 @@ class Run:
             ctx["heating"], ctx["heating_said_on"] = said["heating"], today
             if r:
                 self.emit({"type": "memory_write", "kind": "heating", "content": said["heating"], "result": r})
+        if elec_kwh and elec_kwh != ctx.get("elec_kwh"):
+            r = memory.remember(house_id, "elec_use", f"Electricity use: {int(elec_kwh)} kWh a year", "you told us") if self._mem() else None
+            if r and r.get("superseded"):
+                self.say(f"You told me {int(ctx['elec_kwh']):,} kWh a year on {ctx['elec_said_on']}; I now use {int(elec_kwh):,} kWh and keep the old note as history.", agent="memory")
+            ctx["elec_kwh"], ctx["elec_said_on"] = float(elec_kwh), today
+            if r:
+                self.emit({"type": "memory_write", "kind": "elec_use", "content": f"{int(elec_kwh)} kWh a year", "result": r})
+        elif ctx.get("elec_kwh"):
+            self.say(f"Using the electricity use you gave me on {ctx['elec_said_on']}: {int(ctx['elec_kwh']):,} kWh a year. No need to ask again.", agent="memory")
+        elif "solar" in MEASURES:
+            self.say("Nobody has told me how much electricity this house uses, so I cannot compare it with what the roof makes.", ask="elec_kwh")
         if gas_kwh and gas_kwh != ctx.get("gas_kwh"):
             r = memory.remember(house_id, "gas_use", f"Gas use: {int(gas_kwh)} kWh a year", "you told us") if self._mem() else None
             ctx["gas_kwh"], ctx["gas_said_on"] = float(gas_kwh), today
             if r:
                 self.emit({"type": "memory_write", "kind": "gas_use", "content": f"{int(gas_kwh)} kWh a year", "result": r})
-        elif ctx.get("gas_kwh"):
+        elif ctx.get("gas_kwh") and "heat_pump" in MEASURES:
             self.say(f"Using the gas use you gave me on {ctx['gas_said_on']}: {int(ctx['gas_kwh']):,} kWh a year. No need to ask again.")
         if said.get("off_gas_grid") is not None:
             ctx["off_gas_grid"] = bool(said["off_gas_grid"])
@@ -243,13 +266,14 @@ class Run:
     # ------------------------------------------------------------------ main
 
     def check(self, way: int | None = None, lat: float | None = None, lon: float | None = None, label: str | None = None,
-              note: str | None = None, heating: str | None = None, refresh: bool = False, gas_kwh: float | None = None) -> dict:
+              note: str | None = None, heating: str | None = None, refresh: bool = False, gas_kwh: float | None = None,
+              elec_kwh: float | None = None) -> dict:
         self.emit({"type": "start", "run_id": self.id})
         house = self.locate(way, lat, lon, label)
         hid = house["house_id"]
         ctx = self.recall(hid)
-        ctx = self.intake(hid, note, heating, ctx, gas_kwh)
-        if not ctx.get("heating"):
+        ctx = self.intake(hid, note, heating, ctx, gas_kwh, elec_kwh)
+        if not ctx.get("heating") and "heat_pump" in MEASURES:
             self.say("Nobody has told me how this house is heated, so the heat pump grant is shown as conditional.", ask="heating")
 
         got = facts_mod.gather(house, self.z, self.emit, refresh=refresh)
@@ -257,9 +281,13 @@ class Run:
 
         f = rules.load(self.z, hid)
         if got["cached"] and any(d["dataset"].startswith("listed") for d in f["designations"]) and not f["planes"]:
-            self.emit({"type": "decision", "branch": "listed_stop", "text": "The building is listed, so every upgrade needs listed building consent whatever the roof is like. The roof was not surveyed."})
+            self.emit({"type": "decision", "branch": "listed_stop", "text": "The building is listed, so panels need listed building consent whatever the roof is like. The roof was not surveyed."})
         result = rules.evaluate(f, heating=ctx.get("heating"), off_gas_grid=ctx.get("off_gas_grid"),
                                 walls_not_road=ctx.get("walls_not_road"), said_on=ctx.get("walls_said_on"))
+        result["verdicts"] = [v for v in result["verdicts"] if v["measure"] in MEASURES]
+        local = [d for d in f["designations"] if d.get("organisation") and d["dataset"] in ("conservation-area", "article-4-direction-area", "listed-building-outline")]
+        org = str(local[0]["organisation"]) if local else ""   # the listing point's organisation is Historic England, not the council
+        result["council"] = evaluator.council(org) if org else None
         flags = evaluator.challenge(self.z, f, result, house["coords"], self.emit)
         for v in result["verdicts"]:
             v["uncertain"] += [x for x in flags if x not in v["uncertain"]]
@@ -269,11 +297,12 @@ class Run:
         prices = {k: float(r["value"]) for k, r in f["prices"].items()}
         result["money"] = money.advise(result, prices, ctx.get("gas_kwh"), ctx.get("heating"))
         result["prices"] = f["prices"]
-        result["owner"] = {k: ctx.get(k) for k in ("heating", "heating_said_on", "gas_kwh", "gas_said_on", "off_gas_grid")}
+        result["owner"] = {k: ctx.get(k) for k in ("elec_kwh", "elec_said_on", "heating", "heating_said_on", "gas_kwh", "gas_said_on", "off_gas_grid")}
         result["house"]["label"] = house["label"]
         result["house"]["coords"] = house["coords"]
         result["walls"] = f["walls"]
         result["planes"] = f["planes"]
+        result["survey"] = f["survey"]
         for fact in result["verdicts"][0]["facts"]:
             if fact["fact"] == "sources disagree":
                 self.emit({"type": "decision", "branch": "sources_disagree", "text": fact["value"], "source": fact["source"]})
@@ -324,7 +353,7 @@ UNCERTAIN = {
 
 
 def _public(result: dict) -> dict:
-    keep = {k: result[k] for k in ("house", "protected", "areas", "listed", "verdicts", "today", "walls", "planes", "money", "prices", "owner") if k in result}
+    keep = {k: result[k] for k in ("house", "protected", "areas", "listed", "council", "verdicts", "today", "walls", "planes", "survey", "money", "prices", "owner") if k in result}
     used = {i for v in result["verdicts"] for i in v["rules"] + v["conditions"] + v["alternatives"] + v["grants"]}
     keep["rules"] = {k: r for k, r in result["rules"].items() if k in used}
     keep["grants"] = {k: g for k, g in result["grants"].items() if k in used}

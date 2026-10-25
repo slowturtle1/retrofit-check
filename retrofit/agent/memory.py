@@ -24,7 +24,7 @@ def remember(house_id: str, kind: str, content: str, label: str | None = None) -
     return r.json()
 
 
-def recall(house_id: str, query: str = "heating gas oil ownership corrections road lane last check") -> list[dict]:
+def recall(house_id: str, query: str = "electricity use heating gas oil ownership corrections road lane last check") -> list[dict]:
     r = requests.post(_url("/recall"), json={"houseId": house_id, "query": query}, timeout=10)
     r.raise_for_status()
     return r.json()["memories"]
