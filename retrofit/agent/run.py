@@ -19,7 +19,8 @@ from pathlib import Path
 from typing import Callable
 
 from .. import facts as facts_mod
-from .. import money, rules
+from .. import answer as answer_mod
+from .. import money, rules, schema
 from ..config import ROOT
 from ..sources import osm
 from ..zetaris import Zetaris
@@ -35,7 +36,7 @@ def _line(e: dict) -> str:
         return f"{e.get('purpose') or 'query'} rows={e.get('rows')} {e.get('seconds')}s" + (f" ERROR {str(e.get('error'))[:80]}" if e.get("error") else "")
     if e["type"] == "model":
         return f"{e.get('role')} ok={e.get('ok')} model={e.get('routed_model') or e.get('model')} receipt={e.get('receipt_id')} {e.get('seconds')}s"
-    for k in ("text", "tool", "house_id", "summary"):
+    for k in ("text", "tool", "house_id", "summary", "output_summary"):
         if e.get(k):
             return str(e[k])[:160]
     return ""
@@ -80,15 +81,23 @@ class Run:
             self.z = Zetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}))
 
     def emit(self, e: dict) -> None:
-        e = {"t": round(time.time() - self.started, 2), "run_id": self.id, **e}
+        e = schema.event({"t": round(time.time() - self.started, 2), **e}, self.id)
         self.events.append(e)
         LOGS.mkdir(exist_ok=True)
         with open(LOGS / f"trace-{self.id}.jsonl", "a") as fh:
             fh.write(json.dumps(e, default=str) + "\n")
         if os.environ.get("LOG_STDOUT", "true").lower() in ("1", "true", "yes"):
-            print(f"[{self.id}] {e['t']:6.2f} {e['type']:<13} {_line(e)}", flush=True)
+            print(f"[{self.id}] {e['ts']} {e['agent_name']:<9} {e['type']:<13} {e['status']:<14} {_line(e)}", flush=True)
         if self._emit:
             self._emit(e)
+
+    @property
+    def mode(self) -> str:
+        return "sample" if self.offline else "live"
+
+    def _answer(self, result: dict, answers: dict) -> dict:
+        return answer_mod.build({"run_id": self.id, "result": _public(result), "texts": answers, "events": self.events,
+                                 "seconds": round(time.time() - self.started, 1)}, self.mode, UNCERTAIN)
 
     def say(self, text: str, **kw) -> None:
         self.emit({"type": "thought", "text": text, **kw})
@@ -277,7 +286,7 @@ class Run:
                 self.say(UNCERTAIN.get(u, u), level="warn", measure=v["measure"])
 
         answers = {v["measure"]: {**explain.template(result, v), "writer": "code"} for v in result["verdicts"]}
-        self.emit({"type": "answer", "result": _public(result), "texts": answers})
+        self.emit({"type": "answer", "result": _public(result), "texts": answers, "answer": self._answer(result, answers)})
 
         if self.use_model:
             with ThreadPoolExecutor(1) as pool:  # one at a time: parallel calls queue at the provider anyway
@@ -285,13 +294,15 @@ class Run:
                     if text:
                         answers[v["measure"]] = {**answers[v["measure"]], "why": text["why"],
                                                  "writer": "nemotron", "checked_by": text.get("checked_by")}
-                        self.emit({"type": "answer_update", "measure": v["measure"], "text": answers[v["measure"]]})
+                        self.emit({"type": "answer_update", "measure": v["measure"], "text": answers[v["measure"]],
+                                   "answer": self._answer(result, answers)})
 
         summary = "; ".join(f"{explain.MEASURE_NAME[v['measure']]}: {v['headline']}" for v in result["verdicts"])
         if self._mem():
             memory.remember(hid, "outcome", f"Last check {date.today().isoformat()}: {summary}", "the agent's last check")
         record = {"run_id": self.id, "house_id": hid, "label": house["label"], "context": {k: v for k, v in ctx.items() if k != "memories"},
                   "result": _public(result), "texts": answers, "events": self.events, "seconds": round(time.time() - self.started, 1)}
+        record["answer"] = answer_mod.build(record, self.mode, UNCERTAIN)
         RUNS.mkdir(exist_ok=True)
         (RUNS / f"{self.id}-{hid}.json").write_text(json.dumps(record, indent=1, default=str))
         self.emit({"type": "done", "run_id": self.id, "seconds": record["seconds"], "summary": summary})

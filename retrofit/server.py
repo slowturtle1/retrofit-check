@@ -120,6 +120,7 @@ def _err(status: int, code: str, message: str) -> JSONResponse:
 
 
 @app.post("/api/v1/check")
+@app.post("/run")
 def check_sync(body: CheckSyncIn):
     """Programmatic entry: JSON in, JSON out. The model step is off unless use_model is true (it can take minutes)."""
     if not body.way and (body.lat is None or body.lon is None):
@@ -131,24 +132,7 @@ def check_sync(body: CheckSyncIn):
         return _err(404, "not_found", str(e))
     except Exception as e:  # noqa: BLE001  structured, no stack trace
         return _err(502, "upstream_failed", f"{type(e).__name__}: {str(e)[:300]}")
-    res, texts = rec["result"], rec["texts"]
-    return {
-        "run_id": rec["run_id"], "mode": "sample" if SAMPLE else "live", "seconds": rec["seconds"],
-        "house": {k: res["house"].get(k) for k in ("house_id", "label", "lat", "lon", "building", "footprint_m2", "source")},
-        "protected": res.get("protected"), "listed": res.get("listed"), "owner": res.get("owner"),
-        "upgrades": [{
-            "measure": v["measure"], "status": v["status"], "headline": v["headline"],
-            "recommendation": res.get("money", {}).get(v["measure"], {}).get("recommendation"),
-            "one": texts[v["measure"]]["one"], "why": texts[v["measure"]]["why"], "get": texts[v["measure"]]["get"], "cost_help": texts[v["measure"]]["cost"],
-            "written_by": texts[v["measure"]].get("writer"), "money": {k: m for k, m in res.get("money", {}).get(v["measure"], {}).items() if k != "uses"},
-            "uncertain": v["uncertain"], "rules": [{"id": k, **{f: res["rules"][k][f] for f in ("clause", "in_force", "source_url")}} for k in v["rules"] + v["conditions"] if k in res["rules"]],
-            "facts": v["facts"],
-        } for v in res["verdicts"]],
-        "trace": {"events": len(rec["events"]), "file": f"logs/trace-{rec['run_id']}.jsonl",
-                  "zetaris_queries": sum(1 for e in rec["events"] if e["type"] == "zetaris"),
-                  "challenges": [e["text"] for e in rec["events"] if e["type"] == "challenge"],
-                  "model_calls": [{k: e.get(k) for k in ("role", "ok", "routed_model", "receipt_id", "seconds")} for e in rec["events"] if e["type"] == "model"]},
-    }
+    return rec["answer"]
 
 
 @app.exception_handler(RequestValidationError)
