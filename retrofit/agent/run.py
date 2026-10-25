@@ -272,6 +272,7 @@ class Run:
         """Nemotron rewrites the checked draft; the critic must accept it. Up to two rewrites."""
         draft = explain.template(result, v)
         feedback = None
+        llm.set_deadline(self.started + self.model_budget_s)
         for round_no in (1, 2):
             if time.time() - self.started > self.model_budget_s:
                 self.say(f"Out of time for the model on {v['measure']}; the checked draft stays.", level="warn", agent="reporter", status="fallback")
