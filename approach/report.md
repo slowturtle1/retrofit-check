@@ -1,6 +1,6 @@
 # Approach scorecard
 
-Commit 1d9b7da (uncommitted changes), 25 Oct 2026 21:42 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
+Commit 5d960a4 (uncommitted changes), 25 Oct 2026 21:45 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
 
 **0 gaps in Tiers 1 to 3.** 10 not run, 19 manual (open), 1 manual (done), 1 n/a, 63 pass (of 94 requirements).
 
@@ -38,7 +38,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | T25 | Data is allowed for prototype use and holds no sensitive personal data; owner facts in samples are demo values and say so | manual | manual (open) | licence column in data/README.md; owner facts labelled demo values | C |
 | T26 | The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready | manual | manual (open) | C7 pass over README, deck and form texts | C |
 | T28 | Full validation from a fresh clone (Disqualification Checklist section 14), with Zetaris and Nightshift stopped and then running, twice on Monday | manual | manual (open) | B8 log, Mon 26 Oct about 14:00 and 17:00 | B |
-| T1 | Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers) | 2 | pass | fresh clone of HEAD, empty environment: 15 houses answered in 0.3 s (1 s with startup) | B |
+| T1 | Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers) | 2 | pass | fresh clone of HEAD, empty environment: 15 houses answered in 0.1 s (1 s with startup) | B |
 | T10 | A model failure retries, then falls back with a logged reason (the checked draft stays) | 2 | pass | 1 tests pass | A |
 | T11 | A programmatic way in (POST /run), structured input and output, no interactive input; the UI does not block it | 2 | pass | 3 tests pass | A |
 | T12 | No hardcoded outputs; answers differ across inputs, nothing reads output_examples/ at runtime, no input maps to a saved output | 2 | pass | 1 tests pass; no agent code reads output_examples/ or saved runs (server.py serves labelled replays only) | A |
@@ -46,7 +46,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
 | T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 1.3 MB, largest tracked file samples/cache.sqlite (168 KB) | B |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 1.6 MB, largest tracked file samples/cache.sqlite (168 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 13 source sections, seven fields each | C |
 | T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 13 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
@@ -143,7 +143,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | G11 | .env.example holds placeholders only | 1 | pass | every key, token and password is empty or a placeholder | B |
 | G3 | Work from before 22 Oct 00:00 UTC is declared in the README | 1 | pass | README.md matches 3 patterns | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 40 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 41 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 

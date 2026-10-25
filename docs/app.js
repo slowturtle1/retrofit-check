@@ -1,23 +1,17 @@
-/* Retrofit Check: the page. Talks to retrofit/server.py; every answer comes from a run of the agent. */
+/* Retrofit Check: the page. Talks to retrofit/server.py; every answer comes from a run of the agent.
+   The card reads only the answer JSON (retrofit/schema.py); the map also reads the run's result for roof planes and areas. */
 
 const $ = (id) => document.getElementById(id);
 const D2R = Math.PI / 180, R = 6378137;
 const C = (h, a = 1) => Cesium.Color.fromCssColorString(h).withAlpha(a);
-const NAMES = { solar: "Solar panels", heat_pump: "Heat pump", wall_insulation: "Outside wall insulation" };
-const ICON = { allowed: ["y", "✓"], allowed_with_conditions: ["c", "!"], needs_permission: ["n", "✕"], needs_consent: ["n", "✕"], check_with_council: ["c", "?"] };
-const COMPASS = ["north", "north east", "east", "south east", "south", "south west", "west", "north west"];
-const UNCERTAIN = {
-  lidar_noisy: "More than a quarter of the roof reading is trees or chimneys, so the roof numbers are rough.",
-  no_sunny_roof: "No roof plane faces between east and west.",
-  article4_unknown: "An Article 4 direction covers this house and its contents are not on file.",
-  lane_may_not_be_highway: "One wall faces a lane mapped as a service road. It is treated as a road to be safe. If it is your private drive, tell us.",
-  heating_unknown: "Tell us how the house is heated: the grant depends on it.",
-  bus_needs_fossil_heating: "The grant only helps if the heat pump replaces gas, oil, LPG or coal heating.",
-  no_wall_away_from_road: "Every wall faces a road.",
-  article4_coverage_unknown: "This council has not published Article 4 directions for conservation areas, so a missing record proves nothing. Ask the council.",
-  listed_point_only: "The listing was found as a point, not an outline. Check with the council or Historic England's map.",
-  article4_ended_but_listed: "An Article 4 here has ended but planning.data still lists it. We follow the council's decision.",
-};
+const INK = "#1D1D2B", YELLOW = "#FFD21F", LAV = "#A79FE6", CORAL = "#FF5A5F", TEAL = "#2EC4A0";
+const ST_CLASS = { allowed: "y", allowed_with_conditions: "c", check_with_council: "c", needs_permission: "n", needs_consent: "n" };
+const REC_CLASS = { "Worth getting quotes": "go", "Ask the council first": "ask", "Probably not worth it for this house": "no" };
+const FACING = { N: "north", NE: "north east", E: "east", SE: "south east", S: "south", SW: "south west", W: "west", NW: "north west" };
+const AGENT_OF = { start: "planner", decision: "planner", intake: "planner", thought: "planner", note: "planner", done: "planner", error: "planner",
+  tool_start: "analyst", tool_end: "analyst", house: "analyst", zetaris: "analyst", requery: "analyst", challenge: "evaluator",
+  critic: "critic", memory_recall: "memory", memory_write: "memory", answer: "reporter", answer_update: "reporter" };
+const STATUS_WORD = { retrying: "retrying", needs_revision: "needs revision", blocked: "blocked", fallback: "fallback", failed: "failed" };
 
 const STATIC = !!window.STATIC_SITE;   // docs/: replays recorded runs, no server
 const api = {
@@ -25,7 +19,7 @@ const api = {
   run: (n) => (STATIC ? `samples/${n}.json` : `/api/runs/${encodeURIComponent(n)}`),
   examples: () => (STATIC ? "samples/index.json" : "/api/examples"),
 };
-let viewer, state = { result: null, texts: {}, open: -1, houseId: null, label: null, request: null, memories: [] };
+let viewer, state = { answer: null, result: null, old: false, open: false, request: null, live: false };
 const S = { center: null, hpr: null, home: null, house: [], overlay: [] };
 let tapMode = false, evCount = 0, source = null;
 
@@ -43,10 +37,10 @@ function drapeGeo(geom, color, alpha) {
 const clearOverlay = () => { S.overlay.forEach((e) => viewer.entities.remove(e)); S.overlay = []; };
 const applyView = () => { if (S.center && S.hpr) viewer.camera.lookAt(S.center, S.hpr); };
 function readHpr() { if (!S.center) return; const cam = viewer.camera; S.hpr = new Cesium.HeadingPitchRange(cam.heading, cam.pitch, Cesium.Cartesian3.distance(cam.positionWC, S.center)); }
-$("rl").onclick = () => { readHpr(); S.hpr.heading -= 30 * D2R; applyView(); };
-$("rr").onclick = () => { readHpr(); S.hpr.heading += 30 * D2R; applyView(); };
-$("zi").onclick = () => { readHpr(); S.hpr.range = Math.max(30, S.hpr.range * 0.75); applyView(); };
-$("zo").onclick = () => { readHpr(); S.hpr.range = Math.min(1500, S.hpr.range * 1.33); applyView(); };
+$("rl").onclick = () => { readHpr(); if (S.hpr) { S.hpr.heading -= 30 * D2R; applyView(); } };
+$("rr").onclick = () => { readHpr(); if (S.hpr) { S.hpr.heading += 30 * D2R; applyView(); } };
+$("zi").onclick = () => { readHpr(); if (S.hpr) { S.hpr.range = Math.max(30, S.hpr.range * 0.75); applyView(); } };
+$("zo").onclick = () => { readHpr(); if (S.hpr) { S.hpr.range = Math.min(1500, S.hpr.range * 1.33); applyView(); } };
 $("reset").onclick = () => { if (S.home) { S.hpr = Cesium.HeadingPitchRange.clone(S.home); viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 1.2, complete: applyView }); } };
 
 async function groundAt(lon, lat, fb) { if (!window.GOOGLE_MAPS_API_KEY) return Cesium.Cartesian3.fromDegrees(lon, lat, 0); try { const r = await viewer.scene.clampToHeightMostDetailed([Cesium.Cartesian3.fromDegrees(lon, lat, 800)]); if (r && r[0]) return r[0]; } catch (e) { /* fallback */ } return Cesium.Cartesian3.fromDegrees(lon, lat, fb); }
@@ -54,225 +48,250 @@ async function groundAt(lon, lat, fb) { if (!window.GOOGLE_MAPS_API_KEY) return 
 async function showHouse(h) {
   viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
   S.house.forEach((e) => viewer.entities.remove(e)); S.house = []; clearOverlay();
-  S.coords = ring(h.coords);
-  S.house.push(drape(S.coords, "#F0A23A", 0.62));
+  S.coords = ring(h.coords); S.lonlat = [+h.lon, +h.lat];
+  S.house.push(drape(S.coords, LAV, 0.75));
   S.center = await groundAt(h.lon, h.lat, 90);
   const size = Math.sqrt(Math.max(60, h.footprint_m2 || 120));
-  S.home = new Cesium.HeadingPitchRange(0, -40 * D2R, Math.max(110, size * 9));
+  const flat = !window.GOOGLE_MAPS_API_KEY;   // the flat OSM map reads better from closer and higher
+  S.home = new Cesium.HeadingPitchRange(0, (flat ? -60 : -40) * D2R, flat ? Math.max(70, size * 6) : Math.max(110, size * 9));
   S.hpr = Cesium.HeadingPitchRange.clone(S.home);
   viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 2.2, complete: applyView });
 }
 function aimHome(az) { if (!S.home) return; S.home.heading = ((az + 180) % 360) * D2R; S.hpr = Cesium.HeadingPitchRange.clone(S.home); viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 1.4, complete: applyView }); }
 
-const mapLabel = (text) => viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(+state.result.house.lon, +state.result.house.lat, window.GOOGLE_MAPS_API_KEY ? 70 : 5), label: {
-  text, font: "600 15px IBM Plex Sans, sans-serif", fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: C("#13202B", 0.9),
-  backgroundPadding: new Cesium.Cartesian2(10, 6), pixelOffset: new Cesium.Cartesian2(0, -30), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
+// Map labels are the film's dark pills.
+const mapLabel = (text, height) => viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(S.lonlat[0], S.lonlat[1], height ?? (window.GOOGLE_MAPS_API_KEY ? 70 : 5)), label: {
+  text, font: "700 15px Bricolage Grotesque, sans-serif", fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: C(INK, 0.95),
+  backgroundPadding: new Cesium.Cartesian2(12, 7), pixelOffset: new Cesium.Cartesian2(0, -30), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
 
-/* What each answer looks like on the house */
-async function overlayFor(v) {
+/* What the solar answer looks like on the house: the sunny slope, or the listed building */
+async function overlayFor(open) {
   clearOverlay();
-  if (!v || !S.coords) return;
-  const res = state.result, o = S.coords[0], L = local(o), pts = S.coords.map(L.to), c0 = centroid(pts);
-  if (v.measure === "solar" && v.numbers && v.numbers.facing) {
-    const plane = (res.planes || []).find((p) => p.facing === v.numbers.facing);
+  const res = state.result, a = state.answer;
+  if (!open || !res || !a || !S.coords) return;
+  const s = a.solar, o = S.coords[0], L = local(o), pts = S.coords.map(L.to), c0 = centroid(pts);
+  if (s.numbers && s.numbers.facing && s.status !== "needs_consent") {
+    const plane = (res.planes || []).find((p) => p.facing === s.numbers.facing);
     const az = plane ? +plane.azimuth_deg : 180, n = [Math.sin(az * D2R), Math.cos(az * D2R)];
     const rel = pts.map((p) => [p[0] - c0[0], p[1] - c0[1]]);
     const sunny = clipHalf(rel, n), other = clipHalf(rel, [-n[0], -n[1]]);
-    if (sunny.length > 2) S.overlay.push(drape(sunny.map((p) => L.back([p[0] + c0[0], p[1] + c0[1]])), "#FFD24A", 0.75));
-    S.overlay.push(mapLabel(`Indicative: ${plane ? plane.facing : ""} roof slope for panels`));
-    if (other.length > 2) S.overlay.push(drape(other.map((p) => L.back([p[0] + c0[0], p[1] + c0[1]])), "#C9C2B2", 0.45));
+    if (sunny.length > 2) S.overlay.push(drape(sunny.map((p) => L.back([p[0] + c0[0], p[1] + c0[1]])), YELLOW, 0.85));
+    if (other.length > 2) S.overlay.push(drape(other.map((p) => L.back([p[0] + c0[0], p[1] + c0[1]])), LAV, 0.55));
+    S.overlay.push(mapLabel(`${cap(FACING[s.numbers.facing] || s.numbers.facing)} roof${plane ? " · " + plane.pitch_deg + "°" : ""} · indicative`));
     aimHome(az);
-  } else if (v.measure === "heat_pump") {
-    const walls = res.walls || [];
-    walls.forEach((w) => {
-      const i = +w.wall_no, a = pts[i], b = pts[(i + 1) % pts.length];
-      if (!a || !b) return;
-      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy); if (len < 1) return;
-      const az = (+w.facing_deg) * D2R, nx = Math.sin(az), ny = Math.cos(az), d = 2.2;
-      const strip = [a, b, [b[0] + nx * d, b[1] + ny * d], [a[0] + nx * d, a[1] + ny * d]].map(L.back);
-      const road = String(w.fronts_highway) === "true", party = String(w.adjoins) === "true";
-      S.overlay.push(drape(strip, road ? "#E5533D" : party ? "#8A98A3" : "#3CCB8F", 0.85));
-    });
-    S.overlay.push(mapLabel("Indicative: green walls away from the road, red walls facing it"));
-    const ok = walls.filter((w) => String(w.fronts_highway) !== "true" && String(w.adjoins) !== "true");
-    if (ok.length) aimHome(+ok.sort((a, b) => b.length_m - a.length_m)[0].facing_deg);
-  } else if (v.measure === "wall_insulation" || v.status === "needs_consent") {
-    const area = (res.areas || []).find((a) => (v.status === "needs_consent" ? /listed/.test(a.dataset) : a.dataset === "conservation-area" || a.dataset.includes("outstanding") || a.dataset === "national-park"));
-    if (!area || !area.entity) return;
-    try {
-      const g = await (await fetch(api.area(area.entity))).json();
-      if (state.result !== res || state.open < 0) return;
-      if (v.status !== "needs_consent") S.overlay.push(...drapeGeo(g.fill, "#D0654A", 0.28));
-      S.overlay.push(viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(+state.result.house.lon, +state.result.house.lat, 60), label: {
-        text: v.status === "needs_consent" ? "Listed building" : `Inside ${g.name}${/conservation area/i.test(g.name || "") ? "" : " Conservation Area"}`,
-        font: "600 16px IBM Plex Sans, sans-serif", fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: C("#13202B", 0.9),
-        backgroundPadding: new Cesium.Cartesian2(10, 6), pixelOffset: new Cesium.Cartesian2(0, -30), disableDepthTestDistance: Number.POSITIVE_INFINITY, heightReference: Cesium.HeightReference.NONE } }));
-      S.overlay.push(...drapeGeo(v.status === "needs_consent" ? g.fill : g.edge, "#E5533D", v.status === "needs_consent" ? 0.55 : 0.9));
-      if (v.status !== "needs_consent") { S.hpr = new Cesium.HeadingPitchRange(S.hpr.heading, -58 * D2R, 520); viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 1.8, complete: applyView }); }
-    } catch (e) { trace({ type: "error", text: "area outline did not load: " + e }); }
+    return;
   }
+  const area = (res.areas || []).find((x) => (s.status === "needs_consent" ? /listed/.test(x.dataset) : x.dataset === "conservation-area"));
+  if (!area || !area.entity) return;
+  try {
+    const g = await (await fetch(api.area(area.entity))).json();
+    if (state.answer !== a || !state.open) return;
+    S.overlay.push(...drapeGeo(s.status === "needs_consent" ? g.fill : g.edge, s.status === "needs_consent" ? CORAL : TEAL, s.status === "needs_consent" ? 0.55 : 0.95));
+    S.overlay.push(mapLabel(s.status === "needs_consent" ? "Listed building" : `${g.name || "Conservation area"}`, 60));
+  } catch (e) { trace({ type: "error", agent_name: "planner", status: "failed", text: "area outline did not load: " + e }); }
 }
 
 /* ---------------- panel ---------------- */
 const fmtDate = (iso) => { if (!iso) return ""; const d = new Date(String(iso).slice(0, 10)); return isNaN(d) ? iso : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); };
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const cap = (s) => String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1);
+const gbp = (n) => "£" + Number(n).toLocaleString("en-GB");
+const range = (r, f = (x) => x) => (r && r.length === 2 ? `${f(r[0])} to ${f(r[1])}` : "");
+const SUN = `<svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="${YELLOW}" stroke="currentColor" stroke-width="2.5"/></svg>`;
 
-function context(res) {
+function factsLine(a) {
+  const f = Object.fromEntries((a.house_facts || []).map((x) => [x.key, x]));
   const bits = [];
-  const listed = (res.areas || []).find((a) => a.dataset === "listed-building" && a.grade) || (res.areas || []).find((a) => a.dataset.startsWith("listed"));
-  bits.push(listed ? `Listed${listed.grade ? " grade " + listed.grade : ""} since ${fmtDate(listed.start_date)}` : "Not listed");
-  const ca = (res.areas || []).filter((a) => a.dataset === "conservation-area");
-  bits.push(ca.length ? ca.map((a) => `${a.name}${/conservation area/i.test(a.name) ? "" : " Conservation Area"} (since ${fmtDate(a.start_date)})`).join(", ") : "not in a conservation area");
+  if (f.listed) bits.push(f.listed.value);
+  if (f.conservation_area) {
+    const ca = String(f.conservation_area.value);
+    bits.push(ca === "None" ? "not in a conservation area" : / \(\d{4}\)$/.test(ca) ? ca.replace(/ \((\d{4})\)$/, " conservation area, $1") : /conservation area/i.test(ca) ? ca : `${ca} conservation area`);
+  }
+  const roof = f.roof && /^([a-z ]+) slope, ([\d.]+)°/.exec(f.roof.value || "");
+  if (roof) bits.push(`${roof[1]} roof ${roof[2]}°`);
+  if (f.electricity_use && f.electricity_use.value) bits.push(`${f.electricity_use.value} (you)`);
   return bits.join(" · ");
 }
 
-function reasonChain(v, res) {
-  if (v.status === "needs_permission" && v.rules.includes("ewi-art23")) {
-    const ca = (res.areas || []).find((a) => a.dataset === "conservation-area") || {};
-    const r = res.rules["ewi-art23"] || {};
-    return `<div class="reason"><b>Why not without permission.</b> Your house is inside ${esc(ca.name || "a conservation area")}${/conservation area/i.test(ca.name || "") ? "" : " Conservation Area"}, the red line on the map. Inside it, the national rule that normally lets you clad walls does not apply.
-      <div class="chain">house → ${esc(ca.name || "conservation area")} (${esc(ca.reference || "")}, since ${fmtDate(ca.start_date)}) → ${esc(r.clause || "")} → planning permission</div></div>`;
-  }
-  if (v.status === "needs_consent") {
-    const l = (res.areas || []).find((a) => a.dataset === "listed-building") || (res.areas || []).find((a) => a.dataset.startsWith("listed")) || {};
-    return `<div class="reason"><b>Why consent.</b> The building is listed${l.grade ? " grade " + esc(l.grade) : ""} since ${fmtDate(l.start_date)}. Any change to how it looks needs listed building consent, even work that is normally free to do.
-      <div class="chain">house → listed (${esc(l.reference || "")}) → listed building consent</div></div>`;
-  }
-  return "";
+function renderFacts() {
+  const a = state.answer; if (!a) return;
+  $("factsLine").textContent = factsLine(a);
+  $("factList").innerHTML = (a.house_facts || []).map((f) => `<div class="f${f.from_owner ? " you" : ""}"><dt>${esc(f.label)}</dt>
+    <dd>${esc(f.value || "Not given yet")}<span class="s">${esc(f.source)}${f.date ? ", " + esc(fmtDate(f.date)) : ""}</span></dd></div>`).join("");
+  const owner = a.owner || {};
+  if (owner.elec_kwh && document.activeElement !== $("elec")) $("elec").value = Math.round(owner.elec_kwh);
 }
 
-function sources(v, res) {
-  const ids = [...v.rules, ...v.conditions, ...v.alternatives];
-  const rules = ids.filter((k) => res.rules[k]).map((k) => { const r = res.rules[k]; return `<a class="src" href="${esc(r.source_url)}" target="_blank" rel="noopener" title="${esc(r.plain)}">${esc(r.clause)} · in force ${fmtDate(r.in_force)}${r.amended_by ? " · last change " + esc(r.amended_by) : ""}</a>`; });
-  const grants = v.grants.filter((k) => res.grants[k]).map((k) => { const g = res.grants[k]; return `<a class="src" href="${esc(g.source_url)}" target="_blank" rel="noopener">${esc(k)} · checked ${fmtDate(g.checked_on)}</a>`; });
-  const facts = v.facts.filter((f) => f.fact !== "listed" || f.value !== "no").map((f) => `<span class="src" title="${esc(f.value)}">${esc(f.fact)}: ${esc(f.source)}</span>`);
-  return `<div class="srcs">${[...rules, ...grants, ...facts].join("")}</div>`;
+function chain(s) {
+  const listed = s.facts.find((f) => f.fact === "listed"), ca = s.facts.find((f) => f.fact === "conservation-area");
+  const bits = ["this house", listed ? (listed.value === "no" ? "not listed" : `listed: ${listed.value}`) : null, ca ? ca.value : null,
+    ...s.rules.map((r) => r.clause), s.status_text];
+  return bits.filter(Boolean).map(esc).join(" → ");
 }
 
-const gbp = (n) => "£" + Number(n).toLocaleString("en-GB");
-const REC_CLASS = { "Worth getting quotes": "go", "Ask the council first": "ask", "Probably not worth it for this house": "no", "Can't tell yet: add your gas use": "add", "Worth it mainly if your boiler needs replacing soon": "ask" };
-const KIND = { official: "official", consumer_survey: "Which?", advice_body: "advice" };
+const IF_YES = { check_with_council: "If the council says yes:", needs_permission: "If you get planning permission:", needs_consent: "If you get listed building consent:" };
 
-function moneyBlock(v, res) {
-  const m = (res.money || {})[v.measure]; if (!m || (!m.cost && !m.why)) return "";
+function moneyRows(n, status) {
   const rows = [];
-  if (v.measure === "solar" && m.cost) {
-    rows.push(["Rough cost", `${gbp(m.cost[0])} to ${gbp(m.cost[1])}`], ["Value a year", `${gbp(m.value_year[0])} to ${gbp(m.value_year[1])}`], ["Pays back in", `${m.payback_years[0]} to ${m.payback_years[1]} years`]);
-  }
-  if (v.measure === "heat_pump" && m.cost) {
-    rows.push(["Rough cost", `${gbp(m.cost_before_grant[0])} to ${gbp(m.cost_before_grant[1])}`], ["After the grant", `${gbp(m.cost[0])} to ${gbp(m.cost[1])} (typical ${gbp(m.median_after_grant)})`]);
-    if (m.saving_year) rows.push(["Saving a year", `${gbp(m.saving_year[0])} to ${gbp(m.saving_year[1])} on ${Number(m.gas_kwh).toLocaleString("en-GB")} kWh of gas`]);
-    if (m.payback_years) rows.push(["Pays back in", `${m.payback_years[0]} to ${m.payback_years[1]} years`]);
-    if (m.extra_over_boiler !== undefined) rows.push(["Instead of a new boiler", `about ${gbp(m.extra_over_boiler)} more, back in about ${m.extra_payback_years} years`]);
-  }
-  const used = (m.uses || []).filter((k) => res.prices && res.prices[k]).map((k) => { const p = res.prices[k];
-    return p.kind === "assumption" ? `<span class="src" title="${esc(p.plain)}">assumption: ${esc(p.plain.toLowerCase())}</span>` : `<a class="src" href="${esc(p.source_url)}" target="_blank" rel="noopener" title="${esc(p.plain)}">${esc(k)} · ${esc(KIND[p.kind] || p.kind)} · ${p.valid_to ? fmtDate(p.valid_from) + " to " + fmtDate(p.valid_to) : fmtDate(p.valid_from)}</a>`; }).join("");
-  return `<div class="money">${rows.length ? `<div class="m">${rows.map(([a, b]) => `<span>${a}</span><span>${b}</span>`).join("")}</div>` : ""}
-    ${m.why ? `<p class="warn">${esc(m.why)}</p>` : ""}${m.note ? `<div class="est">${esc(m.note)}</div>` : ""}
-    <div class="est">Estimates from dated sources, not financial advice.</div><div class="srcs">${used}</div></div>`;
+  if (n.cost_gbp) rows.push(["Rough cost", range(n.cost_gbp, gbp)]);
+  if (n.value_gbp_year) rows.push(["Value a year", range(n.value_gbp_year, gbp)]);
+  if (n.payback_years) rows.push(["Pays back in", `${range(n.payback_years)} years`]);
+  return rows.length ? `${IF_YES[status] ? `<p><b>${IF_YES[status]}</b></p>` : ""}<div class="money">${rows.map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div>` : "";
 }
 
-function rec(v, res) { const r = ((res.money || {})[v.measure] || {}).recommendation; return r ? `<div class="rec ${REC_CLASS[r] || ""}">${esc(r)}</div>` : ""; }
-
-function renderRows() {
-  const res = state.result; if (!res) return;
-  $("rows").innerHTML = res.verdicts.map((v, i) => {
-    const t = state.texts[v.measure] || {}, [k, ic] = ICON[v.status] || ["c", "?"];
-    const warns = v.uncertain.map((u) => `<p class="warn">${esc(UNCERTAIN[u] || u)}</p>`).join("");
-    const getLabel = v.status === "needs_permission" || v.status === "needs_consent" ? "What you can do" : "What you get";
-    const who = t.writer === "nemotron" ? `<div class="who nem">Explained by Nemotron via Nightshift · checked by ${esc(t.checked_by || "code")}</div>` : `<div class="who">Written from the rules${state.live ? " · Nemotron is rewriting this…" : ""}</div>`;
-    return `<div class="row ${i === state.open ? "open" : ""}">
-      <button class="rh" data-i="${i}"><span class="ic ${k}">${ic}</span>
-        <span><div class="nm">${NAMES[v.measure]}</div><div class="st ${k}">${esc(v.headline)}</div><div class="one">${esc(t.one)}</div>${rec(v, res)}</span></button>
-      <div class="rb">${reasonChain(v, res)}${warns}<p><b>Why.</b> ${esc(t.why)}</p><p><b>${getLabel}.</b> ${esc(t.get)}</p>${moneyBlock(v, res)}<p><b>Help with cost.</b> ${esc(t.cost)}</p>
-        <p class="sure">${v.status.startsWith("allowed") ? "For certainty: apply for a Lawful Development Certificate, or ask the council." : "Before you apply: ask the council's planning team for pre application advice."}</p>${sources(v, res)}${who}</div>
-    </div>`;
-  }).join("");
-  document.querySelectorAll(".rh").forEach((b) => b.onclick = () => { const i = +b.dataset.i; state.open = state.open === i ? -1 : i; renderRows(); overlayFor(state.open >= 0 ? state.result.verdicts[state.open] : null); if (state.open < 0) $("reset").onclick(); });
+function sources(s) {
+  const rules = s.rules.map((r) => `<li class="src"><b>${esc(r.clause)}</b>, in force ${esc(fmtDate(r.in_force))}${r.amended_by ? ", last change " + esc(r.amended_by) : ""}. ${esc(r.plain || "")} ${/^https?:/.test(r.source_url || "") ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener">Read the rule</a>` : ""}</li>`);
+  const facts = s.facts.map((f) => { const url = /^https?:/.test(f.source || ""); return `<li class="src"><b>${esc(f.fact)}</b>: ${esc(String(f.value).replace(/\.$/, ""))}. ${url ? `<a href="${esc(f.source)}" target="_blank" rel="noopener">Source</a>` : esc(f.source)}${f.date ? ", " + esc(fmtDate(f.date)) : ""}</li>`; });
+  return `<ul class="srcs">${[...rules, ...facts].join("")}</ul>`;
 }
 
-function renderMemories() {
-  const m = state.memories.filter((x) => x.kind !== "outcome");
-  const last = state.memories.find((x) => x.kind === "outcome");
-  $("mem").innerHTML = (m.length ? "Remembered: " + m.map((x) => `<b>${esc(x.content)}</b> (you, ${fmtDate(x.learnedAt)})`).join(", ") + ". " : "") + (last ? `Last check ${fmtDate(last.learnedAt)}.` : "");
+function renderCard() {
+  const a = state.answer;
+  if (state.old) { $("card").innerHTML = `<div class="card"><p class="old" style="padding:16px">This recording comes from an older version of the app, so the card cannot show it. Run the check again.</p></div>`; return; }
+  if (!a) { $("card").innerHTML = ""; return; }
+  const s = a.solar, k = ST_CLASS[s.status] || "c", l = s.lines || {}, conf = s.confidence || {};
+  const pct = Math.round((conf.score || 0) * 100);
+  const who = s.written_by === "nemotron" ? `Explained by Nemotron via Nightshift, checked by ${esc(s.checked_by || "code")}.`
+    : `Written from the rules in code.${state.live ? " Nemotron is rewriting it now." : ""}`;
+  const addElec = !s.usage && !STATIC && !state.replay && s.numbers && s.numbers.kwh_year;
+  $("card").innerHTML = `<div class="card ${state.open ? "open" : ""}">
+    <button class="ch" id="cardHead" type="button" aria-expanded="${state.open}" aria-controls="cardBody">
+      <span class="sun">${SUN}</span>
+      <span>
+        <span class="nm">Solar panels</span>
+        <span class="st ${k}">${esc(s.status_text)}</span>
+        <span class="one">${esc(l.one)}</span>
+        ${s.usage ? `<span class="use">${esc(s.usage.text)}</span>` : ""}
+        ${s.recommendation ? `<span class="rec ${REC_CLASS[s.recommendation] || ""}">→ ${esc(s.recommendation)}</span>` : ""}
+        <span class="conf"><span>Confidence</span><span class="bar" role="img" aria-label="Confidence ${esc(conf.level)}, ${pct} of 100"><i style="width:${pct}%"></i></span></span>
+        <span class="limit">${esc(conf.text || cap(conf.level))}</span>
+        ${s.limitations && s.limitations[0] ? `<span class="limit">${esc(s.limitations[0])}</span>` : ""}
+        <span class="more">${state.open ? "Hide details" : "Show details"}</span>
+      </span>
+    </button>
+    ${addElec ? `<div class="addRow"><button class="link" id="addElec" type="button">Add your electricity use to compare it with the roof</button></div>` : ""}
+    <div class="cb2" id="cardBody">
+      <div class="sec"><h3><span class="n">1</span>Why this answer</h3><p>${esc(l.why)}</p><div class="chain">${chain(s)}</div></div>
+      <div class="sec"><h3><span class="n">2</span>What you can do</h3><p>${esc(l.get)}</p></div>
+      <div class="sec"><h3><span class="n">3</span>Money: cost, help with cost, payback</h3>${moneyRows(s.numbers || {}, s.status)}<p>${esc(l.cost)}</p></div>
+      <div class="sec"><h3><span class="n">4</span>Next step</h3><p>${esc(s.next_step)}</p><ul class="lims">${(s.limitations || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="sec"><h3><span class="n">5</span>Sources</h3>${sources(s)}</div>
+      <div class="who">${who}</div>
+    </div>
+  </div>`;
+  $("cardHead").onclick = () => { state.open = !state.open; renderCard(); overlayFor(state.open); if (!state.open) $("reset").onclick(); $("cardHead").focus(); };
+  if ($("addElec")) $("addElec").onclick = () => { openFacts(true); $("elec").focus(); $("facts").scrollIntoView({ block: "nearest" }); };
 }
 
-/* ---------------- trace ---------------- */
+function renderAll() {
+  const a = state.answer;
+  const day = (state.result && state.result.today) || (a && /^(\d{4})(\d{2})(\d{2})/.test(a.trace_id || "") ? a.trace_id.replace(/^(\d{4})(\d{2})(\d{2}).*/, "$1-$2-$3") : null);
+  if (a) { renderFacts(); $("foot").textContent = `Checked ${day ? fmtDate(day) : "on an unknown date"}. Rules for England, demo data for London. The rules decide the answer in code; the agents plan, challenge the evidence and explain. Not legal or financial advice.`; }
+  renderCard();
+}
+
+function openFacts(open) { $("facts").classList.toggle("hid", !open); $("factsToggle").setAttribute("aria-expanded", String(open)); }
+
+/* ---------------- How we checked ---------------- */
 function trace(e) {
   evCount++; $("traceCount").textContent = `${evCount} steps`;
-  let k = "tool", txt = "", extra = "";
+  const agent = e.agent_name || AGENT_OF[e.type] || (e.type === "model" && String(e.role).startsWith("critic") ? "critic" : e.type === "model" ? "reporter" : "planner");
+  let kind = "", txt = "", extra = "", tag = "";
   switch (e.type) {
-    case "start": k = "tool"; txt = `run ${e.run_id}`; break;
-    case "tool_start": txt = `${e.tool} → ${e.source}`; break;
-    case "tool_end": k = e.ok ? "tool" : "err"; txt = `${e.tool} ${e.ok ? "done" : "failed: " + (e.error || "")}${e.seconds !== undefined ? ` (${e.seconds} s)` : ""}`; break;
-    case "house": txt = `house ${e.house_id}`; break;
-    case "zetaris": k = e.error ? "err" : "zetaris"; txt = `${e.purpose || "query"} · ${e.rows ?? "-"} rows · ${e.seconds} s`; extra = `<details><summary>SQL</summary><pre>${esc(e.sql)}${e.error ? "\n\nERROR " + esc(e.error) : ""}</pre></details>`; break;
-    case "model": k = e.ok ? "model" : "err"; txt = `${e.role} · ${e.ok ? (e.routed_model || e.model) + " · " + e.seconds + " s · receipt " + (e.receipt_id || "-") : "failed after " + e.seconds + " s: " + (e.error || "").slice(0, 90)}`; break;
-    case "critic": k = "critic"; txt = e.measure === "roof" ? `roof check after measuring again: ${e.ok ? "accepted" : e.problems.join("; ")}` : `critic ${e.measure} round ${e.round}: ${e.ok ? "accepted" : "rejected · " + e.problems.join("; ")}`; break;
-    case "memory_recall": k = "memory"; txt = `H-MEM recall: ${e.memories.length ? e.memories.map((m) => m.content).join(" · ") : "nothing yet"}`; break;
-    case "memory_write": k = "memory"; txt = `H-MEM remember ${e.kind}: ${e.content}${e.result && e.result.superseded ? " (replaces: " + e.result.superseded.content + ")" : ""}`; break;
-    case "intake": k = "model"; txt = `understood your note: ${JSON.stringify(e.understood)}`; break;
-    case "note": txt = e.text; break;
-    case "decision": k = "decision"; txt = e.text; break;
-    case "challenge": k = "critic"; txt = `${e.by} challenges the ${e.about} finding: ${e.text}`; break;
-    case "requery": k = e.ok ? "zetaris" : "warn"; txt = `${e.by} checked ${e.about} again: ${e.text}`; break;
-    case "thought": k = e.level === "warn" ? "warn" : "tool"; txt = e.text; break;
-    case "answer": txt = "answer from the rules: " + e.result.verdicts.map((v) => `${NAMES[v.measure]} ${v.headline}`).join(" · "); break;
-    case "answer_update": k = "model"; txt = `${NAMES[e.measure]}: Nemotron's explanation passed the checks`; break;
-    case "done": txt = `done in ${e.seconds} s`; break;
-    case "error": k = "err"; txt = e.text; break;
-    default: txt = e.type;
+    case "start": txt = `Run ${e.run_id} started`; break;
+    case "tool_start": kind = "step"; txt = `${e.tool} → ${e.source}`; break;
+    case "tool_end": kind = "step"; txt = `${e.tool} ${e.ok ? "done" : "failed: " + (e.error || "")}${e.seconds !== undefined ? ` (${e.seconds} s)` : ""}`; break;
+    case "house": txt = `Found the house ${e.house_id}`; break;
+    case "zetaris": kind = "zetaris"; txt = `${e.purpose || "query"} · ${e.rows ?? "no"} rows · ${e.seconds} s`; extra = `<details><summary>SQL</summary><pre>${esc(e.sql)}${e.error ? "\n\nERROR " + esc(e.error) : ""}</pre></details>`; break;
+    case "model": kind = "nemotron"; txt = `${e.role} · ${e.ok ? (e.routed_model || e.model) + " · " + e.seconds + " s · receipt " + (e.receipt_id || "none") : "no answer after " + e.seconds + " s: " + (e.error || "").slice(0, 90)}`; break;
+    case "critic": txt = `Critic, round ${e.round}: ${e.ok ? "accepted" : "rejected: " + (e.problems || []).join("; ")}`; break;
+    case "memory_recall": kind = "h-mem"; txt = `Recall: ${e.memories && e.memories.length ? e.memories.map((m) => m.content).join(" · ") : "nothing yet"}`; break;
+    case "memory_write": kind = "h-mem"; txt = `Remember ${e.kind}: ${e.content}${e.result && e.result.superseded ? " (replaces: " + e.result.superseded.content + ")" : ""}`; break;
+    case "intake": txt = `Read your note: ${JSON.stringify(e.understood)}`; break;
+    case "challenge": tag = `<span class="tag challenge">challenge</span>`; txt = e.text; break;
+    case "requery": tag = e.ok === false || e.status === "fallback" ? `<span class="tag soft">not settled</span>` : `<span class="tag again">checked again</span>`; kind = "zetaris"; txt = `${e.about}: ${e.text}`; break;
+    case "answer": txt = e.answer ? `Answer: ${e.answer.solar.status_text} · ${e.answer.solar.recommendation || ""}` : "Answer from the rules"; break;
+    case "answer_update": kind = "nemotron"; txt = "Nemotron's plain words passed the checks"; break;
+    case "done": txt = `Done in ${e.seconds} s`; break;
+    default: txt = e.text || e.output_summary || e.type;
   }
-  const label = { tool: "step", zetaris: "zetaris", model: "nemotron", memory: "h-mem", warn: "note", critic: "critic", err: "error", decision: "decision" }[k];
-  const div = document.createElement("div"); div.className = "ev";
-  div.innerHTML = `<span class="t">${(+e.t || 0).toFixed(1)}s</span><span class="k ${k}">${label}</span><span>${esc(txt)}${extra}</span>`;
-  $("traceBody").appendChild(div); $("traceBody").scrollTop = $("traceBody").scrollHeight;
+  if (!tag && STATUS_WORD[e.status]) tag = `<span class="tag ${e.status === "failed" || e.status === "blocked" ? "bad" : "soft"}">${STATUS_WORD[e.status]}</span>`;
+  if (!tag && e.level === "warn") tag = `<span class="tag soft">note</span>`;
+  const li = document.createElement("li"); li.className = `ev ${e.type}`;
+  li.title = e.ts || `${(+e.t || 0).toFixed(1)} s`;
+  li.innerHTML = `<span class="no">${String(evCount).padStart(2, "0")}</span><span><span class="ag ${esc(agent)}">${esc(agent)}</span></span><span class="tx">${kind ? `<span class="kind">${kind}</span>` : ""}${esc(txt)}${tag}${extra}</span>`;
+  $("traceBody").appendChild(li); $("traceBody").scrollTop = $("traceBody").scrollHeight;
 }
 
 /* ---------------- runs ---------------- */
 function handle(e) {
   trace(e);
-  if (e.type === "house") { state.houseId = e.house_id; $("houseBox").classList.remove("hid"); $("place").textContent = e.label; $("ctx").textContent = "Checking…"; showHouse({ ...e, footprint_m2: null }); }
-  if (e.type === "memory_recall") { state.memories = e.memories; renderMemories(); const h = e.memories.find((m) => m.kind === "heating"); if (h && !$("heating").value) $("heating").value = h.content.split(":")[1].trim().split(",")[0];
-    const g = e.memories.find((m) => m.kind === "gas_use"); if (g && !$("gas").value) $("gas").value = parseInt(g.content.split(":")[1], 10) || ""; }
-  if (e.type === "memory_write") { state.memories = state.memories.filter((m) => m.kind !== e.kind); if (e.result && e.result.memory) state.memories.unshift(e.result.memory); renderMemories(); }
-  if (e.type === "answer") { state.result = e.result; state.texts = e.texts; $("ctx").textContent = context(e.result); renderRows(); $("foot").textContent = `Checked ${fmtDate(e.result.today)}. Rules for England; demo data checked for London, and local data quality varies. The rules decide each status in code; the agents plan, challenge the evidence and explain. Not legal advice.`; }
-  if (e.type === "answer_update") { state.texts[e.measure] = e.text; renderRows(); }
-  if (e.type === "done" || e.type === "error") { state.live = false; $("traceDot").classList.remove("live"); renderRows(); }
+  if (e.type === "house") { $("houseBox").classList.remove("hid"); $("place").textContent = e.label; $("here").textContent = e.label; $("factsLine").textContent = "Checking…"; showHouse({ ...e, footprint_m2: null }); }
+  if (e.type === "answer") { state.result = e.result; state.old = !e.answer; state.answer = e.answer || null; renderAll(); }
+  if (e.type === "answer_update" && e.answer) { state.answer = e.answer; renderAll(); }
+  if (e.type === "done" || e.type === "error") { state.live = false; $("traceDot").classList.remove("live"); $("panel").setAttribute("aria-busy", "false"); renderCard(); }
   if (e.type === "error") { $("err").style.display = "block"; $("err").textContent = e.text; }
 }
 
-function resetForRun() {
+// The owner's inputs belong to one house: a new house or a replay clears them; replays cannot run a check.
+function setInputs(on) { $("elecForm").classList.toggle("hid", !on); $("noteToggle").classList.toggle("hid", !on); if (!on) $("noteBox").classList.add("hid"); }
+
+function resetForRun(sameHouse = false) {
   if (source) source.close();
-  state = { ...state, result: null, texts: {}, open: -1, memories: [], live: true };
-  $("rows").innerHTML = ""; $("mem").innerHTML = ""; $("err").style.display = "none"; $("traceBody").innerHTML = ""; evCount = 0;
-  $("traceDot").classList.add("live"); $("tap").classList.remove("on"); tapMode = false; clearOverlay();
+  if (!sameHouse) { $("elec").value = ""; $("note").value = ""; $("elec").removeAttribute("aria-invalid"); $("houseBox").classList.add("hid"); }
+  state = { ...state, answer: null, result: null, old: false, open: false, live: true };
+  $("card").innerHTML = ""; $("err").style.display = "none"; $("traceBody").innerHTML = ""; evCount = 0;
+  $("traceDot").classList.add("live"); $("tap").classList.remove("on"); tapMode = false; $("panel").setAttribute("aria-busy", "true");
+  if (viewer) clearOverlay();
 }
 
-async function startCheck(body) {
-  resetForRun();
-  state.request = body;
-  const payload = { ...body, heating: $("heating").value || null, note: $("note").value.trim() || null, gas_kwh: +$("gas").value || null };
-  const r = await fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
-  if (!r.ok) { handle({ type: "error", text: (await r.text()).slice(0, 200) }); return; }
-  const { run_id } = await r.json();
-  source = new EventSource(`/api/runs/${run_id}/events`);
-  source.onmessage = (m) => handle(JSON.parse(m.data));
-  source.addEventListener("end", () => { source.close(); state.live = false; renderRows(); });
+async function apiError(r) {
+  const text = await r.text();
+  try { const j = JSON.parse(text); return (j.error && j.error.message) || (typeof j.detail === "string" ? j.detail : "the input was not accepted"); } catch (e) { return text.slice(0, 160) || `error ${r.status}`; }
+}
+
+// said: what the owner typed for this same house (electricity use, a note); absent for a new house.
+async function startCheck(body, said) {
+  resetForRun(!!said);
+  state.request = body; state.replay = false;
+  if (!STATIC) setInputs(true);
+  const payload = { ...body, note: (said && said.note) || null, elec_kwh: (said && said.elec_kwh) || null };
+  try {
+    const r = await fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+    if (!r.ok) { handle({ type: "error", text: `The check could not start: ${await apiError(r)}` }); return; }
+    const { run_id } = await r.json();
+    source = new EventSource(`/api/runs/${run_id}/events`);
+    source.onmessage = (m) => handle(JSON.parse(m.data));
+    source.addEventListener("end", () => { source.close(); state.live = false; renderCard(); });
+    source.onerror = () => { if (!state.live) return; source.close(); handle({ type: "error", text: "Lost the connection to the server before the check finished. Try again." }); };
+  } catch (e) { handle({ type: "error", text: "Could not reach the server. Is it running?" }); }
+}
+
+// Send what the owner typed, for the house on screen; the number is checked first.
+function sendSaid() {
+  if (!state.request || state.live) return;
+  const el = $("elec");
+  if (el.value && !el.checkValidity()) {
+    el.setAttribute("aria-invalid", "true"); el.focus();
+    $("err").style.display = "block"; $("err").textContent = "Electricity use must be a whole number of kWh a year, between 100 and 100,000. You find it on your bill.";
+    return;
+  }
+  el.removeAttribute("aria-invalid");
+  startCheck(state.request, { elec_kwh: +el.value || null, note: $("note").value.trim() || null });
 }
 
 async function replay(name, maxGapMs = 1200) {
-  resetForRun();
+  resetForRun(); state.replay = true; setInputs(false);
   const r = await fetch(api.run(name));
   if (!r.ok) { handle({ type: "error", text: "no recorded run " + name }); return; }
   const run = await r.json();
-  $("hint").textContent = `Replay of a recorded live run · ${run.run_id}`;
+  $("hint").textContent = `Replay of a recorded run · ${run.run_id}`;
   let prev = 0;
   for (const e of run.events) { await new Promise((ok) => setTimeout(ok, Math.min(maxGapMs, Math.max(40, (e.t - prev) * 1000)))); prev = e.t; handle(e); }
-  state.live = false; renderRows();
+  state.live = false; $("traceDot").classList.remove("live"); $("panel").setAttribute("aria-busy", "false"); renderCard();
 }
 
-/* ---------------- search and tap ---------------- */
+/* ---------------- search, tap and inputs ---------------- */
 $("searchForm").onsubmit = async (ev) => {
   ev.preventDefault();
   const q = $("addr").value.trim(); if (!q) return;
@@ -292,17 +311,22 @@ $("searchForm").onsubmit = async (ev) => {
   viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(ll[0], ll[1] - 0.0016, 230), orientation: { heading: 0, pitch: -45 * D2R, roll: 0 }, duration: 2 });
   tapMode = true; $("tap").classList.add("on");
 };
-$("noteToggle").onclick = () => $("noteBox").classList.toggle("hid");
-$("noteSend").onclick = () => { if (state.request) startCheck(state.request); };
-$("heating").onchange = () => { if (state.request && !state.live) startCheck(state.request); };
-$("gas").onchange = () => { if (state.request && !state.live) startCheck(state.request); };
-$("traceToggle").onclick = () => $("trace").classList.toggle("closed");
+$("factsToggle").onclick = () => openFacts($("facts").classList.contains("hid"));
+$("noteToggle").onclick = () => { const open = $("noteBox").classList.toggle("hid") === false; $("noteToggle").setAttribute("aria-expanded", String(open)); };
+$("noteSend").onclick = sendSaid;
+$("elecForm").onsubmit = (ev) => { ev.preventDefault(); sendSaid(); };
+$("traceToggle").onclick = () => { const closed = $("trace").classList.toggle("closed"); $("traceToggle").setAttribute("aria-expanded", String(!closed)); };
+$("theme").onclick = () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("theme", document.documentElement.dataset.theme); } catch (e) { /* no storage */ }
+};
 
 async function examples() {
   const list = await (await fetch(api.examples())).json();
-  $("examples").innerHTML = list.map((x, i) => `<button data-i="${i}" title="${esc(x.note)}">${esc(x.label)}</button>`).join("");
+  $("examples").innerHTML = list.map((x, i) => `<button type="button" data-i="${i}" title="${esc(x.note)}" aria-pressed="false">${esc(x.label)}</button>`).join("");
   document.querySelectorAll("#examples button").forEach((b) => b.onclick = () => {
-    document.querySelectorAll("#examples button").forEach((o) => o.classList.toggle("on", o === b));
+    document.querySelectorAll("#examples button").forEach((o) => { o.classList.toggle("on", o === b); o.setAttribute("aria-pressed", String(o === b)); });
     const x = list[+b.dataset.i];
     if (STATIC) { replay(x.file.replace(/\.json$/, "")); return; }
     startCheck(x.way ? { way: x.way, label: x.label } : { lat: x.lat, lon: x.lon, label: x.label });
@@ -311,33 +335,40 @@ async function examples() {
 
 async function main() {
   examples();
+  if (matchMedia("(max-width: 900px)").matches) { $("trace").classList.add("closed"); $("traceToggle").setAttribute("aria-expanded", "false"); }
+  const fixedHouse = () => { $("searchForm").classList.add("hid"); $("here").classList.remove("hid"); $("here").textContent = "Pick an example house"; };
   if (STATIC) {
-    $("searchForm").classList.add("hid");
-    document.querySelector(".you").classList.add("hid");
-    $("tap").classList.remove("on");
-    $("hint").textContent = "Replays of recorded live runs. Clone the repo to check any house.";
+    fixedHouse(); $("elecForm").classList.add("hid"); $("noteToggle").classList.add("hid"); $("tap").classList.remove("on");
+    $("hint").textContent = "Replays of recorded runs. Clone the repo to check any house.";
   } else {
-    fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) { $("hint").textContent = "Sample mode: the agent runs on cached data, no keys needed"; $("searchForm").classList.add("hid"); } }).catch(() => {});
+    fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) { fixedHouse(); $("hint").textContent = "Sample mode: the agent runs on cached data, no keys needed"; } }).catch(() => {});
   }
   const opts = { baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false };
   if (window.GOOGLE_MAPS_API_KEY) {
-    viewer = new Cesium.Viewer("map", { ...opts, baseLayer: false });
-    viewer.scene.globe.show = false;
-    try { viewer.scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset(window.GOOGLE_MAPS_API_KEY)); }
-    catch (e) { $("err").style.display = "block"; $("err").textContent = "Google 3D did not load: " + (e && e.message ? e.message : e); return; }
-  } else {
+    try {
+      viewer = new Cesium.Viewer("map", { ...opts, baseLayer: false });
+      viewer.scene.globe.show = false;
+      viewer.scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset(window.GOOGLE_MAPS_API_KEY));
+    } catch (e) {   // key set but refused: same page on the OSM map
+      $("err").style.display = "block"; $("err").textContent = "Google 3D did not load, so the page uses the OpenStreetMap map. " + (e && e.message ? e.message : e);
+      if (viewer) viewer.destroy();
+      viewer = null; window.GOOGLE_MAPS_API_KEY = "";
+    }
+  }
+  if (!viewer) {
     // No Google key (a fresh clone, or a judge's machine): OpenStreetMap tiles on a flat globe, same overlays.
     viewer = new Cesium.Viewer("map", { ...opts, baseLayer: new Cesium.ImageryLayer(new Cesium.OpenStreetMapImageryProvider({ url: "https://tile.openstreetmap.org/" })) });
     CLASSIFY = () => Cesium.ClassificationType.TERRAIN;
-    $("hint").textContent = "Map: © OpenStreetMap contributors. Add a Google key for 3D.";
+    if (!STATIC) $("hint").textContent = "Map: © OpenStreetMap contributors. Add a Google key for 3D.";
   }
   viewer.scene.screenSpaceCameraController.minimumZoomDistance = 25;
   viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(-0.135, 51.47, 9000), orientation: { heading: 0, pitch: -0.9, roll: 0 } });
   new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas).setInputAction((click) => {
     if (!tapMode) return;
-    const p = viewer.scene.pickPosition(click.position); if (!p) return;
+    const p = (viewer.scene.pickPositionSupported && viewer.scene.pickPosition(click.position)) || viewer.camera.pickEllipsoid(click.position);  // flat map: the ellipsoid
+    if (!p) return;
     const c = Cesium.Cartographic.fromCartesian(p);
-    startCheck({ lat: c.latitude / D2R, lon: c.longitude / D2R, label: $("addr").value.trim() || null });
+    startCheck({ lat: c.latitude / D2R, lon: c.longitude / D2R, label: $("addr").value.trim() || null });   // a new house: inputs cleared
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   const rp = new URLSearchParams(location.search).get("replay");
   if (rp) replay(rp);
