@@ -23,7 +23,7 @@ from .. import answer as answer_mod
 from .. import money, rules, schema
 from ..config import MEASURES, ROOT
 from ..sources import osm
-from ..zetaris import Zetaris
+from ..zetaris import FallbackZetaris
 from . import evaluator, explain, llm, memory
 
 RUNS = ROOT / "runs"
@@ -41,6 +41,11 @@ def _line(e: dict) -> str:
             return str(e[k])[:160]
     return ""
 HEATING = ("gas", "oil", "lpg", "coal", "electric", "heat_pump")
+
+
+class SourceUnavailable(RuntimeError):
+    """A source the answer cannot do without did not answer, and the snapshot has nothing for this house."""
+
 Emit = Callable[[dict], None]
 
 INTAKE = """A homeowner in England typed a note about their house. Pull out only what they actually said.
@@ -65,7 +70,7 @@ def _keyword_intake(note: str) -> dict:
 
 
 class Run:
-    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float = 900, offline: bool = False,
+    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float = 300, offline: bool = False,
                  use_memory: bool | None = None):
         self.id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:6]
         self.events: list[dict] = []
@@ -80,7 +85,21 @@ class Run:
             self.z = OfflineZetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}))
             self.use_model = False
         else:
-            self.z = Zetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}))
+            self.z = FallbackZetaris(on_query=lambda q: self.emit({"type": "zetaris", **q}), on_fallback=self._zetaris_down)
+        self.fallbacks: list[str] = []
+        self.timings: dict[str, float] = {}
+        self._mark = time.time()
+
+    def _zetaris_down(self, why: str) -> None:
+        self.fallbacks.append("zetaris")
+        self.emit({"type": "fallback", "agent": "analyst", "about": "zetaris", "status": "fallback", "why": why,
+                   "text": "Zetaris did not answer, so the rest of this check reads the same tables from the local snapshot."})
+
+    def lap(self, step: str) -> None:
+        """Seconds per step, for the trace and the runtime budget."""
+        now = time.time()
+        self.timings[step] = round(self.timings.get(step, 0) + now - self._mark, 2)
+        self._mark = now
 
     def emit(self, e: dict) -> None:
         e = schema.event({"t": round(time.time() - self.started, 2), **e}, self.id)
@@ -132,7 +151,16 @@ class Run:
                 self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": "not in the sample snapshot"})
                 raise LookupError("Sample mode has data for the example houses only. Pick one of them, or run the live stack for any other house.")
         else:
-            house = osm.house_from_way(way) if way else osm.building_at(lat, lon)
+            try:
+                house = osm.house_from_way(way) if way else osm.building_at(lat, lon)
+            except Exception as e:  # noqa: BLE001  OpenStreetMap down: the snapshot may still know this house
+                house = self._locate_offline(way, lat, lon)
+                self.fallbacks.append("openstreetmap")
+                self.emit({"type": "fallback", "agent": "analyst", "about": "openstreetmap", "status": "fallback" if house else "failed",
+                           "why": str(e)[:200], "text": "OpenStreetMap did not answer; " + ("the house outline comes from the local snapshot." if house else "this house is not in the snapshot.")})
+                if not house:
+                    self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": "OpenStreetMap did not answer"})
+                    raise SourceUnavailable("OpenStreetMap did not answer, and this house is not in the local snapshot. Try again in a minute.") from e
         if not house:
             self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": "no building at that point"})
             raise LookupError("No building outline at that point. Tap the roof of the house.")
@@ -192,7 +220,7 @@ class Run:
                 said = llm.chat_json([{"role": "user", "content": INTAKE + note}], "intake", self.model_call, max_tokens=2000)
             except llm.LLMError as e:
                 said = _keyword_intake(note)
-                self.say("The model did not answer, so I read your note with simple keyword rules instead.", level="warn", why=str(e)[:120])
+                self.say("The model did not answer, so I read your note with simple keyword rules instead.", level="warn", why=str(e)[:120], status="fallback")
             self.emit({"type": "intake", "note": note, "understood": said})
         if heating:
             said["heating"] = heating
@@ -240,19 +268,19 @@ class Run:
         feedback = None
         for round_no in (1, 2):
             if time.time() - self.started > self.model_budget_s:
-                self.say(f"Out of time for the model on {v['measure']}; the checked draft stays.", level="warn")
+                self.say(f"Out of time for the model on {v['measure']}; the checked draft stays.", level="warn", agent="reporter", status="fallback")
                 return None
             try:
                 text = explain.rewrite(result, v, draft, self.model_call, feedback)
             except llm.LLMError as e:
-                self.say(f"Nemotron did not answer for {v['measure']} ({str(e)[:60]}); the checked draft stays.", level="warn")
+                self.say(f"Nemotron did not answer for {v['measure']} ({str(e)[:60]}); the checked draft stays.", level="warn", agent="reporter", status="fallback")
                 return None
             problems = explain.check_rewrite(result, v, draft, text)
             if not problems:
                 try:
                     problems = explain.critic(result, v, text, self.model_call)
                 except llm.LLMError:
-                    self.say(f"The critic model did not answer for {v['measure']}; code checks passed, so the rewrite is used and marked as code checked only.", level="warn")
+                    self.say(f"The critic model did not answer for {v['measure']}; code checks passed, so the rewrite is used and marked as code checked only.", level="warn", agent="critic", status="fallback")
                     text["checked_by"] = "code"
                     return text
             self.emit({"type": "critic", "measure": v["measure"], "round": round_no, "ok": not problems, "problems": problems})
@@ -260,7 +288,7 @@ class Run:
                 text.setdefault("checked_by", "code and critic")
                 return text
             feedback = problems
-        self.say(f"The critic rejected both rewrites for {v['measure']}; the checked draft stays.", level="warn")
+        self.say(f"The critic rejected both rewrites for {v['measure']}; the checked draft stays.", level="warn", agent="critic", status="blocked", target_agent="reporter")
         return None
 
     # ------------------------------------------------------------------ main
@@ -271,14 +299,24 @@ class Run:
         self.emit({"type": "start", "run_id": self.id})
         house = self.locate(way, lat, lon, label)
         hid = house["house_id"]
+        self.lap("find_house")
         ctx = self.recall(hid)
         ctx = self.intake(hid, note, heating, ctx, gas_kwh, elec_kwh)
+        self.lap("memory")
         if not ctx.get("heating") and "heat_pump" in MEASURES:
             self.say("Nobody has told me how this house is heated, so the heat pump grant is shown as conditional.", ask="heating")
 
-        got = facts_mod.gather(house, self.z, self.emit, refresh=refresh)
+        try:
+            got = facts_mod.gather(house, self.z, self.emit, refresh=refresh)
+        except LookupError:
+            raise
+        except Exception as e:  # noqa: BLE001  a source for a new house did not answer
+            self.emit({"type": "error", "code": "source_unavailable", "agent": "analyst", "text": str(e)[:300]})
+            raise SourceUnavailable(f"A data source did not answer for this house ({type(e).__name__}). Try again later; "
+                                    "the example houses work from the local snapshot.") from e
         self.say("Using the cached facts for this house." if got["cached"] else "Fetched live facts and cached them for Zetaris.")
 
+        self.lap("facts")
         f = rules.load(self.z, hid)
         if got["cached"] and any(d["dataset"].startswith("listed") for d in f["designations"]) and not f["planes"]:
             self.emit({"type": "decision", "branch": "listed_stop", "text": "The building is listed, so panels need listed building consent whatever the roof is like. The roof was not surveyed."})
@@ -288,6 +326,7 @@ class Run:
         local = [d for d in f["designations"] if d.get("organisation") and d["dataset"] in ("conservation-area", "article-4-direction-area", "listed-building-outline")]
         org = str(local[0]["organisation"]) if local else ""   # the listing point's organisation is Historic England, not the council
         result["council"] = evaluator.council(org) if org else None
+        self.lap("rules")
         flags = evaluator.challenge(self.z, f, result, house["coords"], self.emit)
         for v in result["verdicts"]:
             v["uncertain"] += [x for x in flags if x not in v["uncertain"]]
@@ -314,8 +353,10 @@ class Run:
                 warned.add(u)
                 self.say(UNCERTAIN.get(u, u), level="warn", measure=v["measure"])
 
+        self.lap("evaluator")
         answers = {v["measure"]: {**explain.template(result, v), "writer": "code"} for v in result["verdicts"]}
         self.emit({"type": "answer", "result": _public(result), "texts": answers, "answer": self._answer(result, answers)})
+        self.lap("reporter")
 
         if self.use_model:
             with ThreadPoolExecutor(1) as pool:  # one at a time: parallel calls queue at the provider anyway
@@ -326,15 +367,17 @@ class Run:
                         self.emit({"type": "answer_update", "measure": v["measure"], "text": answers[v["measure"]],
                                    "answer": self._answer(result, answers)})
 
+        self.lap("writer_and_critic")
         summary = "; ".join(f"{explain.MEASURE_NAME[v['measure']]}: {v['headline']}" for v in result["verdicts"])
         if self._mem():
             memory.remember(hid, "outcome", f"Last check {date.today().isoformat()}: {summary}", "the agent's last check")
         record = {"run_id": self.id, "house_id": hid, "label": house["label"], "context": {k: v for k, v in ctx.items() if k != "memories"},
                   "result": _public(result), "texts": answers, "events": self.events, "seconds": round(time.time() - self.started, 1)}
+        record["timings"], record["fallbacks"] = self.timings, self.fallbacks
+        self.emit({"type": "done", "run_id": self.id, "seconds": record["seconds"], "summary": summary, "timings": self.timings, "fallbacks": self.fallbacks})
         record["answer"] = answer_mod.build(record, self.mode, UNCERTAIN)
         RUNS.mkdir(exist_ok=True)
         (RUNS / f"{self.id}-{hid}.json").write_text(json.dumps(record, indent=1, default=str))
-        self.emit({"type": "done", "run_id": self.id, "seconds": record["seconds"], "summary": summary})
         return record
 
 

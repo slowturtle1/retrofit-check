@@ -156,6 +156,7 @@ def build(rec: dict, mode: str, uncertain_text: dict) -> dict:
         "house_facts": house_facts(res, v),
         "owner": owner,
         "trace": {"events": len(events), "file": f"logs/trace-{rec['run_id']}.jsonl",
+                  "timings": rec.get("timings") or {}, "fallbacks": rec.get("fallbacks") or [],
                   "agents": sorted({e.get("agent_name") for e in events if e.get("agent_name")}),
                   "zetaris_queries": sum(1 for e in events if e["type"] == "zetaris"),
                   "challenges": [e.get("text") for e in events if e["type"] == "challenge"],

@@ -96,6 +96,9 @@ def _defaults(e: dict) -> dict:
                     confidence=(s.get("confidence") or {}).get("score"))
     if t == "done":
         return dict(agent_name="planner", action="finish", output_summary=_short(e.get("summary")))
+    if t == "fallback":
+        return dict(agent_name="analyst", action="fallback:" + str(e.get("about") or "source"), input_summary=_short(e.get("why")),
+                    output_summary=_short(e.get("text")), status="fallback")
     if t == "error":
         return dict(agent_name="planner", action=e.get("code") or "error", output_summary=_short(e.get("text")), status="failed")
     return dict(agent_name=e.get("agent") or "planner", action=t, output_summary=_short(e.get("text")),

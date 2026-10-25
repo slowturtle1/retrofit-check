@@ -19,12 +19,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .config import ROOT, USER_AGENT, env
 
 from .agent import memory
-from .agent.run import RUNS, Run
+from .agent.run import RUNS, Run, SourceUnavailable
 
 SAMPLE = os.environ.get("SAMPLE_MODE", "").lower() in ("1", "true", "yes")
 SAMPLES = ROOT / "samples"
@@ -43,14 +43,14 @@ EXAMPLES = [
 
 
 class CheckIn(BaseModel):
-    way: int | None = None
-    lat: float | None = None
-    lon: float | None = None
-    label: str | None = None
-    note: str | None = None
+    way: int | None = Field(None, gt=0)
+    lat: float | None = Field(None, ge=49.8, le=55.9)    # England
+    lon: float | None = Field(None, ge=-6.5, le=1.8)
+    label: str | None = Field(None, max_length=120)
+    note: str | None = Field(None, max_length=1000)
     heating: str | None = None
-    gas_kwh: float | None = None
-    elec_kwh: float | None = None
+    gas_kwh: float | None = Field(None, gt=0, le=200000)
+    elec_kwh: float | None = Field(None, gt=0, le=100000)  # kWh a year, from the bill
     use_model: bool = True
 
 
@@ -107,6 +107,8 @@ def start_check(body: CheckIn):
             run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh, elec_kwh=body.elec_kwh)
         except LookupError as e:
             run.emit({"type": "error", "code": "not_found", "text": str(e)[:300]})
+        except SourceUnavailable as e:
+            run.emit({"type": "error", "code": "source_unavailable", "text": str(e)[:300]})
         except Exception as e:  # shown in the trace; the page stays usable
             run.emit({"type": "error", "code": "failed", "text": str(e)[:300]})
         finally:
@@ -116,8 +118,8 @@ def start_check(body: CheckIn):
     return {"run_id": run.id}
 
 
-def _err(status: int, code: str, message: str) -> JSONResponse:
-    return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
+def _err(status: int, code: str, message: str, trace_id: str | None = None) -> JSONResponse:
+    return JSONResponse({"error": {"code": code, "message": message, "trace_id": trace_id}}, status_code=status)
 
 
 @app.post("/api/v1/check")
@@ -130,9 +132,11 @@ def check_sync(body: CheckSyncIn):
     try:
         rec = run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh, elec_kwh=body.elec_kwh)
     except LookupError as e:
-        return _err(404, "not_found", str(e))
+        return _err(404, "not_found", str(e), run.id)
+    except SourceUnavailable as e:
+        return _err(503, "source_unavailable", str(e), run.id)
     except Exception as e:  # noqa: BLE001  structured, no stack trace
-        return _err(502, "upstream_failed", f"{type(e).__name__}: {str(e)[:300]}")
+        return _err(502, "upstream_failed", f"{type(e).__name__}: {str(e)[:300]}", run.id)
     return rec["answer"]
 
 

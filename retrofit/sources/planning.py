@@ -8,6 +8,8 @@ same request goes direct, and the trace says so.
 
 from __future__ import annotations
 
+import os
+
 import json
 from urllib.parse import urlencode
 
@@ -17,7 +19,7 @@ from shapely.geometry import Polygon
 from ..config import USER_AGENT
 from ..zetaris import Zetaris, ZetarisError
 
-BASE = "https://www.planning.data.gov.uk/entity.json"
+BASE = os.environ.get("PLANNING_DATA_URL", "https://www.planning.data.gov.uk/entity.json")
 DATASETS = ["listed-building", "listed-building-outline", "conservation-area", "article-4-direction-area",
             "area-of-outstanding-natural-beauty", "national-park", "world-heritage-site", "scheduled-monument"]
 KEEP = ("dataset", "name", "reference", "start-date", "end-date", "entity", "organisation-entity", "listed-building-grade")
@@ -55,7 +57,7 @@ def read(z: Zetaris, house: dict) -> dict:
         rows = [_clean(json.loads(r[0])) for r in res.rows]
         return {"via": "zetaris", "table": f"planning_data.{table}", "endpoint": url, "entities": rows}
     except ZetarisError as e:
-        r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=180)
+        r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=float(os.environ.get("PLANNING_TIMEOUT", "60")))
         r.raise_for_status()
         rows = [_clean(x) for x in r.json().get("entities", [])]
         return {"via": "direct", "why": str(e)[:200], "endpoint": url, "entities": rows}

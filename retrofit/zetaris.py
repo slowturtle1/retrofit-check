@@ -16,7 +16,9 @@ SECRET = re.compile(r'(password\s+)"[^"]*"', re.I)
 
 
 class ZetarisError(RuntimeError):
-    pass
+    def __init__(self, msg: str, unreachable: bool = False):
+        super().__init__(msg)
+        self.unreachable = unreachable   # Zetaris itself did not answer (down, not configured), not a bad query
 
 
 @dataclass
@@ -37,19 +39,21 @@ class Zetaris:
     def run(self, sql: str, limit: int = 500, purpose: str = "") -> Result:
         started = time.time()
         try:
+            url, headers = env("ZETARIS_REST_URL").rstrip("/") + "/sql-editor/sqls/run", {
+                "Authorization": "Bearer " + env("ZETARIS_API_KEY"), "X-Org-ID": env("ZETARIS_ORG_ID"), "X-Request-ID": str(uuid.uuid4())}
+        except RuntimeError as e:   # no .env: a fresh clone
+            self._record(sql, purpose, started, error=str(e))
+            raise ZetarisError(f"Zetaris is not configured: {e}", unreachable=True) from e
+        try:
             r = requests.post(
-                env("ZETARIS_REST_URL").rstrip("/") + "/sql-editor/sqls/run",
-                headers={
-                    "Authorization": "Bearer " + env("ZETARIS_API_KEY"),
-                    "X-Org-ID": env("ZETARIS_ORG_ID"),
-                    "X-Request-ID": str(uuid.uuid4()),
-                },
+                url,
+                headers=headers,
                 json={"queryId": str(uuid.uuid4()), "sql": sql, "source": "SqlEditor", "limit": limit},
                 timeout=float(env("ZETARIS_TIMEOUT", "90")),
             )
         except requests.RequestException as e:
             self._record(sql, purpose, started, error=str(e))
-            raise ZetarisError(f"Zetaris unreachable: {e}") from e
+            raise ZetarisError(f"Zetaris unreachable: {e}", unreachable=True) from e
         body = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
         if r.status_code != 200 or "headers" not in body:
             msg = body.get("message") or body.get("error") or r.text[:300]
@@ -64,3 +68,30 @@ class Zetaris:
         self.log.append(entry)
         if self.on_query:
             self.on_query(entry)
+
+
+class FallbackZetaris:
+    """Live Zetaris first. If Zetaris itself does not answer, the rest of the run reads the same tables from the
+    local snapshot (samples/cache.sqlite), says so once in the trace, and the answer is marked as a fallback."""
+
+    def __init__(self, on_query: Callable[[dict], None] | None = None, on_fallback: Callable[[str], None] | None = None):
+        self.live = Zetaris(on_query=on_query)
+        self.on_query, self.on_fallback = on_query, on_fallback
+        self.snapshot = None
+
+    @property
+    def offline(self) -> bool:
+        return self.snapshot is not None
+
+    def run(self, sql: str, limit: int = 500, purpose: str = "") -> Result:
+        if self.snapshot is None:
+            try:
+                return self.live.run(sql, limit, purpose)
+            except ZetarisError as e:
+                if not e.unreachable:
+                    raise
+                from .offline import OfflineZetaris
+                self.snapshot = OfflineZetaris(on_query=self.on_query)
+                if self.on_fallback:
+                    self.on_fallback(str(e)[:200])
+        return self.snapshot.run(sql, limit, purpose)

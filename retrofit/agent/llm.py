@@ -27,10 +27,12 @@ class LLMError(RuntimeError):
 
 
 def chat(messages: list[dict], role: str, on_call: Callable[[dict], None] | None = None,
-         model: str | None = None, max_tokens: int = 3000, temperature: float = 0.2, retries: int = 2) -> str:
+         model: str | None = None, max_tokens: int = 3000, temperature: float = 0.2, retries: int = 1) -> str:
+    """One retry, then LLMError: the caller keeps the code's checked draft (a fallback, never a crash)."""
     for attempt in range(retries + 1):
         try:
-            return _chat_once(messages, role if attempt == 0 else f"{role} (retry {attempt})", on_call, model, max_tokens, temperature)
+            return _chat_once(messages, role if attempt == 0 else f"{role} (retry {attempt})", on_call, model, max_tokens, temperature,
+                              "failed" if attempt == retries else "retrying")
         except LLMError:
             if attempt == retries:
                 raise
@@ -38,9 +40,11 @@ def chat(messages: list[dict], role: str, on_call: Callable[[dict], None] | None
     raise LLMError("unreachable")
 
 
-def _chat_once(messages, role, on_call, model, max_tokens, temperature) -> str:
+def _chat_once(messages, role, on_call, model, max_tokens, temperature, fail_status="failed") -> str:
     started = time.time()
     try:
+        if not env("METERLESS_RUNTIME_TOKEN", ""):
+            raise requests.ConnectionError("Nightshift is not configured (no METERLESS_RUNTIME_TOKEN)")
         r = requests.post(
             _base() + "/chat/completions",
             headers={"Authorization": "Bearer " + env("METERLESS_RUNTIME_TOKEN"), "meterless-app": APP, "meterless-scope": "user"},
@@ -52,7 +56,8 @@ def _chat_once(messages, role, on_call, model, max_tokens, temperature) -> str:
         body = r.json()
     except (requests.RequestException, ValueError) as e:
         if on_call:
-            on_call({"role": role, "ok": False, "seconds": round(time.time() - started, 1), "error": str(e)[:200]})
+            on_call({"role": role, "ok": False, "seconds": round(time.time() - started, 1), "error": str(e)[:200], "status": fail_status,
+                     "model": model or env("METERLESS_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b")})
         raise LLMError(str(e)) from e
     receipt = body.get("meterless") or {}
     text = (body["choices"][0]["message"].get("content") or "").strip()
