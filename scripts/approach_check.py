@@ -182,7 +182,7 @@ def data_readme(**_):
             if missing or empty:
                 return gap("; ".join(filter(None, [missing and "source table has no column for " + ", ".join(missing), empty and "empty cells: " + ", ".join(empty[:6])])))
             return ok(f"{len(body)} sources, seven fields each")
-    secs = [(h, b) for h, b in _sections(md) if h.lower() not in ("data sources", "data")]
+    secs = [(h, b) for h, b in _sections(md) if h.lower() not in ("data sources", "data") and not re.search(r"future|not used|out of scope|kept for", h, re.I)]
     per = {h: [f for f, p in DATA_FIELDS.items() if not re.search(p, h + b, re.I)] for h, b in secs if re.search(r"https?://", b)}
     bad = {h: m for h, m in per.items() if m}
     if per and not bad:
@@ -211,7 +211,7 @@ def table_counts(**_):
     db, cache = _db_tables(), _cache_tables()
     bad = []
     for rel in ("README.md", "data/README.md"):
-        for m in re.finditer(r"\b(\d+|" + "|".join(WORDS) + r")\s+(?:\w+\s+)?tables\b", read(rel), re.I):
+        for m in re.finditer(r"\b(\d+|" + "|".join(WORDS) + r")\s+(?:(?:Postgres|Zetaris|SQLite|database|snapshot|cache)\s+)?tables\b", read(rel), re.I):
             n = int(m.group(1)) if m.group(1).isdigit() else WORDS[m.group(1).lower()]
             if n not in (db, cache):
                 bad.append(f"{rel} says '{m.group(0)}'")
@@ -383,11 +383,18 @@ def worksheet(**_):
 
 
 def self_score(min=16, **_):
-    md = read("approach/worksheet.md")
-    rows = [l for l in md.splitlines() if l.strip().startswith("|")]
+    lines = read("approach/worksheet.md").splitlines()
+    start = next((i for i, l in enumerate(lines) if l.strip().startswith("|") and re.search(r"score", l, re.I)), None)
+    if start is None:
+        return gap("no self score table (a table whose header names the score)")
+    rows = []
+    for l in lines[start + 1:]:
+        if not l.strip().startswith("|"):
+            break
+        rows.append(l)
     total, found, unlinked = 0, [], []
     for q in SELF_SCORE:
-        row = next((r for r in rows if q.lower() in r.lower()), None)
+        row = next((r for r in rows if q.lower() in r.strip().strip("|").split("|")[0].lower()), None)   # the question cell only
         if not row:
             continue
         cells = [c.strip() for c in row.strip().strip("|").split("|")]

@@ -727,9 +727,9 @@ requirements:
   source: [AG 13, SS 1, HO B6]
   criterion: product_ux
   tier: 3
-  check: {fn: eval_results}
+  check: {test: [tests/test_eval_sample.py], fn: eval_results}
   owner: B
-  evidence: "eval/results.json, eval/cases.json hash unchanged"
+  evidence: "eval/results.json (live) and eval/results-sample.json, eval/cases.json hash unchanged"
   legacy: C1
 
 # ------------------------------------------------------------------ sponsor technology (10)

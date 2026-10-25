@@ -1,0 +1,468 @@
+{
+ "retrofit-check": {
+  "measures": [
+   "solar"
+  ],
+  "answers": {
+   "osm-way-1106478076": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-12f945"
+   },
+   "osm-way-369932335": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-31c6c6"
+   },
+   "osm-way-460070558": {
+    "skipped": "not in the sample snapshot"
+   },
+   "osm-way-849743972": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-b3d037"
+   },
+   "osm-way-1556408737": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-72a815"
+   },
+   "osm-way-1556408744": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-38a472"
+   },
+   "osm-way-1556408762": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-1a43dc"
+   },
+   "osm-way-1556408735": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-2411dd"
+   },
+   "osm-way-110514126": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-572c5f"
+   },
+   "osm-way-110502216": {
+    "solar": {
+     "route": "allowed",
+     "rules_route": "allowed",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-e08627"
+   },
+   "osm-way-1011719614": {
+    "solar": {
+     "route": "consent",
+     "rules_route": "consent",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-538328"
+   },
+   "osm-way-65272940": {
+    "solar": {
+     "route": "consent",
+     "rules_route": "consent",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-b1921d"
+   },
+   "osm-way-103107384": {
+    "solar": {
+     "route": "consent",
+     "rules_route": "consent",
+     "flags": [
+      "article4_unknown"
+     ]
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-2467b9"
+   },
+   "osm-relation-1879842": {
+    "solar": {
+     "route": "consent",
+     "rules_route": "consent",
+     "flags": []
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-526781"
+   },
+   "osm-way-1068478521": {
+    "solar": {
+     "route": "council",
+     "rules_route": "allowed",
+     "flags": [
+      "article4_coverage_unknown"
+     ]
+    },
+    "_mode": "sample",
+    "_fallbacks": [],
+    "_trace_id": "20261025T205104-0e8db8"
+   }
+  },
+  "score": {
+   "right": 14,
+   "wrong": 0,
+   "deferred": 0,
+   "confidently_wrong": 0,
+   "flag_expected": 1,
+   "flag_raised": 1,
+   "per_case": [
+    {
+     "id": "osm-way-1106478076",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-369932335",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-460070558",
+     "group": "camden-ca",
+     "skipped": "not in the sample snapshot"
+    },
+    {
+     "id": "osm-way-849743972",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408737",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408744",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408762",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408735",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-110514126",
+     "group": "hampstead-a4-ended",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-110502216",
+     "group": "hampstead-a4-ended",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1011719614",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-65272940",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-103107384",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-relation-1879842",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-1068478521",
+     "group": "haringey-ca",
+     "solar": "council (want allowed)"
+    }
+   ],
+   "skipped": 1,
+   "answers": 14
+  },
+  "run_at": "2026-10-25T20:51:04Z",
+  "mode": "sample",
+  "fallbacks": []
+ },
+ "summary": {
+  "retrofit-check": {
+   "measures": [
+    "solar"
+   ],
+   "right": 14,
+   "of": 14,
+   "wrong": 0,
+   "deferred": 0,
+   "confident_wrong": 0,
+   "council_flag": "1/1",
+   "skipped": 1,
+   "mode": "sample",
+   "run_at": "2026-10-25T20:51:04Z"
+  },
+  "no-evaluator": {
+   "measures": [
+    "solar"
+   ],
+   "right": 12,
+   "of": 14,
+   "wrong": 2,
+   "deferred": 0,
+   "confident_wrong": 2,
+   "council_flag": "0/1",
+   "skipped": 1,
+   "mode": "sample",
+   "run_at": "2026-10-25T20:51:04Z"
+  }
+ },
+ "no-evaluator": {
+  "measures": [
+   "solar"
+  ],
+  "answers": {
+   "osm-way-1106478076": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-369932335": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-460070558": {
+    "skipped": "not in the sample snapshot"
+   },
+   "osm-way-849743972": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408737": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408744": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408762": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408735": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-110514126": {
+    "solar": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-110502216": {
+    "solar": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-1011719614": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-65272940": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-103107384": {
+    "solar": {
+     "route": "consent",
+     "flags": [
+      "article4_unknown"
+     ]
+    }
+   },
+   "osm-relation-1879842": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-1068478521": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    }
+   }
+  },
+  "score": {
+   "right": 12,
+   "wrong": 2,
+   "deferred": 0,
+   "confidently_wrong": 2,
+   "flag_expected": 1,
+   "flag_raised": 0,
+   "per_case": [
+    {
+     "id": "osm-way-1106478076",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-369932335",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-460070558",
+     "group": "camden-ca",
+     "skipped": "not in the sample snapshot"
+    },
+    {
+     "id": "osm-way-849743972",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408737",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408744",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408762",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408735",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-110514126",
+     "group": "hampstead-a4-ended",
+     "solar": "permission (want allowed)"
+    },
+    {
+     "id": "osm-way-110502216",
+     "group": "hampstead-a4-ended",
+     "solar": "permission (want allowed)"
+    },
+    {
+     "id": "osm-way-1011719614",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-65272940",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-103107384",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-relation-1879842",
+     "group": "listed",
+     "solar": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-1068478521",
+     "group": "haringey-ca",
+     "solar": "allowed (want allowed)"
+    }
+   ],
+   "skipped": 1,
+   "answers": 14
+  },
+  "run_at": "2026-10-25T20:51:04Z",
+  "mode": "sample",
+  "fallbacks": []
+ }
+}
