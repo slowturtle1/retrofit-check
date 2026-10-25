@@ -33,7 +33,7 @@ NEXT_BY_RECOMMENDATION = {
 
 def shown_status(v: dict) -> str:
     """D3: when the legal answer itself is open, the card says so and never says allowed."""
-    return "check_with_council" if set(v["uncertain"]) & schema.UNSURE else v["status"]
+    return "check_with_council" if schema.open_flags(v) else v["status"]
 
 
 def next_step(v: dict, recommendation: str | None, council: str | None = None) -> str:

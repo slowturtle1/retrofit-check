@@ -132,10 +132,19 @@ def check_event(e: dict) -> list[str]:
     return out
 
 
+def open_flags(v: dict) -> set:
+    """The uncertainty flags that leave this verdict's legal answer open. A listed house needs consent whatever an
+    Article 4 says, so only a doubt about the listing itself counts there; a permission already needed stays needed."""
+    flags = set(v["uncertain"]) & UNSURE
+    if v["status"] == "needs_consent":
+        return flags & {"listed_point_only"}
+    return set() if v["status"] == "needs_permission" else flags
+
+
 def confidence(v: dict) -> dict:
     """high: rules and facts agree and nothing is rough; medium: the answer stands but a number or source is weak;
     low: the legal answer itself is open (unknown Article 4, council coverage, listing found as a point only)."""
-    unsure = set(v["uncertain"]) & UNSURE or v["status"] == "check_with_council"
+    unsure = open_flags(v) or v["status"] == "check_with_council"
     rough = set(v["uncertain"]) & ROUGH or any(f["fact"] == "sources disagree" for f in v["facts"])
     level = "low" if unsure else "medium" if rough else "high"
     return {"score": CONFIDENCE[level], "level": level, "because": sorted(set(v["uncertain"])) or ["sources agree"]}

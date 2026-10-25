@@ -95,22 +95,24 @@ def _solar_lines(result: dict, v: dict) -> dict:
         disagree = f"planning.data still lists Article 4 {d.group(1)}, but {council} ended it on {_d(d.group(2))}, so we follow {council}."
     unsure = set(v["uncertain"])
 
-    if v["status"] == "needs_consent":
+    if v["status"] == "needs_consent" and "listed_point_only" not in unsure:
         listing = next((a for a in areas if a["dataset"].startswith("listed")), {})
         grade = f"Grade {listing['grade']} listed" if listing.get("grade") else "Listed"
         since = f" since {_d(listing.get('start_date'))}" if listing.get("start_date") else ""
+        entry = f" (list entry {listing['reference']})" if listing.get("reference") else ""
+        kind = grade.replace(" listed", "") if listing.get("grade") else "listed"
         return {"one": f"{grade}{since}: panels need listed building consent first.",
                 "why": (f"{label} has been {grade}{since}" if since else f"{label} is {grade}") + ", so panels are not permitted development here and {council} decides. "
                        "The roof was not measured, because consent comes first.",
-                "get": f"Ask {council}'s conservation officer whether panels on a roof slope hidden from the street could get consent.",
-                "cost": f"No cost estimate for a {grade} house until consent is clear. Listed building consent is free to apply for."}
+                "get": f"Ask {council}'s conservation officer whether panels on a roof slope hidden from the street could get consent for this house{entry}.",
+                "cost": f"No cost estimate for this {kind} house until consent is clear. Listed building consent is free to apply for."}
     if v["status"] == "needs_permission":
         ref = a4[0].split(":")[0] if a4 else "An Article 4 direction"
         return {"one": f"{ref} removes the right to add panels here: you need planning permission.",
                 "why": f"{label} is covered by {ref}, which takes away permitted development for solar panels, so {council} must approve them.",
                 "get": f"Your {slope} could make about {n['kwh_year']:,} kWh a year if {council} approves." if n else f"Ask {council} before you plan panels.",
                 "cost": f"A householder application to {council} costs £548. Cost of the panels is shown once permission is likely." }
-    if v["status"] == "check_with_council" or unsure & {"article4_unknown", "article4_coverage_unknown", "listed_point_only"}:
+    if v["status"] == "check_with_council" or unsure & {"article4_unknown", "article4_coverage_unknown", "listed_point_only"}:  # consent and permission returned above
         if "article4_unknown" in unsure or v["status"] == "check_with_council":
             ref = a4[0].split(":")[0] if a4 else "An Article 4 direction"
             one, why = (f"{ref} covers {label} and we do not know what it removes.",
@@ -139,7 +141,7 @@ def _solar_lines(result: dict, v: dict) -> dict:
     elif ca_name:
         why.append(f"In a conservation area panels cannot go on a wall that faces a road; roof slopes are fine, so the {side} slope can take them.")
     else:
-        why.append(f"Panels on the {side} slope are permitted development if they stay within 20 cm of the roof and below the ridge.")
+        why.append(f"Panels on the {slope} are permitted development if they stay within 20 cm of the roof and below the ridge.")
     if disagree:
         why.append(disagree)
     elif a4 and ca_name:
