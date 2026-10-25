@@ -1,0 +1,238 @@
+{
+ "schema": "1",
+ "trace_id": "20261025T205957-449d3a",
+ "run_id": "20261025T205957-449d3a",
+ "mode": "live",
+ "seconds": 130.4,
+ "question": "Is my house eligible for solar panels?",
+ "house": {
+  "house_id": "osm-way-1106478076",
+  "label": "Dartmouth Park, NW5",
+  "lat": "51.5601433467901",
+  "lon": "-0.14232777755550688",
+  "building": "yes",
+  "footprint_m2": "92",
+  "source": "OpenStreetMap way 1106478076"
+ },
+ "solar": {
+  "status": "allowed",
+  "status_text": "Allowed under permitted development",
+  "rules_status": "allowed",
+  "recommendation": "Worth getting quotes",
+  "confidence": {
+   "score": 0.9,
+   "level": "high",
+   "because": [
+    "sources agree"
+   ],
+   "text": "High: the listing, conservation area and Article 4 records agree, and the roof reading is clean (11% trees or chimneys)."
+  },
+  "limitations": [
+   "The share of solar power used at home follows the MCS tables for 3,100 kWh a year (you told us); your own pattern may differ.",
+   "Rules for England, demo data for London.",
+   "Map drawings are indicative.",
+   "Roof size and yield come from 1 m LIDAR and PVGIS: an installer's survey confirms them.",
+   "Not legal or financial advice."
+  ],
+  "next_step": "Get quotes from two or three MCS certified installers. If you want it in writing, apply to Camden for a lawful development certificate.",
+  "facts": [
+   {
+    "fact": "listed",
+    "value": "no",
+    "source": "planning.data listed-building",
+    "date": null
+   },
+   {
+    "fact": "conservation-area",
+    "value": "Dartmouth Park (CA9, since 1992-06-01)",
+    "source": "planning.data conservation-area",
+    "date": null
+   },
+   {
+    "fact": "article-4",
+    "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+    "source": "https://www.camden.gov.uk/article-4-directions-other-development-",
+    "date": null
+   },
+   {
+    "fact": "best roof plane",
+    "value": "S, 2.9 kWp, about 2916 kWh a year",
+    "source": "PVGIS 5.2, EU Joint Research Centre via Zetaris; roof from EA LIDAR",
+    "date": null
+   },
+   {
+    "fact": "LIDAR noise",
+    "value": "11% of roof cells (trees, chimneys)",
+    "source": "EA LIDAR DSM 1 m",
+    "date": null
+   },
+   {
+    "fact": "your electricity use",
+    "value": "3,100 kWh a year",
+    "source": "you told us",
+    "date": "2026-10-25"
+   }
+  ],
+  "rules": [
+   {
+    "id": "solar-pitched",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(c)",
+    "plain": "On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge.",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14"
+   },
+   {
+    "id": "solar-ca-wall",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(e)",
+    "plain": "In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14"
+   }
+  ],
+  "numbers": {
+   "kwp": 2.9,
+   "kwh_year": 2916,
+   "facing": "S",
+   "cost_gbp": [
+    4600,
+    6100
+   ],
+   "value_gbp_year": [
+    280,
+    540
+   ],
+   "payback_years": [
+    9,
+    22
+   ]
+  },
+  "usage": {
+   "elec_kwh": 3100,
+   "said_on": "2026-10-25",
+   "roof_kwh": 2916,
+   "share_pct": 94,
+   "text": "Your roof could make about 94% of the 3,100 kWh you use a year (you told us, 25 Oct 2026)."
+  },
+  "lines": {
+   "one": "Your south roof slope (27\u00b0) has room for about 2.9 kWp, about 2,916 kWh a year.",
+   "why": "This house is not listed and sits in Dartmouth Park Conservation Area (1992). In a conservation area panels cannot go on a wall that faces a road: your west wall faces Dartmouth Park Avenue and your south wall faces Laurier Road. Roof slopes are fine, so the south slope can take them. The Article 4 direction on file here (basements, A4Ba3) does not cover solar panels.",
+   "get": "About 2.9 kWp on the south slope, about 2,916 kWh a year.",
+   "cost": "For 2.9 kWp: about \u00a34,600 to \u00a36,100 to install, worth about \u00a3280 to \u00a3540 a year for the 3,100 kWh a year you use, so about 9 to 22 years to pay back. No VAT on panels until 31 Mar 2027."
+  },
+  "written_by": "code",
+  "checked_by": null,
+  "uncertain": []
+ },
+ "house_facts": [
+  {
+   "key": "listed",
+   "label": "Listed",
+   "value": "Not listed",
+   "source": "Historic England, via planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "conservation_area",
+   "label": "Conservation area",
+   "value": "Dartmouth Park (1992)",
+   "source": "planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "article_4",
+   "label": "Article 4",
+   "value": "Basements (A4Ba3, from 3 Oct 2016)",
+   "source": "planning.data and the council",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "road_walls",
+   "label": "Walls facing a road",
+   "value": "west to Dartmouth Park Avenue, south to Laurier Road",
+   "source": "OpenStreetMap",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "roof",
+   "label": "Roof direction and slope",
+   "value": "south slope, 27\u00b0, about 20 m\u00b2",
+   "source": "Environment Agency LIDAR",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "sun",
+   "label": "Sun on the roof",
+   "value": "about 2,916 kWh a year from 2.9 kWp",
+   "source": "PVGIS, EU Joint Research Centre",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "electricity_use",
+   "label": "Your electricity use",
+   "value": "3,100 kWh a year",
+   "source": "you told us",
+   "date": "2026-10-25",
+   "from_owner": true
+  }
+ ],
+ "owner": {
+  "elec_kwh": 3100.0,
+  "elec_said_on": "2026-10-25",
+  "heating": null,
+  "heating_said_on": null,
+  "gas_kwh": null,
+  "gas_said_on": null,
+  "off_gas_grid": null
+ },
+ "trace": {
+  "events": 34,
+  "file": "logs/trace-20261025T205957-449d3a.jsonl",
+  "timings": {
+   "find_house": 0.24,
+   "memory": 0.01,
+   "facts": 1.07,
+   "rules": 0.86,
+   "evaluator": 1.11,
+   "reporter": 0.0,
+   "writer_and_critic": 127.14
+  },
+  "fallbacks": [],
+  "agents": [
+   "analyst",
+   "evaluator",
+   "memory",
+   "planner",
+   "reporter"
+  ],
+  "zetaris_queries": 14,
+  "challenges": [
+   "No Article 4 that touches energy upgrades is on record for this house. Councils publish unevenly, so that alone is not proof. Does Camden publish conservation area Article 4s at all?",
+   "One cost figure would hide how much prices vary. Check the national median against the London average before quoting a cost.",
+   "One share of solar power used at home would hide that it depends on who is home in the day. Ask the MCS tables for all three occupancy types, for this roof and the owner's yearly use."
+  ],
+  "model_calls": [
+   {
+    "role": "writer:solar",
+    "ok": false,
+    "routed_model": null,
+    "receipt_id": null,
+    "seconds": 67.7
+   },
+   {
+    "role": "writer:solar (retry 1)",
+    "ok": false,
+    "routed_model": null,
+    "receipt_id": null,
+    "seconds": 57.4
+   }
+  ]
+ }
+}

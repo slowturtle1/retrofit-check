@@ -1,0 +1,198 @@
+{
+ "schema": "1",
+ "trace_id": "20261025T210733-23f65b",
+ "run_id": "20261025T210733-23f65b",
+ "mode": "live",
+ "seconds": 1588.5,
+ "question": "Is my house eligible for solar panels?",
+ "house": {
+  "house_id": "osm-relation-1879842",
+  "label": "10 Downing Street",
+  "lat": "51.503505593313264",
+  "lon": "-0.12754927455647508",
+  "building": "yes",
+  "footprint_m2": "1225",
+  "source": "OpenStreetMap relation 1879842"
+ },
+ "solar": {
+  "status": "needs_consent",
+  "status_text": "Needs listed building consent",
+  "rules_status": "needs_consent",
+  "recommendation": "Ask the council first",
+  "confidence": {
+   "score": 0.9,
+   "level": "high",
+   "because": [
+    "sources agree"
+   ],
+   "text": "High: the listing is on Historic England's register with an outline that covers this building."
+  },
+  "limitations": [
+   "Rules for England, demo data for London.",
+   "Map drawings are indicative.",
+   "Roof size and yield come from 1 m LIDAR and PVGIS: an installer's survey confirms them.",
+   "Not legal or financial advice."
+  ],
+  "next_step": "Talk to Westminster's conservation officer before you plan anything.",
+  "facts": [
+   {
+    "fact": "listed",
+    "value": "10, DOWNING STREET SW1 (grade I, 1970-01-14), 10 Downing Street London SW1A 2AA (grade ?, 1970-01-14)",
+    "source": "planning.data listed-building",
+    "date": null
+   },
+   {
+    "fact": "conservation-area",
+    "value": "Whitehall (CONARA/1340, since 2008-02-21)",
+    "source": "planning.data conservation-area",
+    "date": null
+   },
+   {
+    "fact": "article-4",
+    "value": "Article 4 Basement Development Permitted Rights Removed (23/00006/REG_4, from 2016-07-31): Removes permitted development for basements. Content taken from the direction name on planning.data.",
+    "source": "https://www.planning.data.gov.uk/dataset/article-4-direction-area",
+    "date": null
+   },
+   {
+    "fact": "roof",
+    "value": "not measured: consent is needed whatever the roof is like",
+    "source": "agent decision",
+    "date": null
+   }
+  ],
+  "rules": [
+   {
+    "id": "solar-listed",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(g)",
+    "plain": "Panels on a listed house are not permitted development. You need listed building consent.",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14"
+   }
+  ],
+  "numbers": {},
+  "usage": null,
+  "lines": {
+   "one": "Grade I listed since 14 Jan 1970: panels need listed building consent first.",
+   "why": "This house has been Grade I listed since 14 Jan 1970, so panels are not permitted development here and Westminster decides. The roof was not measured, because consent comes first.",
+   "get": "Ask Westminster's conservation officer whether panels on a roof slope hidden from the street could get consent for this house (list entry 1210759).",
+   "cost": "No cost estimate until Westminster gives listed building consent (Grade I since 14 Jan 1970). Listed building consent is free to apply for."
+  },
+  "written_by": "nemotron",
+  "checked_by": "code and critic",
+  "uncertain": []
+ },
+ "house_facts": [
+  {
+   "key": "listed",
+   "label": "Listed",
+   "value": "Grade I listed",
+   "source": "Historic England, via planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "conservation_area",
+   "label": "Conservation area",
+   "value": "Whitehall (2008)",
+   "source": "planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "article_4",
+   "label": "Article 4",
+   "value": "Article 4 Basement Development Permitted Rights Removed (23/00006/REG_4, from 31 Jul 2016)",
+   "source": "planning.data and the council",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "road_walls",
+   "label": "Walls facing a road",
+   "value": "None",
+   "source": "OpenStreetMap",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "roof",
+   "label": "Roof direction and slope",
+   "value": "Not measured",
+   "source": "Environment Agency LIDAR",
+   "date": null,
+   "from_owner": false
+  },
+  {
+   "key": "sun",
+   "label": "Sun on the roof",
+   "value": "Not estimated",
+   "source": "PVGIS, EU Joint Research Centre",
+   "date": null,
+   "from_owner": false
+  },
+  {
+   "key": "electricity_use",
+   "label": "Your electricity use",
+   "value": null,
+   "source": "not given yet",
+   "date": null,
+   "from_owner": true
+  }
+ ],
+ "owner": {
+  "elec_kwh": null,
+  "elec_said_on": null,
+  "heating": null,
+  "heating_said_on": null,
+  "gas_kwh": null,
+  "gas_said_on": null,
+  "off_gas_grid": null
+ },
+ "trace": {
+  "events": 26,
+  "file": "logs/trace-20261025T210733-23f65b.jsonl",
+  "timings": {
+   "find_house": 0.52,
+   "memory": 0.01,
+   "facts": 1.11,
+   "rules": 0.78,
+   "evaluator": 0.0,
+   "reporter": 0.0,
+   "writer_and_critic": 1586.03
+  },
+  "fallbacks": [],
+  "agents": [
+   "analyst",
+   "critic",
+   "memory",
+   "planner",
+   "reporter"
+  ],
+  "zetaris_queries": 10,
+  "challenges": [],
+  "model_calls": [
+   {
+    "role": "writer:solar",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_s7otptsr",
+    "seconds": 18.5
+   },
+   {
+    "role": "critic:solar",
+    "ok": false,
+    "routed_model": null,
+    "receipt_id": null,
+    "seconds": 629.9
+   },
+   {
+    "role": "critic:solar (retry 1)",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_htan46ej",
+    "seconds": 24.7
+   }
+  ]
+ }
+}

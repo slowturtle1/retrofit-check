@@ -1,0 +1,231 @@
+{
+ "schema": "1",
+ "trace_id": "20261025T213401-1dda1b",
+ "run_id": "20261025T213401-1dda1b",
+ "mode": "live",
+ "seconds": 304.4,
+ "question": "Is my house eligible for solar panels?",
+ "house": {
+  "house_id": "osm-way-1068478521",
+  "label": "Muswell Hill, N10",
+  "lat": "51.59055700309349",
+  "lon": "-0.14519066754882257",
+  "building": "semidetached_house",
+  "footprint_m2": "155",
+  "source": "OpenStreetMap way 1068478521"
+ },
+ "solar": {
+  "status": "check_with_council",
+  "status_text": "Check with the council",
+  "rules_status": "allowed",
+  "recommendation": "Ask the council first",
+  "confidence": {
+   "score": 0.3,
+   "level": "low",
+   "because": [
+    "article4_coverage_unknown"
+   ],
+   "text": "Low: Haringey has not published its conservation area Article 4 directions, so one could exist."
+  },
+  "limitations": [
+   "This council has not published Article 4 directions for conservation areas, so a missing record proves nothing. Ask the council.",
+   "The share of solar power used at home follows the MCS tables for 2,500 kWh a year (a typical home, Ofgem); your own pattern may differ.",
+   "Rules for England, demo data for London.",
+   "Map drawings are indicative.",
+   "Roof size and yield come from 1 m LIDAR and PVGIS: an installer's survey confirms them.",
+   "Not legal or financial advice."
+  ],
+  "next_step": "Ask Haringey's planning team whether an Article 4 direction removes the right to add solar panels here.",
+  "facts": [
+   {
+    "fact": "listed",
+    "value": "no",
+    "source": "planning.data listed-building",
+    "date": null
+   },
+   {
+    "fact": "conservation-area",
+    "value": "Muswell Hill (4262, since unknown date)",
+    "source": "planning.data conservation-area",
+    "date": null
+   },
+   {
+    "fact": "best roof plane",
+    "value": "SE, 4.1 kWp, about 3927 kWh a year",
+    "source": "PVGIS 5.2, EU Joint Research Centre via Zetaris; roof from EA LIDAR",
+    "date": null
+   },
+   {
+    "fact": "LIDAR noise",
+    "value": "3% of roof cells (trees, chimneys)",
+    "source": "EA LIDAR DSM 1 m",
+    "date": null
+   }
+  ],
+  "rules": [
+   {
+    "id": "solar-pitched",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(c)",
+    "plain": "On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge.",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14"
+   },
+   {
+    "id": "solar-ca-wall",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(e)",
+    "plain": "In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14"
+   }
+  ],
+  "numbers": {
+   "kwp": 4.1,
+   "kwh_year": 3927,
+   "facing": "SE",
+   "cost_gbp": [
+    6500,
+    8600
+   ],
+   "value_gbp_year": [
+    340,
+    690
+   ],
+   "payback_years": [
+    9,
+    25
+   ]
+  },
+  "usage": null,
+  "lines": {
+   "one": "Haringey has not published Article 4 directions for Muswell Hill Conservation Area, so we cannot rule one out.",
+   "why": "This house is not listed and sits in Muswell Hill Conservation Area. Panels on the south east roof slope (36\u00b0) would be permitted development unless an Article 4 direction removes that right, and Haringey keeps that record itself.",
+   "get": "Your south east roof slope (36\u00b0) could make about 3,927 kWh a year from about 4.1 kWp if Haringey says yes.",
+   "cost": "If Haringey says yes: about \u00a36,500 to \u00a38,600 to install 4.1 kWp, worth about \u00a3340 to \u00a3690 a year."
+  },
+  "written_by": "nemotron",
+  "checked_by": "code and critic",
+  "uncertain": [
+   "article4_coverage_unknown"
+  ]
+ },
+ "house_facts": [
+  {
+   "key": "listed",
+   "label": "Listed",
+   "value": "Not listed",
+   "source": "Historic England, via planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "conservation_area",
+   "label": "Conservation area",
+   "value": "Muswell Hill",
+   "source": "planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "article_4",
+   "label": "Article 4",
+   "value": "None on file",
+   "source": "planning.data and the council",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "road_walls",
+   "label": "Walls facing a road",
+   "value": "north east to Princes Avenue",
+   "source": "OpenStreetMap",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "roof",
+   "label": "Roof direction and slope",
+   "value": "south east slope, 36\u00b0, about 28 m\u00b2",
+   "source": "Environment Agency LIDAR",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "sun",
+   "label": "Sun on the roof",
+   "value": "about 3,927 kWh a year from 4.1 kWp",
+   "source": "PVGIS, EU Joint Research Centre",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "electricity_use",
+   "label": "Your electricity use",
+   "value": null,
+   "source": "not given yet",
+   "date": null,
+   "from_owner": true
+  }
+ ],
+ "owner": {
+  "elec_kwh": null,
+  "elec_said_on": null,
+  "heating": null,
+  "heating_said_on": null,
+  "gas_kwh": null,
+  "gas_said_on": null,
+  "off_gas_grid": null
+ },
+ "trace": {
+  "events": 36,
+  "file": "logs/trace-20261025T213401-1dda1b.jsonl",
+  "timings": {
+   "find_house": 0.39,
+   "memory": 0.01,
+   "facts": 0.64,
+   "rules": 2.99,
+   "evaluator": 1.76,
+   "reporter": 0.0,
+   "writer_and_critic": 298.65
+  },
+  "fallbacks": [],
+  "agents": [
+   "analyst",
+   "critic",
+   "evaluator",
+   "memory",
+   "planner",
+   "reporter"
+  ],
+  "zetaris_queries": 14,
+  "challenges": [
+   "No Article 4 that touches energy upgrades is on record for this house. Councils publish unevenly, so that alone is not proof. Does Haringey publish conservation area Article 4s at all?",
+   "One cost figure would hide how much prices vary. Check the national median against the London average before quoting a cost.",
+   "One share of solar power used at home would hide that it depends on who is home in the day. Ask the MCS tables for all three occupancy types, for this roof and a typical yearly use."
+  ],
+  "model_calls": [
+   {
+    "role": "writer:solar",
+    "ok": false,
+    "routed_model": null,
+    "receipt_id": null,
+    "seconds": 265.0
+   },
+   {
+    "role": "writer:solar (retry 1)",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_vao5wgyy",
+    "seconds": 22.1
+   },
+   {
+    "role": "critic:solar",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_h4togsby",
+    "seconds": 9.5
+   }
+  ]
+ }
+}

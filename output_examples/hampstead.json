@@ -1,0 +1,268 @@
+{
+ "schema": "1",
+ "trace_id": "20261025T210342-e05720",
+ "run_id": "20261025T210342-e05720",
+ "mode": "live",
+ "seconds": 230.7,
+ "question": "Is my house eligible for solar panels?",
+ "house": {
+  "house_id": "osm-way-110514126",
+  "label": "Hampstead, NW3",
+  "lat": "51.55513301811031",
+  "lon": "-0.18219174947753244",
+  "building": "house",
+  "footprint_m2": "196",
+  "source": "OpenStreetMap way 110514126"
+ },
+ "solar": {
+  "status": "allowed",
+  "status_text": "Allowed under permitted development",
+  "rules_status": "allowed",
+  "recommendation": "Worth getting quotes",
+  "confidence": {
+   "score": 0.6,
+   "level": "medium",
+   "because": [
+    "article4_ended_but_listed"
+   ],
+   "text": "Medium: planning.data and Camden disagree about an Article 4 direction; we follow Camden."
+  },
+  "limitations": [
+   "An Article 4 direction here has ended but still shows on planning.data.",
+   "The share of solar power used at home follows the MCS tables for 2,500 kWh a year (a typical home, Ofgem); your own pattern may differ.",
+   "Rules for England, demo data for London.",
+   "Map drawings are indicative.",
+   "Roof size and yield come from 1 m LIDAR and PVGIS: an installer's survey confirms them.",
+   "Not legal or financial advice."
+  ],
+  "next_step": "Get quotes from two or three MCS certified installers. If you want it in writing, apply to Camden for a lawful development certificate.",
+  "facts": [
+   {
+    "fact": "listed",
+    "value": "no",
+    "source": "planning.data listed-building",
+    "date": null
+   },
+   {
+    "fact": "conservation-area",
+    "value": "Hampstead (CA15, since 1968-02-01)",
+    "source": "planning.data conservation-area",
+    "date": null
+   },
+   {
+    "fact": "article-4",
+    "value": "Basements (A4Ba3, from 2016-10-03): Removes permitted development for basements across the whole borough. Planning data says made 3 Oct 2016; Camden says adopted 1 Jun 2017.",
+    "source": "https://www.camden.gov.uk/article-4-directions-other-development-",
+    "date": null
+   },
+   {
+    "fact": "article-4",
+    "value": "Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 2010-09-01): Front elevations, roofs facing a road, hard surfaces and boundary walls, including solar panels on a roof facing a road. Cancelled by Camden when A4Ha2 came into force on 9 Jun 2026.",
+    "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf",
+    "date": null
+   },
+   {
+    "fact": "article-4",
+    "value": "Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 2026-06-09): Same as the old direction for front elevations, roofs facing a road, hard surfaces and boundary walls, but solar panels are no longer covered.",
+    "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf",
+    "date": null
+   },
+   {
+    "fact": "sources disagree",
+    "value": "planning.data still lists A4Ha1 with no end date; the council ended it on 2026-06-09. Using the council's decision.",
+    "source": "https://camden.moderngov.co.uk/documents/s125901/SMD%20Report%2027May25.pdf",
+    "date": null
+   },
+   {
+    "fact": "best roof plane",
+    "value": "S, 4.6 kWp, about 4696 kWh a year",
+    "source": "PVGIS 5.2, EU Joint Research Centre via Zetaris; roof from EA LIDAR",
+    "date": null
+   },
+   {
+    "fact": "LIDAR noise",
+    "value": "10% of roof cells (trees, chimneys)",
+    "source": "EA LIDAR DSM 1 m",
+    "date": null
+   }
+  ],
+  "rules": [
+   {
+    "id": "solar-pitched",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(c)",
+    "plain": "On a pitched roof, panels may stand up to 20 cm proud of the roof and may not go above the ridge.",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14"
+   },
+   {
+    "id": "solar-ca-wall",
+    "clause": "GPDO Sch 2 Part 14 Class A, A.2(e)",
+    "plain": "In a conservation area, panels may not go on a wall, balcony or roof enclosure that faces a road. The roof is fine.",
+    "in_force": "2015-04-15",
+    "amended_by": "SI 2026/896 (27 Aug 2026)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14"
+   }
+  ],
+  "numbers": {
+   "kwp": 4.6,
+   "kwh_year": 4696,
+   "facing": "S",
+   "cost_gbp": [
+    7300,
+    9700
+   ],
+   "value_gbp_year": [
+    400,
+    810
+   ],
+   "payback_years": [
+    9,
+    24
+   ]
+  },
+  "usage": null,
+  "lines": {
+   "one": "Your south roof slope (48\u00b0) has room for about 4.6 kWp, about 4,696 kWh a year.",
+   "why": "This house is not listed and sits in Hampstead Conservation Area (1968), where panels cannot go on a wall facing a road since your north wall faces Church Row. Roof slopes are fine, so the south slope can take them, but planning.data still lists Article 4 A4Ha1, which Camden ended on 9 Jun 2026, so we follow Camden.",
+   "get": "About 4.6 kWp on the south slope, about 4,696 kWh a year.",
+   "cost": "For 4.6 kWp: about \u00a37,300 to \u00a39,700 to install, worth about \u00a3400 to \u00a3810 a year for a home using 2,500 kWh a year (Ofgem's typical figure), so about 9 to 24 years to pay back. No VAT on panels until 31 Mar 2027."
+  },
+  "written_by": "nemotron",
+  "checked_by": "code and critic",
+  "uncertain": [
+   "article4_ended_but_listed"
+  ]
+ },
+ "house_facts": [
+  {
+   "key": "listed",
+   "label": "Listed",
+   "value": "Not listed",
+   "source": "Historic England, via planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "conservation_area",
+   "label": "Conservation area",
+   "value": "Hampstead (1968)",
+   "source": "planning.data",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "article_4",
+   "label": "Article 4",
+   "value": "Basements (A4Ba3, from 3 Oct 2016); Hampstead Conservation Area (excl. Frognal Way) (various properties) (A4Ha1, from 1 Sep 2010); Hampstead Conservation Area (excl. Frognal Way) Non-immediate Article 4 (A4Ha2, from 9 Jun 2026)",
+   "source": "planning.data and the council",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "road_walls",
+   "label": "Walls facing a road",
+   "value": "north to Church Row",
+   "source": "OpenStreetMap",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "roof",
+   "label": "Roof direction and slope",
+   "value": "south slope, 48\u00b0, about 31 m\u00b2",
+   "source": "Environment Agency LIDAR",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "sun",
+   "label": "Sun on the roof",
+   "value": "about 4,696 kWh a year from 4.6 kWp",
+   "source": "PVGIS, EU Joint Research Centre",
+   "date": "2026-10-24",
+   "from_owner": false
+  },
+  {
+   "key": "electricity_use",
+   "label": "Your electricity use",
+   "value": null,
+   "source": "not given yet",
+   "date": null,
+   "from_owner": true
+  }
+ ],
+ "owner": {
+  "elec_kwh": null,
+  "elec_said_on": null,
+  "heating": null,
+  "heating_said_on": null,
+  "gas_kwh": null,
+  "gas_said_on": null,
+  "off_gas_grid": null
+ },
+ "trace": {
+  "events": 36,
+  "file": "logs/trace-20261025T210342-e05720.jsonl",
+  "timings": {
+   "find_house": 0.13,
+   "memory": 0.01,
+   "facts": 1.19,
+   "rules": 1.83,
+   "evaluator": 2.6,
+   "reporter": 0.0,
+   "writer_and_critic": 224.89
+  },
+  "fallbacks": [],
+  "agents": [
+   "analyst",
+   "critic",
+   "evaluator",
+   "memory",
+   "planner",
+   "reporter"
+  ],
+  "zetaris_queries": 12,
+  "challenges": [
+   "One cost figure would hide how much prices vary. Check the national median against the London average before quoting a cost.",
+   "One share of solar power used at home would hide that it depends on who is home in the day. Ask the MCS tables for all three occupancy types, for this roof and a typical yearly use."
+  ],
+  "model_calls": [
+   {
+    "role": "writer:solar",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_on8i0sj9",
+    "seconds": 45.4
+   },
+   {
+    "role": "critic:solar",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_wqi05mn4",
+    "seconds": 51.6
+   },
+   {
+    "role": "writer:solar",
+    "ok": false,
+    "routed_model": null,
+    "receipt_id": null,
+    "seconds": 43.3
+   },
+   {
+    "role": "writer:solar (retry 1)",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_hyz2a7wi",
+    "seconds": 36.7
+   },
+   {
+    "role": "critic:solar",
+    "ok": true,
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "receipt_id": "rcpt_req_plcbvltf",
+    "seconds": 45.9
+   }
+  ]
+ }
+}

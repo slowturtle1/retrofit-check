@@ -2,97 +2,85 @@
  {
   "key": "dartmouth",
   "label": "Dartmouth Park, NW5",
-  "note": "Conservation area: solar yes, heat pump yes, outside wall insulation needs permission",
+  "note": "Conservation area corner house: panels allowed, the owner's electricity use remembered",
   "file": "dartmouth.json",
-  "run_id": "20261024T210630-78b45f",
+  "run_id": "20261025T205957-449d3a",
+  "house_id": "osm-way-1106478076",
   "way": 1106478076,
   "lat": 51.5601433467901,
   "lon": -0.14232777755550688,
   "summary": [
-   "solar: Allowed under permitted development",
-   "heat_pump: Allowed under permitted development, if conditions are met",
-   "wall_insulation: Needs planning permission"
-  ],
-  "house_id": "osm-way-1106478076"
+   "solar: Allowed under permitted development \u00b7 Worth getting quotes"
+  ]
  },
  {
   "key": "lady-somerset",
   "label": "Lady Somerset Road, NW5",
   "note": "Same kind of street, outside the conservation area",
   "file": "lady-somerset.json",
-  "run_id": "20261024T210645-da730a",
+  "run_id": "20261025T210207-ed4b9d",
+  "house_id": "osm-way-1556408737",
   "way": 1556408737,
   "lat": 51.55491368627603,
   "lon": -0.14303720428630998,
   "summary": [
-   "solar: Allowed under permitted development",
-   "heat_pump: Allowed under permitted development, if conditions are met",
-   "wall_insulation: Allowed under permitted development, if conditions are met"
-  ],
-  "house_id": "osm-way-1556408737"
+   "solar: Allowed under permitted development \u00b7 Worth getting quotes"
+  ]
  },
  {
   "key": "hampstead",
   "label": "Hampstead, NW3",
   "note": "The agent catches an Article 4 that planning.data still lists",
   "file": "hampstead.json",
-  "run_id": "20261024T210646-9e02f1",
+  "run_id": "20261025T210342-e05720",
+  "house_id": "osm-way-110514126",
   "way": 110514126,
   "lat": 51.55513301811031,
   "lon": -0.18219174947753244,
   "summary": [
-   "solar: Allowed under permitted development",
-   "heat_pump: Allowed under permitted development, if conditions are met",
-   "wall_insulation: Needs planning permission"
-  ],
-  "house_id": "osm-way-110514126"
+   "solar: Allowed under permitted development \u00b7 Worth getting quotes"
+  ]
  },
  {
   "key": "downing",
   "label": "10 Downing Street",
   "note": "Grade I listed: the agent stops early",
   "file": "downing.json",
-  "run_id": "20261024T210648-cacb2b",
+  "run_id": "20261025T210733-23f65b",
+  "house_id": "osm-relation-1879842",
   "way": null,
   "lat": 51.503505593313264,
   "lon": -0.12754927455647508,
   "summary": [
-   "solar: Needs listed building consent",
-   "heat_pump: Needs listed building consent",
-   "wall_insulation: Needs listed building consent"
-  ],
-  "house_id": "osm-relation-1879842"
+   "solar: Needs listed building consent \u00b7 Ask the council first"
+  ]
  },
  {
   "key": "muswell",
   "label": "Muswell Hill, N10",
-  "note": "The council has published no conservation area Article 4s: answers marked uncertain",
+  "note": "The council has published no conservation area Article 4s: check with the council",
   "file": "muswell.json",
-  "run_id": "20261024T210655-28584e",
+  "run_id": "20261025T213401-1dda1b",
+  "house_id": "osm-way-1068478521",
   "way": 1068478521,
   "lat": 51.59055700309349,
   "lon": -0.14519066754882257,
   "summary": [
-   "solar: Allowed under permitted development",
-   "heat_pump: Allowed under permitted development, if conditions are met",
-   "wall_insulation: Needs planning permission"
-  ],
-  "house_id": "osm-way-1068478521"
+   "solar: Check with the council \u00b7 Ask the council first"
+  ]
  },
  {
   "key": "trees",
   "label": "Trees over the roof",
-  "note": "Noisy LIDAR: the agent measures again",
+  "note": "Noisy LIDAR and a small roof: probably not worth it",
   "file": "trees.json",
-  "run_id": "20261024T210650-1ecca3",
+  "run_id": "20261025T213906-085a03",
+  "house_id": "osm-way-827708528",
   "way": 827708528,
   "lat": 51.55908887769367,
   "lon": -0.14153591987912656,
   "summary": [
-   "solar: Allowed under permitted development",
-   "heat_pump: Allowed under permitted development, if conditions are met",
-   "wall_insulation: Needs planning permission"
-  ],
-  "house_id": "osm-way-827708528"
+   "solar: Allowed under permitted development \u00b7 Probably not worth it for this house"
+  ]
  }
 ]

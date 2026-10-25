@@ -1,8 +1,8 @@
 {
- "commit": "274b79a (uncommitted changes)",
- "generated_at": "2026-10-25T21:39:45+00:00",
+ "commit": "1d9b7da (uncommitted changes)",
+ "generated_at": "2026-10-25T21:42:50+00:00",
  "live": false,
- "gaps_tier_1_to_3": 2,
+ "gaps_tier_1_to_3": 0,
  "requirements": [
   {
    "id": "G1",
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "41 commits scanned, no secret found",
+   "detail": "40 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -338,8 +338,8 @@
    "id": "I10",
    "criterion": "impact",
    "tier": 1,
-   "status": "gap",
-   "detail": "18 of 20 (want 16); no evidence link: minute demo",
+   "status": "pass",
+   "detail": "18 of 20, every question with evidence",
    "owner": "C",
    "text": "The self score (guide section 13) is at least 16 of 20, honest, with one evidence link per question",
    "source": [
@@ -352,7 +352,7 @@
    "criterion": "technical",
    "tier": 2,
    "status": "pass",
-   "detail": "fresh clone of HEAD, empty environment: 15 houses answered in 0.1 s (1 s with startup)",
+   "detail": "fresh clone of HEAD, empty environment: 15 houses answered in 0.3 s (1 s with startup)",
    "owner": "B",
    "text": "Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers)",
    "source": [
@@ -434,7 +434,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "11 HTTP calls in retrofit/, every one with a timeout",
+   "detail": "10 HTTP calls in retrofit/, every one with a timeout",
    "owner": "A",
    "text": "Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout",
    "source": [
@@ -592,8 +592,8 @@
    "id": "T16",
    "criterion": "technical",
    "tier": 1,
-   "status": "gap",
-   "detail": "0 inputs, 0 outputs (want 3 each)",
+   "status": "pass",
+   "detail": "4 inputs, 5 saved outputs, every output passes the answer contract",
    "owner": "A",
    "text": "At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/",
    "source": [
@@ -615,7 +615,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 1.1 MB, largest tracked file samples/cache.sqlite (168 KB)",
+   "detail": "git objects 1.3 MB, largest tracked file samples/cache.sqlite (168 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [

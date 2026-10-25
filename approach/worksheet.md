@@ -88,7 +88,7 @@ The one page worksheet from section 21 of the HackOS guide "How to APPROACH Solu
 | Do Zetaris and a Meterless Engine have a real role in the build? | 2 | Every fact goes through Zetaris; H-MEM powers the electricity use feature with its own test ([README section 10](../README.md#10-sponsor-technology)) |
 | Do agents interact more than once? | 2 | One or two evaluator challenges, each answered by an analyst requery, on every sample house except the listed one (which stops early), and up to two critic rounds per rewrite ([README section 9](../README.md#9-logs-and-traces), `logs/`) |
 | Is there critique, validation, or retry? | 2 | Evaluator challenges, critic code checks and Nemotron check, LIDAR measured again ([README section 8](../README.md#8-failure-handling)) |
-| Can we show useful output in a 1 to 4 minute demo? | 1 | The captioned demo mode (`?demo=1`) and the video script exist; the video is not recorded yet. Becomes 2 once it is |
+| Can we show useful output in a 1 to 4 minute demo? | 1 | The captioned demo mode ([`web/demo.js`](../web/demo.js), opened with `?demo=1`) and the video script exist; the video is not recorded yet. Becomes 2 once it is |
 | Can we document limitations clearly? | 2 | [README section 14](../README.md#14-limitations) and the limits in [`eval/README.md`](../eval/README.md) |
 | Total | 18 of 20 | Strong candidate (16 to 20) |
 

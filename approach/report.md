@@ -1,13 +1,13 @@
 # Approach scorecard
 
-Commit 274b79a, 25 Oct 2026 21:39 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
+Commit 1d9b7da (uncommitted changes), 25 Oct 2026 21:42 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
 
-**2 gaps in Tiers 1 to 3.** 2 GAP, 10 not run, 19 manual (open), 1 manual (done), 1 n/a, 61 pass (of 94 requirements).
+**0 gaps in Tiers 1 to 3.** 10 not run, 19 manual (open), 1 manual (done), 1 n/a, 63 pass (of 94 requirements).
 
 | Criterion | Points | Pass | Gaps (Tiers 1 to 3) | Manual open | Not run |
 |---|---|---|---|---|---|
-| Impact | 30 | 6 of 10 | 1 | 3 | 0 |
-| Technical | 20 | 24 of 28 | 1 | 3 | 0 |
+| Impact | 30 | 7 of 10 | 0 | 3 | 0 |
+| Technical | 20 | 25 of 28 | 0 | 3 | 0 |
 | Innovation | 15 | 11 of 12 | 0 | 0 | 1 |
 | Demo | 15 | 0 of 8 | 0 | 6 | 2 |
 | Product and UX | 10 | 8 of 10 | 0 | 2 | 0 |
@@ -20,11 +20,11 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| I10 | The self score (guide section 13) is at least 16 of 20, honest, with one evidence link per question | 1 | GAP | 18 of 20 (want 16); no evidence link: minute demo | C |
 | I4 | The README, deck and demo name a real user, a real problem and the track it answers | manual | manual (open) | README header, deck slide 1, video segment 0:00 to 0:20 | C |
 | I7 | The value can be explained in 30 seconds (red flag "you cannot explain the value clearly") | manual | manual (open) | video segment 0:00 to 0:20 and deck problem slide | C |
 | I8 | The deck covers the problem and target users, the solution, and future enhancements (heat pump, outside walls, watch this house) | manual | manual (open) | deck v3 slides | C |
 | I1 | The README states the problem in one sentence in the guide's format (We are building an agent that helps [user] solve [problem] by [capability] using [data], producing [output]) | 1 | pass | README.md matches 1 patterns | C |
+| I10 | The self score (guide section 13) is at least 16 of 20, honest, with one evidence link per question | 1 | pass | 18 of 20, every question with evidence | C |
 | I2 | The problem sentence is about the solar MVP (Is my house eligible for solar panels?) | 1 | pass | README.md matches 1 patterns | C |
 | I3 | One user, one decision, one data slice, one strong output (homeowner in England, solar panels, one page answer) | 1 | pass | README.md matches 2 patterns | C |
 | I5 | Track fit for Fragmented Intelligence: several small sources that disagree, registered in Zetaris, and the answer shows where they disagree | 2 | pass | 2 tests pass | A |
@@ -35,18 +35,18 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | GAP | 0 inputs, 0 outputs (want 3 each) | A |
 | T25 | Data is allowed for prototype use and holds no sensitive personal data; owner facts in samples are demo values and say so | manual | manual (open) | licence column in data/README.md; owner facts labelled demo values | C |
 | T26 | The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready | manual | manual (open) | C7 pass over README, deck and form texts | C |
 | T28 | Full validation from a fresh clone (Disqualification Checklist section 14), with Zetaris and Nightshift stopped and then running, twice on Monday | manual | manual (open) | B8 log, Mon 26 Oct about 14:00 and 17:00 | B |
-| T1 | Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers) | 2 | pass | fresh clone of HEAD, empty environment: 15 houses answered in 0.1 s (1 s with startup) | B |
+| T1 | Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers) | 2 | pass | fresh clone of HEAD, empty environment: 15 houses answered in 0.3 s (1 s with startup) | B |
 | T10 | A model failure retries, then falls back with a logged reason (the checked draft stays) | 2 | pass | 1 tests pass | A |
 | T11 | A programmatic way in (POST /run), structured input and output, no interactive input; the UI does not block it | 2 | pass | 3 tests pass | A |
 | T12 | No hardcoded outputs; answers differ across inputs, nothing reads output_examples/ at runtime, no input maps to a saved output | 2 | pass | 1 tests pass; no agent code reads output_examples/ or saved runs (server.py serves labelled replays only) | A |
 | T13 | Metamorphic: change one cached fact and the right answer changes (listed, a solar Article 4, a north roof, LIDAR noise, electricity use) | 2 | pass | 9 tests pass | B |
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 1.1 MB, largest tracked file samples/cache.sqlite (168 KB) | B |
+| T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 1.3 MB, largest tracked file samples/cache.sqlite (168 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 13 source sections, seven fields each | C |
 | T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 13 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
@@ -59,7 +59,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | T3 | Judges can test their own inputs; the sample snapshot holds every sample house and every evaluation house (house D, the vicarage dropped on 25 Oct, excepted) | 1 | pass | 15 houses: all 6 sample houses and 14 evaluation houses (osm-way-460070558 left out on purpose) | A |
 | T4 | Startup takes under 30 seconds | 2 | pass | 1 tests pass | B |
 | T5 | Runs are bounded; the model budget is at most 300 s and each step is timed against the guide's budget (total 5 to 10 minutes) | 2 | pass | 3 tests pass | A |
-| T6 | Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout | 1 | pass | 11 HTTP calls in retrofit/, every one with a timeout | A |
+| T6 | Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout | 1 | pass | 10 HTTP calls in retrofit/, every one with a timeout | A |
 | T7 | Retries and agent turns are capped so a run cannot hang (model retries at most 2, at most two rewrites, no unbounded loops) | 1 | pass | model retries 1, rewrite rounds 1, 2, no unbounded loops | A |
 | T8 | The agent still answers when Zetaris, Nightshift, OpenStreetMap or planning.data is down, with a fallback event, in bounded time | 2 | pass | 5 tests pass | A |
 | T9 | Malformed input returns 400 with a validation message; an unknown house returns 404 with a clear message; no stack traces | 2 | pass | 8 tests pass | A |
@@ -143,7 +143,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | G11 | .env.example holds placeholders only | 1 | pass | every key, token and password is empty or a placeholder | B |
 | G3 | Work from before 22 Oct 00:00 UTC is declared in the README | 1 | pass | README.md matches 3 patterns | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 41 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 40 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 

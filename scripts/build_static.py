@@ -21,7 +21,7 @@ def main() -> None:
     html = (WEB / "index.html").read_text()
     html = html.replace('<script src="/config.js"></script>', '<script>window.GOOGLE_MAPS_API_KEY = ""; window.STATIC_SITE = true;</script>')
     html = html.replace("/static/", "")
-    html = html.replace("<title>Retrofit Check</title>", "<title>Retrofit Check</title>\n<meta name=\"description\" content=\"Which energy upgrades is my house eligible for? Replays of recorded agent runs.\">")
+    html = html.replace("<title>Retrofit Check</title>", "<title>Retrofit Check</title>\n<meta name=\"description\" content=\"Is my house eligible for solar panels? Replays of recorded agent runs.\">")
     (OUT / "index.html").write_text(html)
     for f in ("app.js", "app.css", "demo.js"):
         shutil.copy(WEB / f, OUT / f)
