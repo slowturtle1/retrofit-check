@@ -355,6 +355,7 @@ class Run:
         result["walls"] = f["walls"]
         result["planes"] = f["planes"]
         result["survey"] = f["survey"]
+        result["pv_fetched_at"] = (f["pv"] or {}).get("fetched_at")
         for fact in result["verdicts"][0]["facts"]:
             if fact["fact"] == "sources disagree":
                 self.emit({"type": "decision", "branch": "sources_disagree", "text": fact["value"], "source": fact["source"]})
@@ -410,7 +411,7 @@ UNCERTAIN = {
 
 
 def _public(result: dict) -> dict:
-    keep = {k: result[k] for k in ("house", "protected", "areas", "listed", "council", "verdicts", "today", "walls", "planes", "survey", "money", "prices", "owner") if k in result}
+    keep = {k: result[k] for k in ("house", "protected", "areas", "listed", "council", "verdicts", "today", "walls", "planes", "survey", "pv_fetched_at", "money", "prices", "owner") if k in result}
     used = {i for v in result["verdicts"] for i in v["rules"] + v["conditions"] + v["alternatives"] + v["grants"]}
     keep["rules"] = {k: r for k, r in result["rules"].items() if k in used}
     keep["grants"] = {k: g for k, g in result["grants"].items() if k in used}

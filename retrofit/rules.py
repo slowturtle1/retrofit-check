@@ -48,11 +48,11 @@ def load(z: Zetaris, house_id: str) -> dict:
 
     hid = house_id.replace("'", "")
     asks = {
-        "house": (f"SELECT house_id, label, lat, lon, building, footprint_m2, source FROM retrofit_pg.house WHERE house_id = '{hid}'", "The house: footprint from OpenStreetMap"),
+        "house": (f"SELECT house_id, label, lat, lon, building, footprint_m2, source, fetched_at FROM retrofit_pg.house WHERE house_id = '{hid}'", "The house: footprint from OpenStreetMap"),
         "walls": (f"SELECT wall_no, facing_deg, length_m, fronts_highway, highway_name, distance_m, adjoins FROM retrofit_pg.house_wall WHERE house_id = '{hid}' ORDER BY wall_no", "Which walls face a road"),
         "planes": (f"SELECT facing, azimuth_deg, pitch_deg, area_m2 FROM retrofit_pg.roof_plane WHERE house_id = '{hid}' ORDER BY area_m2 DESC", "Roof planes measured from LIDAR"),
-        "survey": (f"SELECT noise_pct, flat_pct, eaves_m, ridge_m, method FROM retrofit_pg.roof_survey WHERE house_id = '{hid}'", "How clean the LIDAR roof reading is"),
-        "pv": (f"SELECT facing, kwp, kwh_year, params, source FROM retrofit_pg.pv_estimate WHERE house_id = '{hid}'", "Solar yield from PVGIS"),
+        "survey": (f"SELECT noise_pct, flat_pct, eaves_m, ridge_m, method, measured_at FROM retrofit_pg.roof_survey WHERE house_id = '{hid}'", "How clean the LIDAR roof reading is"),
+        "pv": (f"SELECT facing, kwp, kwh_year, params, source, fetched_at FROM retrofit_pg.pv_estimate WHERE house_id = '{hid}'", "Solar yield from PVGIS"),
         "designations": (f"""SELECT d.dataset, d.reference, d.name, d.grade, d.start_date, d.end_date, d.entity, d.organisation,
        a.removes_solar, a.removes_ashp, a.removes_walls, a.summary AS a4_summary, a.source_url AS a4_source, a.end_date AS a4_end_date
 FROM retrofit_pg.designation d
