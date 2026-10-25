@@ -1,0 +1,1083 @@
+{
+ "retrofit-check": {
+  "answers": {
+   "osm-way-1106478076": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-369932335": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-460070558": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown",
+      "lane_may_not_be_highway"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-849743972": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-1556408737": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408744": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408762": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-1556408735": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-110514126": {
+    "solar": {
+     "route": "allowed",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "article4_ended_but_listed",
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    }
+   },
+   "osm-way-110502216": {
+    "solar": {
+     "route": "allowed",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "article4_ended_but_listed",
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    }
+   },
+   "osm-way-1011719614": {
+    "solar": {
+     "route": "consent",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": [
+      "article4_ended_but_listed",
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": [
+      "article4_ended_but_listed"
+     ]
+    }
+   },
+   "osm-way-65272940": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": [
+      "heating_unknown",
+      "lane_may_not_be_highway"
+     ]
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-103107384": {
+    "solar": {
+     "route": "consent",
+     "flags": [
+      "article4_unknown"
+     ]
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": [
+      "article4_unknown",
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": [
+      "article4_unknown"
+     ]
+    }
+   },
+   "osm-relation-1879842": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": [
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-1068478521": {
+    "solar": {
+     "route": "allowed",
+     "flags": [
+      "article4_coverage_unknown"
+     ]
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "article4_coverage_unknown",
+      "heating_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": [
+      "article4_coverage_unknown"
+     ]
+    }
+   }
+  },
+  "score": {
+   "right": 45,
+   "wrong": 0,
+   "deferred": 0,
+   "confidently_wrong": 0,
+   "flag_expected": 1,
+   "flag_raised": 1,
+   "per_case": [
+    {
+     "id": "osm-way-1106478076",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-369932335",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-460070558",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-849743972",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1556408737",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408744",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408762",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1556408735",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-110514126",
+     "group": "hampstead-a4-ended",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-110502216",
+     "group": "hampstead-a4-ended",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1011719614",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-65272940",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-103107384",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-relation-1879842",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-1068478521",
+     "group": "haringey-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    }
+   ],
+   "answers": 45
+  },
+  "run_at": "2026-10-25T02:20:31Z"
+ },
+ "no-evaluator": {
+  "answers": {
+   "osm-way-1106478076": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-369932335": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-460070558": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": [
+      "lane_may_not_be_highway"
+     ]
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-849743972": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-1556408737": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408744": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-1556408762": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-1556408735": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "allowed",
+     "flags": []
+    }
+   },
+   "osm-way-110514126": {
+    "solar": {
+     "route": "permission",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-110502216": {
+    "solar": {
+     "route": "permission",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   },
+   "osm-way-1011719614": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-65272940": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": [
+      "lane_may_not_be_highway"
+     ]
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-103107384": {
+    "solar": {
+     "route": "consent",
+     "flags": [
+      "article4_unknown"
+     ]
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": [
+      "article4_unknown"
+     ]
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": [
+      "article4_unknown"
+     ]
+    }
+   },
+   "osm-relation-1879842": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": []
+    }
+   },
+   "osm-way-1068478521": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    }
+   }
+  },
+  "score": {
+   "right": 43,
+   "wrong": 2,
+   "deferred": 0,
+   "confidently_wrong": 2,
+   "flag_expected": 1,
+   "flag_raised": 0,
+   "per_case": [
+    {
+     "id": "osm-way-1106478076",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-369932335",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-460070558",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-849743972",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1556408737",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408744",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408762",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1556408735",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "allowed (want allowed)"
+    },
+    {
+     "id": "osm-way-110514126",
+     "group": "hampstead-a4-ended",
+     "solar": "permission (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-110502216",
+     "group": "hampstead-a4-ended",
+     "solar": "permission (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1011719614",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-65272940",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-103107384",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-relation-1879842",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-1068478521",
+     "group": "haringey-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    }
+   ],
+   "answers": 45
+  },
+  "run_at": "2026-10-25T02:21:05Z"
+ },
+ "nemotron-alone": {
+  "answers": {
+   "osm-way-1106478076": {
+    "error": "LLMError: 502: {\"error\":{\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"pa"
+   },
+   "osm-way-369932335": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Dartmouth Park Avenue",
+     "district": "NW5",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-460070558": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Dartmouth Park Road",
+     "district": "NW5",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-849743972": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "St Albans Road",
+     "district": "NW5",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-1556408737": {
+    "error": "LLMError: 502: {\"error\":{\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"pa"
+   },
+   "osm-way-1556408744": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Lady Somerset Road",
+     "district": "NW5",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-1556408762": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Lady Somerset Road",
+     "district": "NW5",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-1556408735": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Lady Somerset Road",
+     "district": "NW5",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-110514126": {
+    "error": "LLMError: 502: {\"error\":{\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"pa"
+   },
+   "osm-way-110502216": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Frognal Gardens",
+     "district": "NW3",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-1011719614": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Church Row",
+     "district": "NW3",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-65272940": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Keats Grove",
+     "district": "NW3",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-way-103107384": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Maresfield Gardens",
+     "district": "NW3",
+     "borough": "London Borough of Camden"
+    }
+   },
+   "osm-relation-1879842": {
+    "solar": {
+     "route": "consent",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "consent",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "consent",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Downing Street",
+     "district": "SW1A",
+     "borough": "Covent Garden"
+    }
+   },
+   "osm-way-1068478521": {
+    "solar": {
+     "route": "allowed",
+     "flags": []
+    },
+    "heat_pump": {
+     "route": "allowed",
+     "flags": []
+    },
+    "wall_insulation": {
+     "route": "permission",
+     "flags": []
+    },
+    "_asked": {
+     "street": "Princes Avenue",
+     "district": "N10",
+     "borough": "London Borough of Haringey"
+    }
+   }
+  },
+  "score": {
+   "right": 28,
+   "wrong": 17,
+   "deferred": 0,
+   "confidently_wrong": 8,
+   "flag_expected": 1,
+   "flag_raised": 0,
+   "per_case": [
+    {
+     "id": "osm-way-1106478076",
+     "group": "camden-ca",
+     "error": "LLMError: 502: {\"error\":{\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"pa"
+    },
+    {
+     "id": "osm-way-369932335",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-460070558",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-849743972",
+     "group": "camden-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1556408737",
+     "group": "no-ca",
+     "error": "LLMError: 502: {\"error\":{\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"pa"
+    },
+    {
+     "id": "osm-way-1556408744",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want allowed)"
+    },
+    {
+     "id": "osm-way-1556408762",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1556408735",
+     "group": "no-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want allowed)"
+    },
+    {
+     "id": "osm-way-110514126",
+     "group": "hampstead-a4-ended",
+     "error": "LLMError: 502: {\"error\":{\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"pa"
+    },
+    {
+     "id": "osm-way-110502216",
+     "group": "hampstead-a4-ended",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    },
+    {
+     "id": "osm-way-1011719614",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-65272940",
+     "group": "listed",
+     "solar": "allowed (want consent)",
+     "heat_pump": "allowed (want consent)",
+     "wall_insulation": "permission (want consent)"
+    },
+    {
+     "id": "osm-way-103107384",
+     "group": "listed",
+     "solar": "allowed (want consent)",
+     "heat_pump": "allowed (want consent)",
+     "wall_insulation": "permission (want consent)"
+    },
+    {
+     "id": "osm-relation-1879842",
+     "group": "listed",
+     "solar": "consent (want consent)",
+     "heat_pump": "consent (want consent)",
+     "wall_insulation": "consent (want consent)"
+    },
+    {
+     "id": "osm-way-1068478521",
+     "group": "haringey-ca",
+     "solar": "allowed (want allowed)",
+     "heat_pump": "allowed (want allowed)",
+     "wall_insulation": "permission (want permission)"
+    }
+   ],
+   "answers": 45
+  },
+  "run_at": "2026-10-25T02:36:57Z"
+ }
+}

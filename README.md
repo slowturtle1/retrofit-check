@@ -104,6 +104,10 @@ Input: an OpenStreetMap way id (`way`) or a point on the roof (`lat`, `lon`); op
 
 Every run writes `logs/trace-<run id>.jsonl` (one JSON event per line: agent steps, decisions, challenges and re-checks, each Zetaris query with its purpose, row count and time, H-MEM reads and writes, each model call with the model that answered and its Nightshift receipt) and prints one line per event to stdout (`LOG_STDOUT=false` turns that off). The full record of each live run is saved in `runs/`.
 
+## Evaluation
+
+Fifteen real London houses, expected answers taken from Historic England (a second official source) and frozen before any system ran: Retrofit Check 45 of 45 right; the same rules without the evaluator 43 of 45 (both misses confident, on the Article 4 Camden ended in 2026); Nemotron alone 28 of 45, with listed buildings called free to alter. Method, limits and per house answers: [`eval/README.md`](eval/README.md).
+
 ## Tests
 
 ```bash

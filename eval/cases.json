@@ -1,0 +1,377 @@
+{
+ "frozen_at": "2026-10-25T02:18:39Z",
+ "sha256": "4da9fbad2a5e24003c67dc95e3d87730d2a0be1767af364472005b0cb051ee6f",
+ "cases": [
+  {
+   "id": "osm-way-1106478076",
+   "way": 1106478076,
+   "lat": 51.560143,
+   "lon": -0.142328,
+   "street": null,
+   "group": "camden-ca",
+   "note": "Dartmouth Park CA, corner house",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Dartmouth Park"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-369932335",
+   "way": 369932335,
+   "lat": 51.561825,
+   "lon": -0.141989,
+   "street": null,
+   "group": "camden-ca",
+   "note": "Dartmouth Park CA, end of terrace",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Dartmouth Park"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-460070558",
+   "way": 460070558,
+   "lat": 51.559672,
+   "lon": -0.141547,
+   "street": null,
+   "group": "camden-ca",
+   "note": "Dartmouth Park CA, detached",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Dartmouth Park"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-849743972",
+   "way": 849743972,
+   "lat": 51.562567,
+   "lon": -0.145381,
+   "street": null,
+   "group": "camden-ca",
+   "note": "Dartmouth Park CA, semi",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Dartmouth Park"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-1556408737",
+   "way": 1556408737,
+   "lat": 51.554914,
+   "lon": -0.143037,
+   "street": "Lady Somerset Road",
+   "group": "no-ca",
+   "note": "Lady Somerset Road",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "allowed",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-1556408744",
+   "way": 1556408744,
+   "lat": 51.555104,
+   "lon": -0.14227,
+   "street": "Lady Somerset Road",
+   "group": "no-ca",
+   "note": "Lady Somerset Road",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "allowed",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-1556408762",
+   "way": 1556408762,
+   "lat": 51.554229,
+   "lon": -0.14387,
+   "street": "Lady Somerset Road",
+   "group": "no-ca",
+   "note": "Lady Somerset Road",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Dartmouth Park"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": [
+     "68 AND 70, HIGHGATE ROAD (1378943)"
+    ]
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-1556408735",
+   "way": 1556408735,
+   "lat": 51.554822,
+   "lon": -0.143269,
+   "street": "Lady Somerset Road",
+   "group": "no-ca",
+   "note": "Lady Somerset Road",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "allowed",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-110514126",
+   "way": 110514126,
+   "lat": 51.555133,
+   "lon": -0.182192,
+   "street": "Church Row",
+   "group": "hampstead-a4-ended",
+   "note": "Hampstead CA, old Article 4 covered roof solar",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Hampstead"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-110502216",
+   "way": 110502216,
+   "lat": 51.555664,
+   "lon": -0.181181,
+   "street": "Frognal Gardens",
+   "group": "hampstead-a4-ended",
+   "note": "Hampstead CA, old Article 4 covered roof solar",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Hampstead"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-1011719614",
+   "way": 1011719614,
+   "lat": 51.555449,
+   "lon": -0.178975,
+   "street": "Church Row",
+   "group": "listed",
+   "note": "Hampstead, listed house",
+   "truth": {
+    "listed": true,
+    "grades": [
+     "II*"
+    ],
+    "conservation_areas": [
+     "Hampstead"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": [
+     "NUMBERS 24-28 AND ATTACHED RAILINGS TO FRONT AND WALLS TO REAR (1271917)"
+    ]
+   },
+   "expected": {
+    "solar": "consent",
+    "heat_pump": "consent",
+    "wall_insulation": "consent",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-65272940",
+   "way": 65272940,
+   "lat": 51.555517,
+   "lon": -0.167939,
+   "street": "Keats Grove",
+   "group": "listed",
+   "note": "Keats House",
+   "truth": {
+    "listed": true,
+    "grades": [
+     "I"
+    ],
+    "conservation_areas": [
+     "Hampstead"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": [
+     "KEATS HOUSE (1379221)",
+     "Keats Community Library (1430883)"
+    ]
+   },
+   "expected": {
+    "solar": "consent",
+    "heat_pump": "consent",
+    "wall_insulation": "consent",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-103107384",
+   "way": 103107384,
+   "lat": 51.548311,
+   "lon": -0.177393,
+   "street": "Maresfield Gardens",
+   "group": "listed",
+   "note": "Freud Museum",
+   "truth": {
+    "listed": true,
+    "grades": [
+     "II"
+    ],
+    "conservation_areas": [
+     "Fitzjohns Netherhall"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "consent",
+    "heat_pump": "consent",
+    "wall_insulation": "consent",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-relation-1879842",
+   "way": null,
+   "lat": 51.503506,
+   "lon": -0.127549,
+   "street": "Downing Street",
+   "group": "listed",
+   "note": "10 Downing Street",
+   "truth": {
+    "listed": true,
+    "grades": [
+     "I"
+    ],
+    "conservation_areas": [
+     "Whitehall"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": [
+     "9 LAMPSTANDARDS NUMBERED 1 TO 9 AND 1 ON TREASURY GREEN TREASURY GREEN LAMPSTANDARD (1066904)"
+    ]
+   },
+   "expected": {
+    "solar": "consent",
+    "heat_pump": "consent",
+    "wall_insulation": "consent",
+    "flag_council": false
+   }
+  },
+  {
+   "id": "osm-way-1068478521",
+   "way": null,
+   "lat": 51.590557,
+   "lon": -0.145191,
+   "street": "Princes Avenue",
+   "group": "haringey-ca",
+   "note": "Muswell Hill CA",
+   "truth": {
+    "listed": false,
+    "grades": [],
+    "conservation_areas": [
+     "Muswell Hill"
+    ],
+    "source": "Historic England NHLE and Conservation Areas, queried 2026-10-25",
+    "ignored_nearby_listings": []
+   },
+   "expected": {
+    "solar": "allowed",
+    "heat_pump": "allowed",
+    "wall_insulation": "permission",
+    "flag_council": true
+   }
+  }
+ ]
+}
