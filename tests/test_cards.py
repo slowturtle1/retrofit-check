@@ -132,7 +132,6 @@ def _same_roof(a: dict, b: dict) -> bool:
     return bool(na.get("kwp")) and all(na.get(k) == nb.get(k) for k in keep)
 
 
-@pytest.mark.pending("A2")
 def test_no_line_identical_on_two_houses_with_different_facts(samples):
     """Two houses may share a line only when it is built from numbers they share (same roof size and yield)."""
     seen: dict = {}
