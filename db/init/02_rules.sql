@@ -1,6 +1,11 @@
 -- Rules as checked on 24 Oct 2026. Each row carries its legal source and the date it applies from.
 
 INSERT INTO pd_rule VALUES
+-- Any measure: an Article 4 direction that removes the right
+('article-4', 'any', 'GPDO 2015 article 4',
+ 'An Article 4 direction removes permitted development rights in its area, so the work it names needs planning permission. The direction says which work.',
+ 'article_4', 'permission_needed', '2015-04-15', NULL,
+ 'https://www.legislation.gov.uk/uksi/2015/596/article/4', '2026-10-25'),
 -- Solar panels on a house: GPDO 2015 Schedule 2 Part 14 Class A
 ('solar-listed', 'solar', 'GPDO Sch 2 Part 14 Class A, A.2(g)',
  'Panels on a listed house are not permitted development. You need listed building consent.',

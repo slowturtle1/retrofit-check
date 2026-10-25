@@ -102,27 +102,32 @@ def _solar_lines(result: dict, v: dict) -> dict:
         entry = f" (list entry {listing['reference']})" if listing.get("reference") else ""
         kind = grade.replace(" listed", "") if listing.get("grade") else "listed"
         return {"one": f"{grade}{since}: panels need listed building consent first.",
-                "why": (f"{label} has been {grade}{since}" if since else f"{label} is {grade}") + ", so panels are not permitted development here and {council} decides. "
+                "why": (f"{label} has been {grade}{since}" if since else f"{label} is {grade}") + f", so panels are not permitted development here and {council} decides. "
                        "The roof was not measured, because consent comes first.",
                 "get": f"Ask {council}'s conservation officer whether panels on a roof slope hidden from the street could get consent for this house{entry}.",
                 "cost": f"No cost estimate until {council} gives listed building consent ({kind}{since}). Listed building consent is free to apply for."}
+    where = v.get("where") or {}
     if v["status"] == "needs_permission":
-        ref = a4[0].split(":")[0] if a4 else "An Article 4 direction"
+        ref = (where.get("a4_solar") or ["An Article 4 direction"])[0]
         return {"one": f"{ref} removes the right to add panels here: you need planning permission.",
                 "why": f"{label} is covered by {ref}, which takes away permitted development for solar panels, so {council} must approve them.",
                 "get": f"Your {slope} could make about {n['kwh_year']:,} kWh a year if {council} approves." if n else f"Ask {council} before you plan panels.",
                 "cost": f"A householder application to {council} costs £548. Cost of the panels is shown once permission is likely." }
     if v["status"] == "check_with_council" or unsure & {"article4_unknown", "article4_coverage_unknown", "listed_point_only"}:  # consent and permission returned above
         if "article4_unknown" in unsure or v["status"] == "check_with_council":
-            ref = a4[0].split(":")[0] if a4 else "An Article 4 direction"
-            one, why = (f"{ref} covers {label} and we do not know what it removes.",
+            ref = (where.get("a4_unknown") or ["An Article 4 direction"])[0]
+            one, why = (f"{ref} covers this house and we do not know what it removes.",
                         f"{council} has not published what {ref} takes away, so we will not guess whether panels need permission.")
+        elif "article4_coverage_unknown" in unsure and not result.get("council"):
+            one = f"We could not tell which council keeps the Article 4 record for {ca_name or 'this area'}, so we cannot rule one out."
+            why = (f"{label} is not listed and sits in {ca_name}. " if ca_name else f"{label} is not listed. ") + \
+                  f"Panels on the {slope} would be permitted development unless an Article 4 direction removes that right."
         elif "article4_coverage_unknown" in unsure:
             one = f"{council} has not published Article 4 directions for {ca_name or 'its conservation areas'}, so we cannot rule one out."
             why = (f"{label} is not listed and sits in {ca_name}. " if ca_name else f"{label} is not listed. ") + \
                   f"Panels on the {slope} would be permitted development unless an Article 4 direction removes that right, and {council} keeps that record itself."
         else:
-            one, why = (f"The listing near {label} was found as a point only, so it may belong to the building next door.",
+            one, why = ("The listing near this house was found as a point only, so it may belong to the building next door.",
                         "If the house is listed, panels need listed building consent; if it is not, they are likely permitted development.")
         get = f"Your {slope} could make about {n['kwh_year']:,} kWh a year from about {n['kwp']} kWp if {council} says yes." if n else f"Ask {council} first."
         cost = (f"If {council} says yes: about {_gbp(m['cost'])} to install {n['kwp']} kWp, worth about {_gbp(m['value_year'])} a year."
@@ -330,11 +335,17 @@ def check_rewrite(result: dict, v: dict, draft: dict, text: dict) -> list[str]:
     for place in result.get("protected", []):
         if place.lower() in src.lower() and place.lower() not in out.lower():
             problems.append(f"dropped the place name {place}")
-    low = text.get("one", "").lower()
-    if v["status"] in ("needs_permission", "needs_consent") and "permission" not in low and "consent" not in low:
-        problems.append("the one line answer no longer says that permission or consent is needed")
-    if v["status"] in ("allowed", "allowed_with_conditions") and re.search(r"\b(not allowed|needs? (planning )?permission|forbidden|cannot)\b", low):
-        problems.append("the one line answer now contradicts an allowed status")
+    # Judge each field against the checked draft and the status the card shows: only what the rewrite changed can be wrong.
+    from ..schema import open_flags
+    shown = "check_with_council" if open_flags(v) else v["status"]
+    refusal = r"\b(not allowed|needs? (planning )?permission|forbidden|cannot have)\b"
+    for k in ("one", "why"):
+        low, src_low = text.get(k, "").lower(), draft.get(k, "").lower()
+        for word in ("permission", "consent"):
+            if word in src_low and word not in low:
+                problems.append(f"'{k}' no longer says {word} is needed")
+        if shown in ("allowed", "allowed_with_conditions") and re.search(refusal, low) and not re.search(refusal, src_low):
+            problems.append(f"'{k}' now contradicts an allowed status")
     if len(out) > 2 * len(src) + 80:
         problems.append("much longer than the original")
     return problems

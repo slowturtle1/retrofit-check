@@ -146,6 +146,8 @@ def confidence(v: dict) -> dict:
     low: the legal answer itself is open (unknown Article 4, council coverage, listing found as a point only)."""
     unsure = open_flags(v) or v["status"] == "check_with_council"
     rough = set(v["uncertain"]) & ROUGH or any(f["fact"] == "sources disagree" for f in v["facts"])
+    if v["status"] == "needs_consent":   # consent is needed whatever an Article 4 says
+        rough = set(v["uncertain"]) & ROUGH - {"article4_ended_but_listed"}
     level = "low" if unsure else "medium" if rough else "high"
     return {"score": CONFIDENCE[level], "level": level, "because": sorted(set(v["uncertain"])) or ["sources agree"]}
 

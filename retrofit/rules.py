@@ -111,7 +111,8 @@ def evaluate(f: dict, heating: str | None = None, off_gas_grid: bool | None = No
         base_facts.append({"fact": d["dataset"], "value": f"{d['name']} ({d['reference']}, since {d['start_date'] or 'unknown date'})", "source": "planning.data " + d["dataset"]})
     for d in a4:
         what = "content not on file" if d["removes_solar"] is None else (d["a4_summary"] or "")
-        base_facts.append({"fact": "article-4", "value": f"{d['name']} ({d['reference']}, from {d['start_date']}): {what}", "source": d.get("a4_source") or "planning.data article-4-direction-area"})
+        since = f", from {d['start_date']}" if d.get("start_date") else ""
+        base_facts.append({"fact": "article-4", "value": f"{d['name']} ({d['reference']}{since}): {what}", "source": d.get("a4_source") or "planning.data article-4-direction-area"})
 
     for d in disagree:
         base_facts.append({"fact": "sources disagree", "value": f"planning.data still lists {d['reference']} with no end date; the council ended it on {d['a4_end_date']}. Using the council's decision.",
@@ -139,7 +140,7 @@ def evaluate(f: dict, heating: str | None = None, off_gas_grid: bool | None = No
     if pv:
         v.numbers = {"kwp": float(pv["kwp"]), "kwh_year": int(pv["kwh_year"]), "facing": pv["facing"]}
         v.facts.append({"fact": "best roof plane", "value": f"{pv['facing']}, {pv['kwp']} kWp, about {pv['kwh_year']} kWh a year", "source": pv["source"] + "; roof from EA LIDAR"})
-        v.where = {"roof_facing": pv["facing"]}
+        v.where["roof_facing"] = pv["facing"]
     elif listed:
         v.facts.append({"fact": "roof", "value": "not measured: consent is needed whatever the roof is like", "source": "agent decision"})
     else:
@@ -150,6 +151,8 @@ def evaluate(f: dict, heating: str | None = None, off_gas_grid: bool | None = No
         v.facts.append({"fact": "LIDAR noise", "value": f"{survey['noise_pct']}% of roof cells (trees, chimneys)", "source": "EA LIDAR DSM 1 m"})
     v.grants = ["vat-zero", "seg"]
     v.uncertain += uncertain_common
+    v.where["a4_solar"] = [f"{d['name']} ({d['reference']})" for d in a4_live if _true(d["removes_solar"])]
+    v.where["a4_unknown"] = [f"{d['name']} ({d['reference']})" for d in a4_unknown]
     out.append(v)
 
     # Air source heat pump

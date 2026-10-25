@@ -39,6 +39,8 @@ def shown_status(v: dict) -> str:
 
 def next_step(v: dict, recommendation: str | None, council: str | None = None) -> str:
     status = shown_status(v)
+    if "listed_point_only" in schema.open_flags(v):
+        return f"Check Historic England's map, or ask {council or 'the council'}, whether the listing covers this building before you plan panels."
     step = NEXT.get(status) or NEXT_BY_RECOMMENDATION.get(recommendation or "", "Ask {council}'s planning team.")
     step = step.format(council=council or "the council")
     return f"{step} {LDC.format(council=council or 'the council')}" if status.startswith("allowed") else step
@@ -72,7 +74,8 @@ def limitations(v: dict, prices: dict, uncertain_text: dict, money: dict | None 
     su = (money or {}).get("self_use") or {}
     if (money or {}).get("value_year") and su.get("source", "").startswith("MCS"):
         who = "you told us" if su.get("by_owner") else "a typical home, Ofgem"
-        out.append(f"The share of solar power used at home follows the MCS tables for {su['use_kwh']:,} kWh a year ({who}); your own pattern may differ.")
+        out.append(f"The share of solar power used at home follows the MCS tables for {su['use_kwh']:,} kWh a year ({who}); your own pattern may differ." +
+                   (" That use or this roof's yield is outside the tables, so the nearest band is used." if su.get("nearest_band") else ""))
     elif (money or {}).get("value_year"):
         out.append("How much of the solar power you use at home is an estimate (a quarter to a half without a battery).")
     return out + GENERAL_LIMITS
@@ -121,7 +124,9 @@ def house_facts(res: dict, v: dict) -> list[dict]:
     def fact(key, label, value, source, when=None, from_owner=False):
         return {"key": key, "label": label, "value": value, "source": source, "date": when, "from_owner": from_owner}
     return [
-        fact("listed", "Listed", ", ".join(f"Grade {a['grade']} listed" if a.get("grade") else "Listed" for a in listed[:1]) or "Not listed", "Historic England, via planning.data", read),
+        fact("listed", "Listed", (", ".join(f"Grade {a['grade']} listed" if a.get("grade") else "Listed" for a in listed[:1]) +
+                                  (" (found as a point only, may be next door)" if "listed_point_only" in v["uncertain"] else "")) if listed else "Not listed",
+             "Historic England, via planning.data", read),
         fact("conservation_area", "Conservation area", ", ".join(f"{a['name']} ({a['start_date'][:4]})" if a.get("start_date") else a["name"] for a in ca) or "None", "planning.data", read),
         fact("article_4", "Article 4", "; ".join(a4_text) or "None on file", "planning.data and the council", read),
         fact("road_walls", "Walls facing a road", ", ".join(dict.fromkeys(f"{compass(w['facing_deg'])} to {w['highway_name']}" for w in roads)) or "None", "OpenStreetMap", read),

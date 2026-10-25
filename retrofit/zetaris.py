@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import threading
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -58,7 +59,7 @@ class Zetaris:
         if r.status_code != 200 or "headers" not in body:
             msg = body.get("message") or body.get("error") or r.text[:300]
             self._record(sql, purpose, started, error=msg)
-            raise ZetarisError(f"Zetaris {r.status_code}: {msg}")
+            raise ZetarisError(f"Zetaris {r.status_code}: {msg}", unreachable=r.status_code >= 500 or not body)
         res = Result(body.get("headers", []), body.get("data", []), round(time.time() - started, 2))
         self._record(sql, purpose, started, rows=len(res.rows))
         return res
@@ -78,6 +79,7 @@ class FallbackZetaris:
         self.live = Zetaris(on_query=on_query)
         self.on_query, self.on_fallback = on_query, on_fallback
         self.snapshot = None
+        self._lock = threading.Lock()   # rules.load reads in parallel: switch once, report once
 
     @property
     def offline(self) -> bool:
@@ -91,7 +93,10 @@ class FallbackZetaris:
                 if not e.unreachable:
                     raise
                 from .offline import OfflineZetaris
-                self.snapshot = OfflineZetaris(on_query=self.on_query)
-                if self.on_fallback:
+                with self._lock:
+                    first = self.snapshot is None
+                    if first:
+                        self.snapshot = OfflineZetaris(on_query=self.on_query)
+                if first and self.on_fallback:
                     self.on_fallback(str(e)[:200])
         return self.snapshot.run(sql, limit, purpose)

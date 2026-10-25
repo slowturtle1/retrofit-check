@@ -123,7 +123,8 @@ class Run:
 
     def _answer(self, result: dict, answers: dict) -> dict:
         return answer_mod.build({"run_id": self.id, "result": _public(result), "texts": answers, "events": self.events,
-                                 "seconds": round(time.time() - self.started, 1)}, self.mode, UNCERTAIN)
+                                 "seconds": round(time.time() - self.started, 1), "timings": self.timings, "fallbacks": self.fallbacks},
+                                self.mode, UNCERTAIN)
 
     def say(self, text: str, **kw) -> None:
         self.emit({"type": "thought", "text": text, **kw})
@@ -313,7 +314,9 @@ class Run:
 
         try:
             got = facts_mod.gather(house, self.z, self.emit, refresh=refresh)
-        except LookupError:
+        except LookupError as e:
+            if not self.offline and getattr(self.z, "offline", False):   # Zetaris is down and the snapshot does not know this house
+                raise SourceUnavailable("Zetaris did not answer, and this house is not in the local snapshot. Try again later.") from e
             raise
         except Exception as e:  # noqa: BLE001  a source for a new house did not answer
             self.emit({"type": "error", "code": "source_unavailable", "agent": "analyst", "text": str(e)[:300]})

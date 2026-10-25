@@ -75,8 +75,12 @@ def challenge(z: Zetaris, f: dict, result: dict, coords: list, emit: Emit) -> li
         org = str(in_ca[0].get("organisation") or "")
         emit({"type": "challenge", "by": "evaluator", "about": "article-4",
               "text": f"No Article 4 that touches energy upgrades is on record for this house. Councils publish unevenly, so that alone is not proof. Does {council(org)} publish conservation area Article 4s at all?"})
+        if not org:
+            emit({"type": "requery", "by": "analyst", "about": "article-4", "ok": False,
+                  "text": "planning.data names no council for this conservation area, so its Article 4 record could not be checked: marked uncertain."})
+            return flags + ["article4_coverage_unknown"] + _listed_flags(z, f, des, coords, emit)
         try:
-            n, ca = council_publishes_ca_article4(z, org) if org else (0, 0)
+            n, ca = council_publishes_ca_article4(z, org)
             ok = ca > 0
             emit({"type": "requery", "by": "analyst", "about": "article-4", "ok": ok,
                   "text": f"{council(org)} has {n} Article 4 areas on planning.data, {ca} of them for conservation areas or named properties. " +
@@ -88,6 +92,11 @@ def challenge(z: Zetaris, f: dict, result: dict, coords: list, emit: Emit) -> li
             emit({"type": "requery", "by": "analyst", "about": "article-4", "ok": False, "text": f"Could not ask Zetaris again ({str(e)[:80]}): marked uncertain."})
             flags.append("article4_coverage_unknown")
 
+    return flags + _listed_flags(z, f, des, coords, emit)
+
+
+def _listed_flags(z: Zetaris, f: dict, des: list, coords: list, emit: Emit) -> list[str]:
+    flags: list[str] = []
     # 2. A listing point without an outline may belong to the building next door.
     points = [d for d in des if d["dataset"] == "listed-building"]
     outlines = [d for d in des if d["dataset"] == "listed-building-outline"]
@@ -122,6 +131,8 @@ def cost_sources(z: Zetaris, kwp: float, emit: Emit) -> None:
 def self_use(z: Zetaris, gen_kwh: float, use_kwh: float, said_by_owner: bool, emit: Emit) -> dict | None:
     """How much of the roof's output the home uses itself depends on who is home in the day: ask MCS for all three types."""
     who = "the owner's" if said_by_owner else "a typical"
+    asked_use, asked_gen = use_kwh, gen_kwh
+    use_kwh, gen_kwh = min(max(use_kwh, 1500), 5999), min(max(gen_kwh, 0), 5999)   # the MCS tables' range: use the nearest band
     emit({"type": "challenge", "by": "evaluator", "about": "self use",
           "text": f"One share of solar power used at home would hide that it depends on who is home in the day. Ask the MCS tables for all three occupancy types, for this roof and {who} yearly use."})
     try:
@@ -137,7 +148,9 @@ WHERE use_from <= {int(use_kwh)} AND use_to >= {int(use_kwh)} AND gen_from <= {i
         return None
     s = {r["archetype"]: float(r["share"]) for r in rows}
     lo, hi = min(s.values()), max(s.values())
+    clamped = (use_kwh, gen_kwh) != (asked_use, asked_gen)
     emit({"type": "requery", "by": "analyst", "about": "self use", "ok": True,
           "text": "MCS MGD 003 for " + f"{int(gen_kwh):,} kWh made and {int(use_kwh):,} kWh used: " +
-                  ", ".join(f"{k.lower()} {round(v * 100)}%" for k, v in sorted(s.items(), key=lambda kv: kv[1])) + f". Using {round(lo * 100)}% to {round(hi * 100)}%."})
-    return {"low": lo, "high": hi, "use_kwh": int(use_kwh), "by_owner": said_by_owner, "source": "MCS MGD 003 look up tables"}
+                  ", ".join(f"{k.lower()} {round(v * 100)}%" for k, v in sorted(s.items(), key=lambda kv: kv[1])) + f". Using {round(lo * 100)}% to {round(hi * 100)}%." +
+                  (f" ({int(asked_use):,} kWh used and {int(asked_gen):,} kWh made is outside the tables, so the nearest band is used.)" if clamped else "")})
+    return {"low": lo, "high": hi, "use_kwh": int(asked_use), "by_owner": said_by_owner, "source": "MCS MGD 003 look up tables", "nearest_band": clamped}
