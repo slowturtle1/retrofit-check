@@ -105,7 +105,7 @@ def _solar_lines(result: dict, v: dict) -> dict:
                 "why": (f"{label} has been {grade}{since}" if since else f"{label} is {grade}") + ", so panels are not permitted development here and {council} decides. "
                        "The roof was not measured, because consent comes first.",
                 "get": f"Ask {council}'s conservation officer whether panels on a roof slope hidden from the street could get consent for this house{entry}.",
-                "cost": f"No cost estimate for this {kind} house until consent is clear. Listed building consent is free to apply for."}
+                "cost": f"No cost estimate until {council} gives listed building consent ({kind}{since}). Listed building consent is free to apply for."}
     if v["status"] == "needs_permission":
         ref = a4[0].split(":")[0] if a4 else "An Article 4 direction"
         return {"one": f"{ref} removes the right to add panels here: you need planning permission.",

@@ -348,7 +348,14 @@ class Run:
         result["money"] = money.advise(result, prices, ctx.get("gas_kwh"), ctx.get("heating"))
         if "solar" in result["money"] and solar_v["numbers"].get("kwh_year"):
             result["money"]["solar"]["self_use"] = share or {"low": prices["self_use_low"], "high": prices["self_use_high"], "source": "estimate"}
-        result["prices"] = f["prices"]
+        result["prices"] = dict(f["prices"])
+        if share:   # the answer uses the MCS shares, so the trace and Sources show those, not the fallback estimate
+            for k in ("low", "high"):
+                result["prices"][f"self_use_{k}"] = {
+                    "fact_id": f"self_use_{k}", "value": share[k], "unit": "share", "kind": "mcs_method",
+                    "plain": f"Share of solar power used at home, {k} end of the three MCS occupancy types, for {share['use_kwh']:,} kWh used a year",
+                    "valid_from": None, "valid_to": None, "checked_on": "2026-10-25",
+                    "source_url": "https://mcscertified.com/wp-content/uploads/2025/02/MGD003-LookupTables-FINAL.xlsx"}
         result["owner"] = {k: ctx.get(k) for k in ("elec_kwh", "elec_said_on", "heating", "heating_said_on", "gas_kwh", "gas_said_on", "off_gas_grid")}
         result["house"]["label"] = house["label"]
         result["house"]["coords"] = house["coords"]
