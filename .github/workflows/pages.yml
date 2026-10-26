@@ -1,0 +1,41 @@
+# GitHub Pages: the static replays in docs/, with the Google 3D key added from a repository secret.
+# The key is restricted to https://slowturtle1.github.io/* and the Map Tiles API; git never holds it.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add the 3D key (flat map without it)
+        env:
+          KEY: ${{ secrets.PAGES_GOOGLE_MAPS_API_KEY }}
+        run: |
+          if [ -n "$KEY" ]; then
+            sed -i "s|window.GOOGLE_MAPS_API_KEY = \"\"|window.GOOGLE_MAPS_API_KEY = \"$KEY\"|" docs/index.html
+            grep -qF "GOOGLE_MAPS_API_KEY = \"$KEY\"" docs/index.html
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deployment
+        uses: actions/deploy-pages@v4
