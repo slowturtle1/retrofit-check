@@ -2,17 +2,21 @@
 # with one Photorealistic 3D Tiles root request. The key is never printed.
 # Copy the key in Google Cloud > APIs & Services > Credentials first.
 # Run: .venv/bin/python tools/set_google_maps_key.py
+#      .venv/bin/python tools/set_google_maps_key.py pages   (the GitHub Pages key, then gh secret set PAGES_GOOGLE_MAPS_API_KEY)
 
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import requests
 
 ENV = Path(__file__).resolve().parent.parent / ".env"
-NAME = "GOOGLE_MAPS_API_KEY"
+PAGES = sys.argv[1:] == ["pages"]
+NAME = "PAGES_GOOGLE_MAPS_API_KEY" if PAGES else "GOOGLE_MAPS_API_KEY"
 # The key is restricted to these referrers, so the test sends one of them.
-REFERER = "http://localhost:5173/"
+REFERER = "https://slowturtle1.github.io/retrofit-check/" if PAGES else "http://localhost:5173/"
+SITES = "https://slowturtle1.github.io/*" if PAGES else "http://localhost:5173/* and http://127.0.0.1:5173/*"
 
 key = subprocess.run(["pbpaste"], capture_output=True, text=True).stdout.strip()
 if not key:
@@ -51,6 +55,6 @@ else:
     elif "billing" in message.lower():
         print("Link a billing account to this project, then run again.")
     elif "referer" in message.lower() or "referrer" in message.lower():
-        print("Add http://localhost:5173/* and http://127.0.0.1:5173/* under Website restrictions.")
+        print(f"Add {SITES} under Website restrictions.")
     elif "API" in message and "restrict" in message.lower():
         print("Under API restrictions, allow Map Tiles API.")

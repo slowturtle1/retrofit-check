@@ -1,4 +1,5 @@
-"""Build docs/: a static replay page of the recorded sample runs, for GitHub Pages. No server, no keys.
+"""Build docs/: a static replay page of the recorded sample runs, for GitHub Pages. No server, no keys in git:
+.github/workflows/pages.yml adds the Google 3D key from the repository secret PAGES_GOOGLE_MAPS_API_KEY when it deploys.
 
 Run: .venv/bin/python scripts/build_static.py   (then: python3 -m http.server -d docs 5176)
 """
