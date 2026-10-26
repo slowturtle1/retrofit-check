@@ -333,7 +333,7 @@ $("searchForm").onsubmit = async (ev) => {
   let ll = null, nation = null;   // nation: England, Scotland, Wales or Northern Ireland, when the search says
   const nominatim = async (text, box = "") => {
     const j = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=gb&limit=1&addressdetails=1&q=${encodeURIComponent(text)}${box}`)).json();
-    if (j[0]) { ll = [+j[0].lon, +j[0].lat]; nation = (j[0].address || {}).state || null; }
+    if (j[0]) { ll = [+j[0].lon, +j[0].lat]; nation = ((j[0].address || {}).state || "").split(" / ").pop() || null; }   // "Alba / Scotland" → Scotland
   };
   try {
     if (/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(q)) {
