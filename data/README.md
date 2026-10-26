@@ -1,6 +1,6 @@
 # Data sources
 
-Every fact about the house and every rule reaches the agent through Zetaris. Live sources are registered as Zetaris REST tables, or cached in the `retrofit_pg` Postgres datasource, and the agent reads them back with Lightning SQL. The one exception is what the owner tells us: that lives in H-MEM, the Meterless memory engine, with the date they said it. Each fact in an answer names its source, and each rule names its legal clause and the date it applies from.
+Every fact about the house and every rule reaches the agent through Zetaris. Live sources are registered as Zetaris REST tables, or cached in the `retrofit_pg` Postgres datasource, and the agent reads them back with Lightning SQL. The one exception is what the owner tells us: that lives in H-MEM, the Meterless memory engine, with the date they said it. In sample mode, with no Zetaris running, a house outside the snapshot is fetched straight from the same public sources and kept on this machine; the trace marks that as a fallback. Each fact in an answer names its source, and each rule names its legal clause and the date it applies from.
 
 This version answers one question: is my house eligible for solar panels? The sources for the heat pump and outside wall insulation are still in the database and listed at the end, for the future enhancements.
 
@@ -9,7 +9,8 @@ This version answers one question: is my house eligible for solar panels? The so
 | Where | Tables | What is in them |
 |---|---|---|
 | `retrofit_pg` (Postgres container `retrofit-db`, registered in Zetaris) | 11: `house`, `house_wall`, `roof_plane`, `roof_survey`, `pv_estimate`, `designation`, `article4_rule`, `pd_rule`, `grant_scheme`, `price_fact`, `self_use_share` | The live cache. Created by `db/init/01_schema.sql`, seeded by `02_rules.sql`, `03_hampstead_article4.sql`, `04_prices.sql` and `05_self_use.sql`, filled per house while the agent works |
-| `samples/cache.sqlite` (sample mode) | 13: the same 11 for the sample houses, plus `council_a4` and `listed_outline` | A snapshot of what Zetaris returned, so sample mode runs the same SQL with no Zetaris. The two extra tables hold the planning.data lists the evaluator asks for: each council's Article 4 areas and listed outlines |
+| `samples/cache.sqlite` (sample mode) | 14: the same 11 for the sample houses, plus `council_a4`, `listed_outline` and `he_listed` | A snapshot of what Zetaris returned, so sample mode runs the same SQL with no Zetaris. The three extra tables hold what the evaluator asks for: each council's Article 4 areas, planning.data's listed outlines, and Historic England's listed outlines |
+| `runs/live-cache.sqlite` (sample mode, made on first use) | the same 14 | A copy of the snapshot that grows: any other house fetched straight from the public sources, read back with the same SQL. Not in the repository |
 
 Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the snapshot 15 (the 6 example houses and the evaluation houses; one live cache house is left out). `scripts/make_cache.py` prints the snapshot counts each time it runs.
 
@@ -19,11 +20,21 @@ Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the
 
 - **URL:** https://www.planning.data.gov.uk , API `https://www.planning.data.gov.uk/entity.json`
 - **Licence:** mostly Open Government Licence v3.0; each dataset page states its own licence and attribution.
-- **Subset:** entities that intersect the house footprint in eight datasets: listed buildings (points and outlines, with grade and date), conservation areas, Article 4 direction areas, National Landscapes, National Parks, World Heritage Sites, scheduled monuments. For the evaluator: every Article 4 area a council has published, and listed outlines touching the footprint.
+- **Subset:** entities that intersect the house footprint in eight datasets: listed buildings (points and outlines, with grade and date), conservation areas, Article 4 direction areas, National Landscapes, National Parks, World Heritage Sites, scheduled monuments. For the evaluator: every Article 4 area a council has published, and listed outlines touching the footprint. Council names outside London come from planning.data's organisation entries.
 - **Record count:** live cache 42 rows in `designation` (13 conservation area, 23 Article 4, 2 listed building points, 4 listed outlines). Snapshot 40 rows in `designation` (12 conservation area, 22 Article 4, 2 listed building points, 4 listed outlines), 56 rows in `council_a4` (Camden 21, Westminster 10, Haringey 25), 2 in `listed_outline`.
 - **Zetaris registration:** one REST table per house, `PLANNING_DATA.pd_<house>`, read with `LATERAL VIEW explode(entities)`; per council `PLANNING_DATA.a4_council_<org>`; per house `PLANNING_DATA.lbo_<house>` for listed outlines. A copy of each house's rows goes to `retrofit_pg.designation`.
 - **How to regenerate:** run a check with `refresh=True` for that house (live stack). The snapshot: `.venv/bin/python scripts/make_cache.py`.
 - **Limits:** councils publish unevenly. Haringey has published only employment area Article 4s, so a missing record there proves nothing, and the agent says so. planning.data can lag a council decision: it still lists Hampstead's A4Ha1 with no end date, while Camden ended it on 9 Jun 2026. If Zetaris cannot reach planning.data in time, the same request goes direct and the trace says so.
+
+### Historic England, National Heritage List for England (listed building outlines)
+
+- **URL:** https://services-eu1.arcgis.com/ZOdPfBS3aqqDYPUQ/arcgis/rest/services/National_Heritage_List_for_England_NHLE_v02_VIEW/FeatureServer/3 (ArcGIS, no key)
+- **Licence:** Open Government Licence; © Crown copyright, contains Ordnance Survey data © Crown copyright and database right (as stated on the layer).
+- **Subset:** layer 3, "Listed Building polygons": the list entry, name and grade of every outline that touches the house footprint. The layer holds 379,687 outlines (25 Oct 2026).
+- **Record count:** snapshot 15 rows in `he_listed`, one per house; 3 of them carry an outline (10 Downing Street, Keats House and a listed house in Hampstead), the rest record "checked, none".
+- **Zetaris registration:** one REST table per house, `PLANNING_DATA.he_<house>`, read with `LATERAL VIEW explode(features)` when the evaluator challenges a "not listed" answer.
+- **How to regenerate:** a live check registers it again; the snapshot: `scripts/make_cache.py`.
+- **Limits:** an outline can belong to a building next door that shares the footprint edge. When Historic England shows an outline that planning.data does not, the answer says "Check with the council" rather than choosing. If the service does not answer, planning.data's answer stands and the trace says it is unchecked.
 
 ### OpenStreetMap
 
@@ -33,6 +44,7 @@ Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the
 - **Record count:** live cache 16 rows in `house`, 110 in `house_wall`. Snapshot 15 and 104.
 - **Zetaris registration:** fetched in Python, walls and road facing computed, stored in `retrofit_pg.house` and `retrofit_pg.house_wall`, read back through Zetaris.
 - **How to regenerate:** a check with `refresh=True`, or delete the house row from `retrofit_pg.house` (the cache tables cascade). Snapshot: `scripts/make_cache.py`.
+- **Note:** an address search lands on a street point; the agent takes the nearest building within 20 m.
 - **Limits:** "faces a road" is a geometric test: a ray from the middle of each wall reaches a road or footpath before another building. Lanes mapped as service roads count as roads until the owner says otherwise. A footprint drawn with a gap to the neighbour reads as detached. For solar this matters in a conservation area, where panels may not go on a wall that fronts a highway.
 
 ### Environment Agency LIDAR Composite DSM 1 m
