@@ -365,7 +365,7 @@ $("searchForm").onsubmit = async (ev) => {
   S.center = Cesium.Cartesian3.fromDegrees(ll[0], ll[1], window.GOOGLE_MAPS_API_KEY ? 50 : 0);
   S.home = new Cesium.HeadingPitchRange(0, -45 * D2R, 330); S.hpr = Cesium.HeadingPitchRange.clone(S.home);
   viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 2, complete: applyView });
-  tapMode = true; $("tap").classList.add("on");
+  tapMode = true; $("tap").textContent = "Now tap the roof of your house."; $("tap").classList.add("on");
 };
 $("factsToggle").onclick = () => openFacts($("facts").classList.contains("hid"));
 $("noteToggle").onclick = () => { const open = $("noteBox").classList.toggle("hid") === false; $("noteToggle").setAttribute("aria-expanded", String(open)); };
@@ -413,13 +413,24 @@ function welcomeUse() {
   return true;
 }
 $("wForm").onsubmit = (ev) => { ev.preventDefault(); if (!welcomeUse()) return; closeWelcome(); $("addr").focus(); };
-$("wExample").onclick = () => { if (!welcomeUse()) return; closeWelcome(); const b = document.querySelector("#examples button"); if (b) b.click(); };
+// Judges abroad have no house in England to hand: the main button points them at the example houses.
+$("wExample").onclick = async () => {
+  if (!welcomeUse()) return;
+  closeWelcome();
+  await examplesReady;
+  const buttons = document.querySelectorAll("#examples button");
+  if (STATIC || !buttons.length) { if (buttons[0]) buttons[0].click(); return; }
+  $("tap").textContent = `Pick one of these ${buttons.length} example houses.`; $("tap").classList.add("on");
+  $("examples").classList.remove("pick"); void $("examples").offsetWidth; $("examples").classList.add("pick");
+  $("examples").scrollIntoView({ block: "nearest", behavior: "smooth" }); buttons[0].focus();
+};
 $("wClose").onclick = closeWelcome;
 $("help").onclick = openWelcome;
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !$("welcome").classList.contains("hid")) closeWelcome(); });
 
+let examplesReady = Promise.resolve();
 async function main() {
-  examples();
+  examplesReady = examples();
   if (matchMedia("(max-width: 900px)").matches) { $("trace").classList.add("closed"); $("traceToggle").setAttribute("aria-expanded", "false"); }
   const fixedHouse = () => { $("searchForm").classList.add("hid"); $("here").classList.remove("hid"); $("here").textContent = "Pick an example house"; };
   if (STATIC) {

@@ -145,6 +145,10 @@ details.more .xb { padding-left: 16px; }
 .wHelp.bad { color: var(--stN); font-weight: 700; }
 .wBtns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
 .wBtns .go { font-size: 16px; padding: 10px 20px; }
+.wBtns { align-items: center; }
+.wBtns .link { font-size: 15px; }
+.ex.pick button { animation: pick 1.1s ease-in-out 3; }
+@keyframes pick { 50% { box-shadow: 0 0 0 5px var(--yellow); } }
 .wAlt { background: var(--surface); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; font-size: 16px; font-weight: 700; padding: 10px 20px; cursor: pointer; }
 .wClose { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--ink); background: var(--surface); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
 .wFoot { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
