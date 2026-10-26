@@ -37,7 +37,7 @@ class Zetaris:
     on_query: Callable[[dict], None] | None = None
     log: list[dict] = field(default_factory=list)
 
-    def run(self, sql: str, limit: int = 500, purpose: str = "") -> Result:
+    def run(self, sql: str, limit: int = 500, purpose: str = "", timeout: float | None = None) -> Result:
         started = time.time()
         try:
             url, headers = env("ZETARIS_REST_URL").rstrip("/") + "/sql-editor/sqls/run", {
@@ -50,7 +50,7 @@ class Zetaris:
                 url,
                 headers=headers,
                 json={"queryId": str(uuid.uuid4()), "sql": sql, "source": "SqlEditor", "limit": limit},
-                timeout=float(env("ZETARIS_TIMEOUT", "90")),
+                timeout=timeout or float(env("ZETARIS_TIMEOUT", "90")),
             )
         except requests.RequestException as e:
             self._record(sql, purpose, started, error=str(e))
@@ -79,13 +79,35 @@ class FallbackZetaris:
         self.live = Zetaris(on_query=on_query)
         self.on_query, self.on_fallback = on_query, on_fallback
         self.snapshot = None
+        self._probed = False
         self._lock = threading.Lock()   # rules.load reads in parallel: switch once, report once
+
+    def _probe(self) -> None:
+        """A Zetaris that accepts the connection but never answers would hold the first query for ZETARIS_TIMEOUT (90 s).
+        One trivial query with a short limit decides first: it takes under a second when Zetaris is up."""
+        with self._lock:
+            if self._probed:   # queries in parallel wait here until the first one has decided
+                return
+            try:
+                self.live.run("SELECT 1 AS ok", 1, "Is Zetaris answering? (quick check)", timeout=float(env("ZETARIS_PROBE_TIMEOUT", "8")))
+                return
+            except ZetarisError as e:
+                if not e.unreachable:
+                    return
+                from .offline import OfflineZetaris
+                self.snapshot, why = OfflineZetaris(on_query=self.on_query), str(e)[:200]
+            finally:
+                self._probed = True
+        if self.on_fallback:
+            self.on_fallback(why)
 
     @property
     def offline(self) -> bool:
         return self.snapshot is not None
 
     def run(self, sql: str, limit: int = 500, purpose: str = "") -> Result:
+        if not self._probed:
+            self._probe()
         if self.snapshot is None:
             try:
                 return self.live.run(sql, limit, purpose)

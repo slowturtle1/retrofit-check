@@ -6,6 +6,7 @@ Nightshift or H-MEM, even on a machine with a filled .env. OpenStreetMap is repl
 
 import os
 import socket
+import threading
 import time
 
 import pytest
@@ -144,3 +145,32 @@ def test_sponsor_errors_are_logged_with_the_cause(dead, osm_up):
     failed = [e for e in rec["events"] if e["type"] == "model" and not e["ok"]]
     assert failed and all(e.get("error") and e["output_summary"] for e in failed)
     assert set(rec["answer"]["trace"].get("timings") or rec["timings"])
+
+
+@pytest.fixture
+def hanging():
+    """A server that accepts every connection and never answers: the worst case, worse than one that is down."""
+    srv = socket.socket()
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(20)
+    held = []
+
+    def hold():
+        try:
+            while True:
+                held.append(srv.accept())
+        except OSError:   # closed at the end of the test
+            pass
+    threading.Thread(target=hold, daemon=True).start()
+    yield f"http://127.0.0.1:{srv.getsockname()[1]}"
+    srv.close()
+
+
+def test_a_hanging_zetaris_costs_the_quick_check_not_the_query_timeout(dead, osm_up, hanging, monkeypatch):
+    monkeypatch.setenv("ZETARIS_REST_URL", hanging + "/api/v1.0")
+    monkeypatch.setenv("ZETARIS_TIMEOUT", "60")
+    monkeypatch.setenv("ZETARIS_PROBE_TIMEOUT", "1")
+    rec, secs = _timed_check(Run(use_model=False, use_memory=False), way=F)
+    assert [e["purpose"] for e in rec["events"] if e["type"] == "zetaris"][0] == "Is Zetaris answering? (quick check)"
+    assert "zetaris" in rec["fallbacks"] and rec["answer"]["solar"]["status"] == "allowed"
+    assert secs < 15

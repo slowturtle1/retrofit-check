@@ -73,13 +73,14 @@ def _keyword_intake(note: str) -> dict:
 
 
 class Run:
-    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float = 300, offline: bool = False,
+    def __init__(self, emit: Emit | None = None, use_model: bool = True, model_budget_s: float | None = None, offline: bool = False,
                  use_memory: bool | None = None):
         self.id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:6]
         self.events: list[dict] = []
         self._emit = emit
         self.use_model = use_model
-        self.model_budget_s = model_budget_s
+        # The card is on screen before Nemotron starts; this caps how long the rewrite may keep the run open.
+        self.model_budget_s = model_budget_s if model_budget_s is not None else float(os.environ.get("MODEL_BUDGET", "150"))
         self.started = time.time()
         self.offline = offline
         self._use_memory = use_memory   # None: H-MEM when it runs, never in sample mode

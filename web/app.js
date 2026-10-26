@@ -303,7 +303,7 @@ async function startCheck(body, said) {
 
 // Send what the owner typed, for the house on screen; the number is checked first.
 function sendSaid() {
-  if (!state.request || state.live) return;
+  if (!state.request || (state.live && !state.answer)) return;   // once the card is in, a slow Nemotron rewrite does not hold the owner up
   const el = $("elec");
   if (el.value && !el.checkValidity()) {
     el.setAttribute("aria-invalid", "true"); el.focus();

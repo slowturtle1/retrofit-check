@@ -1,6 +1,5 @@
 """Runs stay bounded: the model has a time budget, every step is timed, and each step fits the guide's runtime budget."""
 
-import inspect
 import os
 import time
 
@@ -17,7 +16,7 @@ TOTAL = 600
 
 
 def test_model_budget_is_at_most_300_s(monkeypatch):
-    assert inspect.signature(Run).parameters["model_budget_s"].default <= 300
+    assert Run(offline=True).model_budget_s <= 300   # MODEL_BUDGET, 150 s unless set
     monkeypatch.setattr(explain, "rewrite", lambda *a, **k: (_ for _ in ()).throw(AssertionError("model called after the budget")))
     run = Run(offline=True, model_budget_s=0)
     rec = run.check(way=F)
