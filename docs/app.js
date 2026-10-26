@@ -23,7 +23,7 @@ const api = {
   run: (n) => (STATIC ? `samples/${n}.json` : `/api/runs/${encodeURIComponent(n)}`),
   examples: () => (STATIC ? "samples/index.json" : "/api/examples"),
 };
-let viewer, state = { answer: null, result: null, old: false, open: false, det: {}, request: null, live: false };
+let viewer, state = { answer: null, result: null, old: false, open: false, det: {}, request: null, live: false, ownerElec: null };   // ownerElec: kWh a year from the welcome or the facts
 const S = { center: null, hpr: null, home: null, house: [], overlay: [] };
 let tapMode = false, evCount = 0, source = null;
 
@@ -289,7 +289,7 @@ async function startCheck(body, said) {
   resetForRun(!!said);
   state.request = body; state.replay = false;
   if (!STATIC) setInputs(true);
-  const payload = { ...body, note: (said && said.note) || null, elec_kwh: (said && said.elec_kwh) || null };
+  const payload = { ...body, note: (said && said.note) || null, elec_kwh: (said && said.elec_kwh) || state.ownerElec || null };
   try {
     const r = await fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
     if (!r.ok) { handle({ type: "error", text: `The check could not start: ${await apiError(r)}` }); return; }
@@ -311,6 +311,7 @@ function sendSaid() {
     return;
   }
   el.removeAttribute("aria-invalid");
+  if (el.value) state.ownerElec = +el.value;
   startCheck(state.request, { elec_kwh: +el.value || null, note: $("note").value.trim() || null });
 }
 
@@ -379,6 +380,35 @@ async function examples() {
   });
 }
 
+/* ---------------- welcome ---------------- */
+const SEEN = "welcomeSeen";
+function openWelcome() {
+  $("welcome").classList.remove("hid");
+  if (state.ownerElec) $("wKwh").value = state.ownerElec;
+  ($("wKwh").offsetParent ? $("wKwh") : $("wExample")).focus();
+}
+function closeWelcome() {
+  $("welcome").classList.add("hid");
+  try { localStorage.setItem(SEEN, "1"); } catch (e) { /* no storage: it shows again next time */ }
+}
+// The yearly use typed here goes with every check in this visit, as if typed under the facts.
+function welcomeUse() {
+  const el = $("wKwh");
+  if (el.value && !el.checkValidity()) {
+    el.setAttribute("aria-invalid", "true"); el.focus();
+    $("wHelp").classList.add("bad"); $("wHelp").textContent = "Use a whole number of kWh a year, between 100 and 100,000, or leave it empty.";
+    return false;
+  }
+  el.removeAttribute("aria-invalid"); $("wHelp").classList.remove("bad"); $("wHelp").textContent = "Optional. Leave it empty to use a typical home.";
+  state.ownerElec = el.value ? +el.value : null;
+  return true;
+}
+$("wForm").onsubmit = (ev) => { ev.preventDefault(); if (!welcomeUse()) return; closeWelcome(); $("addr").focus(); };
+$("wExample").onclick = () => { if (!welcomeUse()) return; closeWelcome(); const b = document.querySelector("#examples button"); if (b) b.click(); };
+$("wClose").onclick = closeWelcome;
+$("help").onclick = openWelcome;
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !$("welcome").classList.contains("hid")) closeWelcome(); });
+
 async function main() {
   examples();
   if (matchMedia("(max-width: 900px)").matches) { $("trace").classList.add("closed"); $("traceToggle").setAttribute("aria-expanded", "false"); }
@@ -386,10 +416,16 @@ async function main() {
   if (STATIC) {
     fixedHouse(); $("elecForm").classList.add("hid"); $("noteToggle").classList.add("hid"); $("tap").classList.remove("on");
     $("hint").textContent = "Replays of recorded runs. Clone the repo to check any house.";
+    ["wNeed", "wSteps", "wKwh", "wHelp", "wCheck"].forEach((id) => $(id).classList.add("hid")); ["wNeedStatic", "wStepsStatic"].forEach((id) => $(id).classList.remove("hid"));
+    document.querySelector('label[for="wKwh"]').classList.add("hid"); $("wExample").className = "go"; $("wExample").textContent = "See an example house";
   } else {
     // Sample mode keeps the search: a house outside the snapshot is fetched from the public sources, still without keys.
     fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) $("hint").textContent = "Sample mode, no keys: pick an example or search any address in England"; }).catch(() => {});
   }
+  const params = new URLSearchParams(location.search);
+  let seen = false;
+  try { seen = !!localStorage.getItem(SEEN); } catch (e) { /* no storage */ }
+  if (!seen && !params.has("demo") && !params.has("replay")) openWelcome();
   const opts = { baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false };
   if (window.GOOGLE_MAPS_API_KEY) {
     try {

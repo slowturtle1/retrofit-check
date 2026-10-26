@@ -1,6 +1,6 @@
 {
- "commit": "add5c6a (uncommitted changes)",
- "generated_at": "2026-10-26T12:50:45+00:00",
+ "commit": "732bc0f (uncommitted changes)",
+ "generated_at": "2026-10-26T13:04:33+00:00",
  "live": false,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "62 commits scanned, no secret found",
+   "detail": "64 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -630,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 2.6 MB, largest tracked file samples/cache.sqlite (172 KB)",
+   "detail": "git objects 2.7 MB, largest tracked file samples/cache.sqlite (172 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [

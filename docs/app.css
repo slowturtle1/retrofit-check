@@ -128,6 +128,27 @@ details.more .xb { padding-left: var(--s4); }
 .next { font-size: 14px; font-weight: 500; color: var(--muted); margin: var(--s4) 0 0; }
 .foot { font-size: 13px; color: var(--muted); line-height: 1.45; margin-top: 10px; }
 
+/* Welcome: shown on the first visit, ? in the header opens it again */
+#welcome { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 48px var(--s4); background: rgba(19, 32, 43, .55); box-sizing: border-box; }
+.wCard { position: relative; width: 100%; max-width: 580px; background: var(--surface); color: var(--ink); border: 1px solid var(--line2); border-radius: 20px; padding: 28px 28px 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: var(--s2); }
+.wCard h2 { margin: var(--s1) 0 0; font-size: 28px; font-weight: 600; line-height: 1.2; }
+.wLead { margin: 0 0 var(--s2); font-size: 17px; line-height: 1.5; color: var(--muted); }
+.wCard h3.eye { margin: var(--s3) 0 0; }
+.wNeed, .wSteps { margin: 0; padding-left: 22px; font-size: 16px; line-height: 1.5; display: flex; flex-direction: column; gap: var(--s1); }
+.wSteps b { font-weight: 600; }
+.wElec { display: flex; flex-direction: column; gap: 6px; margin-top: var(--s4); padding-top: var(--s4); border-top: 1px solid var(--line); }
+.wElec label { font-size: 15px; font-weight: 600; }
+.wElec input { max-width: 220px; background: var(--surface); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; padding: 8px 10px; font-size: 16px; }
+.wElec input[aria-invalid="true"] { border-color: var(--rust); }
+.wHelp { margin: 0; font-size: 14px; color: var(--muted); }
+.wHelp.bad { color: var(--rust); font-weight: 600; }
+.wBtns { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s3); }
+.wBtns .go { font-size: 16px; padding: 10px 20px; }
+.wAlt { background: var(--surface); color: var(--ink); border: 1px solid var(--line2); border-radius: 999px; font-size: 16px; font-weight: 600; padding: 10px 20px; cursor: pointer; }
+.wClose { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line2); background: var(--surface); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+.wFoot { margin: var(--s3) 0 0; font-size: 13px; color: var(--muted); }
+#help { font-weight: 600; }
+
 /* How we checked: the live trace */
 #trace { grid-column: 1; grid-row: 2; background: var(--bg); border-top: 1px solid var(--line2); display: flex; flex-direction: column; max-height: 36vh; min-height: 0; }
 #traceToggle { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: transparent; border: 0; font-weight: 600; font-size: 18px; padding: 12px 20px; cursor: pointer; }
@@ -169,6 +190,9 @@ details.more .xb { padding-left: var(--s4); }
   .ev { grid-template-columns: 24px 84px minmax(0, 1fr); gap: 8px; }
 }
 @media (max-width: 420px) {
+  #welcome { padding: 16px 12px; }
+  .wCard { padding: 22px 18px 18px; }
+  .wCard h2 { font-size: 23px; }
   .meta { display: none; }
   .q { font-size: 24px; }
   .card { padding: var(--s4); }

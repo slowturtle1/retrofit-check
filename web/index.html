@@ -26,6 +26,7 @@
   </form>
   <div class="here hid" id="here"></div>
   <span class="meta">Rules for England · demo data</span>
+  <button class="theme" id="help" type="button" aria-label="How it works" title="How it works">?</button>
   <button class="theme" id="theme" type="button" aria-label="Switch between light and dark">◐</button>
 </header>
 
@@ -78,6 +79,45 @@
     <ol id="traceBody"></ol>
   </section>
 </main>
+
+<div id="welcome" class="hid" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+  <div class="wCard">
+    <button class="wClose" id="wClose" type="button" aria-label="Close">×</button>
+    <span class="eyebrow">RETROFIT CHECK · SOLAR</span>
+    <h2 id="wTitle">Can you put solar panels on your house, and where?</h2>
+    <p class="wLead">One answer for your house in England: allowed or not, where on the roof, rough cost and payback, and one next step.</p>
+    <h3 class="eye">What you need</h3>
+    <ul class="wNeed" id="wNeed">
+      <li>An address in England.</li>
+      <li>Optional: your yearly electricity use in kWh, from a bill or your energy app. We ask for it below. Without it we use a typical home (2,500 kWh a year, Ofgem).</li>
+    </ul>
+    <ul class="wNeed hid" id="wNeedStatic">
+      <li>This page replays recorded checks of six houses.</li>
+      <li>To check any address in England, clone the repository and run it. No keys needed.</li>
+    </ul>
+    <h3 class="eye">How it works</h3>
+    <ol class="wSteps hid" id="wStepsStatic">
+      <li><b>Pick</b> an example house.</li>
+      <li><b>Watch</b> every check the agent makes, under the map.</li>
+      <li><b>Read the answer</b>: allowed or not, cost and payback, and the next step.</li>
+    </ol>
+    <ol class="wSteps" id="wSteps">
+      <li><b>Search</b> your address.</li>
+      <li><b>Tap your roof</b> on the map.</li>
+      <li><b>Get your answer</b>, and see every check the agent made under the map.</li>
+    </ol>
+    <form class="wElec" id="wForm" novalidate>
+      <label for="wKwh">Your yearly electricity use (kWh)</label>
+      <input id="wKwh" type="number" min="100" max="100000" step="1" inputmode="numeric" placeholder="for example 3100" aria-describedby="wHelp">
+      <p class="wHelp" id="wHelp">Optional. Leave it empty to use a typical home.</p>
+      <div class="wBtns">
+        <button class="go" id="wCheck" type="submit">Check my house</button>
+        <button class="wAlt" id="wExample" type="button">Try an example house</button>
+      </div>
+    </form>
+    <p class="wFoot">Rules for England, demo data for London. Not legal or financial advice.</p>
+  </div>
+</div>
 
 <script src="/static/app.js"></script>
 <script src="/static/demo.js"></script>
