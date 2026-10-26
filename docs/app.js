@@ -390,7 +390,6 @@ async function examples() {
 }
 
 /* ---------------- welcome ---------------- */
-const SEEN = "welcomeSeen";
 function openWelcome() {
   $("welcome").classList.remove("hid");
   if (state.ownerElec) $("wKwh").value = state.ownerElec;
@@ -398,7 +397,6 @@ function openWelcome() {
 }
 function closeWelcome() {
   $("welcome").classList.add("hid");
-  try { localStorage.setItem(SEEN, "1"); } catch (e) { /* no storage: it shows again next time */ }
 }
 // The yearly use typed here goes with every check in this visit, as if typed under the facts.
 function welcomeUse() {
@@ -443,9 +441,8 @@ async function main() {
     fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) $("hint").textContent = "Sample mode, no keys: pick an example or search any address in England"; }).catch(() => {});
   }
   const params = new URLSearchParams(location.search);
-  let seen = false;
-  try { seen = !!localStorage.getItem(SEEN); } catch (e) { /* no storage */ }
-  if (!seen && !params.has("demo") && !params.has("replay")) openWelcome();
+  // Every visit starts on the intro, so a judge who closed it once still sees it from the README link.
+  if (!params.has("demo") && !params.has("replay")) openWelcome();
   const opts = { baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false };
   if (window.GOOGLE_MAPS_API_KEY) {
     try {
