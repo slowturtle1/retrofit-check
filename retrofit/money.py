@@ -12,7 +12,7 @@ NOT_WORTH = "Probably not worth it for this house"
 BOILER_SOON = "Worth it mainly if your boiler needs replacing soon"
 ADD_GAS = "Can't tell yet: add your gas use"
 
-UNSURE = {"article4_unknown", "article4_coverage_unknown", "listed_point_only", "no_wall_away_from_road"}
+UNSURE = {"article4_unknown", "article4_coverage_unknown", "listed_point_only", "listed_he_only", "no_wall_away_from_road"}
 PV_LIFE_YEARS = 25         # used when price_fact has no pv_life_years row; worth quotes if a typical payback fits in the panels' life
 MIN_KWH_PER_KWP = 700      # below this the roof gets too little sun
 MIN_KWP = 1.5              # smaller systems carry the same fixed costs (scaffold, inverter) for little output

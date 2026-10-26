@@ -39,7 +39,7 @@ def shown_status(v: dict) -> str:
 
 def next_step(v: dict, recommendation: str | None, council: str | None = None) -> str:
     status = shown_status(v)
-    if "listed_point_only" in schema.open_flags(v):
+    if {"listed_point_only", "listed_he_only"} & schema.open_flags(v):
         return f"Check Historic England's map, or ask {council or 'the council'}, whether the listing covers this building before you plan panels."
     step = NEXT.get(status) or NEXT_BY_RECOMMENDATION.get(recommendation or "", "Ask {council}'s planning team.")
     step = step.format(council=council or "the council")
@@ -56,6 +56,8 @@ def confidence_text(res: dict, v: dict, level: str) -> str:
             return f"Low: {council} has not published its conservation area Article 4 directions, so one could exist."
         if "listed_point_only" in u:
             return "Low: the listing was found as a point only, so it may belong to the building next door."
+        if "listed_he_only" in u:
+            return "Low: Historic England's map shows a listed outline here that planning.data does not."
         return "Low: an Article 4 direction covers this house and what it removes is not on file."
     if level == "medium":
         if "lidar_noisy" in u:
@@ -125,7 +127,8 @@ def house_facts(res: dict, v: dict) -> list[dict]:
         return {"key": key, "label": label, "value": value, "source": source, "date": when, "from_owner": from_owner}
     return [
         fact("listed", "Listed", (", ".join(f"Grade {a['grade']} listed" if a.get("grade") else "Listed" for a in listed[:1]) +
-                                  (" (found as a point only, may be next door)" if "listed_point_only" in v["uncertain"] else "")) if listed else "Not listed",
+                                  (" (found as a point only, may be next door)" if "listed_point_only" in v["uncertain"] else "")) if listed else
+             ("Not on planning.data, but Historic England shows a listed outline here" if "listed_he_only" in v["uncertain"] else "Not listed"),
              "Historic England, via planning.data", read),
         fact("conservation_area", "Conservation area", ", ".join(f"{a['name']} ({a['start_date'][:4]})" if a.get("start_date") else a["name"] for a in ca) or "None", "planning.data", read),
         fact("article_4", "Article 4", "; ".join(a4_text) or "None on file", "planning.data and the council", read),

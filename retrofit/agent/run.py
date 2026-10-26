@@ -429,6 +429,7 @@ UNCERTAIN = {
     "no_wall_away_from_road": "Every wall faces a road, so a heat pump here needs planning permission.",
     "article4_coverage_unknown": "This council has not published Article 4 directions for conservation areas, so a missing record proves nothing. Ask the council.",
     "listed_point_only": "The listing was found as a point, not an outline. Check with the council or Historic England's map.",
+    "listed_he_only": "Historic England's map shows a listed outline here that planning.data does not. Check before you plan anything.",
 }
 
 

@@ -15,6 +15,10 @@ from ..sources.planning import BASE
 from ..zetaris import Zetaris, ZetarisError
 
 Emit = Callable[[dict], None]
+# Historic England's own listed building outlines (NHLE). planning.data holds most listings as points only, so a
+# terrace listed as one entry can be missed on the house's own footprint.
+HE_LISTED = ("https://services-eu1.arcgis.com/ZOdPfBS3aqqDYPUQ/arcgis/rest/services/"
+             "National_Heritage_List_for_England_NHLE_v02_VIEW/FeatureServer/3/query")
 # planning.data organisation entities for the London councils we have looked at; others show as "council <id>"
 COUNCILS = {"90": "Camden", "387": "Westminster", "175": "Haringey", "366": "Waltham Forest", "329": "Southwark", "192": "Lambeth",
             "163": "Hackney", "42": "Brent", "198": "Lewisham", "182": "Kensington and Chelsea", "350": "Tower Hamlets", "48": "Barnet",
@@ -68,6 +72,17 @@ FROM planning_data.{table} LATERAL VIEW explode(entities) AS e""", purpose=f"Doe
     return int(rows[0][0] or 0), int(rows[0][1] or 0)
 
 
+def he_listed(z: Zetaris, house_id: str, coords: list) -> list[dict]:
+    """Historic England listed building outlines that touch the footprint, read through Zetaris as a REST table."""
+    geom = {"rings": [[[round(x, 7), round(y, 7)] for x, y in coords]], "spatialReference": {"wkid": 4326}}
+    url = HE_LISTED + "?" + urlencode({"geometry": json.dumps(geom, separators=(",", ":")), "geometryType": "esriGeometryPolygon", "inSR": 4326,
+                                       "spatialRel": "esriSpatialRelIntersects", "outFields": "ListEntry,Name,Grade", "returnGeometry": "false", "f": "json"})
+    table = "he_" + house_id.replace("-", "_")
+    _rest(z, table, "PLANNING_DATA", url, "Register Historic England's listed building outlines for this footprint")
+    return z.run(f"SELECT f.attributes.ListEntry AS entry, f.attributes.Name AS name, f.attributes.Grade AS grade FROM planning_data.{table} LATERAL VIEW explode(features) AS f",
+                 purpose="Cross check the listing against Historic England's own outlines").dicts()
+
+
 def listed_outline(z: Zetaris, house_id: str, coords: list) -> int:
     from shapely.geometry import Polygon
     url = BASE + "?" + urlencode([("geometry", Polygon(coords).wkt), ("geometry_relation", "intersects"), ("dataset", "listed-building-outline"),
@@ -109,7 +124,30 @@ def challenge(z: Zetaris, f: dict, result: dict, coords: list, emit: Emit) -> li
             emit({"type": "requery", "by": "analyst", "about": "article-4", "ok": False, "text": f"Could not ask Zetaris again ({str(e)[:80]}): marked uncertain."})
             flags.append("article4_coverage_unknown")
 
-    return flags + _listed_flags(z, f, des, coords, emit)
+    return flags + _listed_flags(z, f, des, coords, emit) + _he_flags(z, f, des, coords, emit)
+
+
+def _he_flags(z: Zetaris, f: dict, des: list, coords: list, emit: Emit) -> list[str]:
+    """3. No listing on planning.data is not proof: ask Historic England's own outlines."""
+    if any(d["dataset"] in ("listed-building", "listed-building-outline") for d in des):
+        return []
+    emit({"type": "challenge", "by": "evaluator", "about": "listed",
+          "text": "planning.data shows no listing on this footprint, but it holds most listings as points, so a terrace listed as one entry can be missed. Check Historic England's own outlines."})
+    try:
+        rows = [r for r in he_listed(z, f["house"]["house_id"], coords) if r.get("entry")]
+    except ZetarisError as e:
+        emit({"type": "requery", "by": "analyst", "about": "listed", "ok": False,
+              "text": f"Could not ask Historic England ({str(e)[:80]}): planning.data's answer stands, unchecked."})
+        return []
+    if not rows:
+        emit({"type": "requery", "by": "analyst", "about": "listed", "ok": True,
+              "text": "No Historic England listed outline touches this footprint: not listed, the finding stands."})
+        return []
+    r = rows[0]
+    emit({"type": "requery", "by": "analyst", "about": "listed", "ok": False,
+          "text": f"Historic England's outline for list entry {r['entry']} ({r.get('name')}, Grade {r.get('grade')}) covers this footprint, "
+                  "though planning.data shows no listing here: marked uncertain."})
+    return ["listed_he_only"]
 
 
 def _listed_flags(z: Zetaris, f: dict, des: list, coords: list, emit: Emit) -> list[str]:

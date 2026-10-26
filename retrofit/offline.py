@@ -50,6 +50,8 @@ def _live() -> sqlite3.Connection:
 REWRITES = [
     (re.compile(r"FROM planning_data\.a4_council_(\w+) LATERAL VIEW explode\(entities\) AS e", re.I), r"FROM council_a4 AS e WHERE e.org = '\1'"),
     (re.compile(r"FROM planning_data\.lbo_(\w+) LATERAL VIEW explode\(entities\) AS e", re.I), r"FROM listed_outline AS e WHERE e.house_key = '\1'"),
+    (re.compile(r"FROM planning_data\.he_(\w+) LATERAL VIEW explode\(features\) AS f", re.I), r"FROM he_listed AS f WHERE f.house_key = '\1' AND f.ListEntry IS NOT NULL"),
+    (re.compile(r"\bf\.attributes\.(\w+)"), r"f.\1"),
     (re.compile(r"\bretrofit_pg\."), ""),
 ]
 
@@ -78,6 +80,8 @@ class OfflineZetaris:
                 _ensure_council(m.group(1))
             if m := re.search(r"FROM listed_outline AS e WHERE e.house_key = '(\w+)'", q):
                 _ensure_outline(m.group(1))
+            if m := re.search(r"FROM he_listed AS f WHERE f.house_key = '(\w+)'", q):
+                _ensure_he(m.group(1))
         if re.search(r"\b(planning_data|pvgis)\.", q, re.I):
             self._done(sql, purpose, started, None, error="not in the sample snapshot")
             raise ZetarisError("this request is not in the sample snapshot")
@@ -176,6 +180,40 @@ def _ensure_outline(house_key: str) -> None:
         raise ZetarisError(f"planning.data did not answer: {e}") from e
     with _WRITE, _live() as con:
         con.executemany("INSERT INTO listed_outline VALUES (?, ?)", [(house_key, e.get("reference")) for e in ents])
+
+
+def he_rows(coords: list) -> list[tuple]:
+    """Historic England listed outlines touching a footprint, straight from its ArcGIS service."""
+    import requests
+
+    from .agent.evaluator import HE_LISTED
+    from .config import USER_AGENT
+    geom = {"rings": [[[round(x, 7), round(y, 7)] for x, y in coords]], "spatialReference": {"wkid": 4326}}
+    r = requests.post(HE_LISTED, data={"geometry": json.dumps(geom), "geometryType": "esriGeometryPolygon", "inSR": 4326, "spatialRel": "esriSpatialRelIntersects",
+                                       "outFields": "ListEntry,Name,Grade", "returnGeometry": "false", "f": "json"},
+                      headers={"User-Agent": USER_AGENT}, timeout=float(os.environ.get("PLANNING_TIMEOUT", "60")))
+    r.raise_for_status()
+    return [(f["attributes"].get("ListEntry"), f["attributes"].get("Name"), f["attributes"].get("Grade")) for f in r.json().get("features", [])]
+
+
+def _ensure_he(house_key: str) -> None:
+    """One row per outline, or one empty row meaning "checked, none", for a house fetched on this machine."""
+    con = sqlite3.connect(f"file:{db_path()}?mode=ro", uri=True)
+    try:
+        if con.execute("SELECT 1 FROM he_listed WHERE house_key = ? LIMIT 1", (house_key,)).fetchone():
+            return
+        hid = re.sub(r"^osm_(way|relation)_", r"osm-\1-", house_key)
+        row = con.execute("SELECT footprint FROM house WHERE house_id = ?", (hid,)).fetchone()
+    finally:
+        con.close()
+    if not row:
+        return
+    try:
+        found = he_rows(json.loads(row[0])["coordinates"][0])
+    except Exception as e:  # noqa: BLE001  the evaluator says the check could not run
+        raise ZetarisError(f"Historic England did not answer: {e}") from e
+    with _WRITE, _live() as c:
+        c.executemany("INSERT INTO he_listed VALUES (?, ?, ?, ?)", [(house_key, *x) for x in found] or [(house_key, None, None, None)])
 
 
 def store_house(house: dict, walls: list, roof: dict | None, pv: dict | None, entities: list) -> None:

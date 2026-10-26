@@ -113,8 +113,12 @@ def _solar_lines(result: dict, v: dict) -> dict:
                 "why": f"{label} is covered by {ref}, which takes away permitted development for solar panels, so {council} must approve them.",
                 "get": f"Your {slope} could make about {n['kwh_year']:,} kWh a year if {council} approves." if n else f"Ask {council} before you plan panels.",
                 "cost": f"A householder application to {council} costs £548. Cost of the panels is shown once permission is likely." }
-    if v["status"] == "check_with_council" or unsure & {"article4_unknown", "article4_coverage_unknown", "listed_point_only"}:  # consent and permission returned above
-        if "article4_unknown" in unsure or v["status"] == "check_with_council":
+    if v["status"] == "check_with_council" or unsure & {"article4_unknown", "article4_coverage_unknown", "listed_point_only", "listed_he_only"}:  # consent and permission returned above
+        if "listed_he_only" in unsure:
+            one, why = ("Historic England's map shows a listed outline over this house that planning.data does not, so panels may need listed building consent.",
+                        f"If the house is listed, panels are not permitted development and {council} decides. "
+                        "If the outline belongs to a building next door, panels on this roof are likely permitted development.")
+        elif "article4_unknown" in unsure or v["status"] == "check_with_council":
             ref = (where.get("a4_unknown") or ["An Article 4 direction"])[0]
             one, why = (f"{ref} covers this house and we do not know what it removes.",
                         f"{council} has not published what {ref} takes away, so we will not guess whether panels need permission.")

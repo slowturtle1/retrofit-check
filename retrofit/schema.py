@@ -28,7 +28,7 @@ QUESTION = "Is my house eligible for solar panels?"
 
 # One level per fixed score, so the page and the tests agree on the words.
 CONFIDENCE = {"high": 0.9, "medium": 0.6, "low": 0.3}
-UNSURE = {"article4_unknown", "article4_coverage_unknown", "listed_point_only"}   # the legal answer itself is open
+UNSURE = {"article4_unknown", "article4_coverage_unknown", "listed_point_only", "listed_he_only"}   # the legal answer itself is open
 ROUGH = {"lidar_noisy", "no_sunny_roof", "article4_ended_but_listed"}             # the answer stands, a number or a source is weak
 
 

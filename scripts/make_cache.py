@@ -72,6 +72,12 @@ def main() -> None:
         refs = [e.get("reference") for e in r.json().get("entities", [])]
         out.executemany("INSERT INTO listed_outline VALUES (?, ?)", [(hid.replace("-", "_"), ref) for ref in refs])
         print(f"listed outline {hid}: {len(refs)}")
+    # What the evaluator asks Historic England: listed outlines on each footprint (an empty row means checked, none).
+    from retrofit.offline import he_rows
+    out.execute("CREATE TABLE he_listed (house_key, ListEntry, Name, Grade)")
+    for hid, fp in out.execute("SELECT house_id, footprint FROM house").fetchall():
+        found = he_rows(json.loads(fp)["coordinates"][0])
+        out.executemany("INSERT INTO he_listed VALUES (?, ?, ?, ?)", [(hid.replace("-", "_"), *x) for x in found] or [(hid.replace("-", "_"), None, None, None)])
     out.commit()
     out.close()
     print(OUT, f"{OUT.stat().st_size // 1024} KB, houses: {', '.join(house_ids)}")
