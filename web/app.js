@@ -135,14 +135,6 @@ function chain(s) {
 
 const IF_YES = { check_with_council: "If the council says yes:", needs_permission: "If you get planning permission:", needs_consent: "If you get listed building consent:" };
 
-function moneyRows(n) {
-  const rows = [];
-  if (n.cost_gbp) rows.push(["Rough cost", range(n.cost_gbp, gbp)]);
-  if (n.value_gbp_year) rows.push(["Value a year", range(n.value_gbp_year, gbp)]);
-  if (n.payback_years) rows.push(["Pays back in", `${range(n.payback_years)} years`]);
-  return rows.length ? `<div class="money">${rows.map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div>` : "";
-}
-
 // The one condition an owner must know, from this house's facts: which walls face a road, or the roof rule.
 function condition(a) {
   const s = a.solar, rule = (id) => s.rules.find((r) => r.id === id);
@@ -205,7 +197,7 @@ function renderCard() {
       ${IF_YES[s.status] ? `<p class="ifYes">${IF_YES[s.status]}</p>` : ""}
       <div class="figs">${figs.map(([v, k]) => `<div class="fig"><b>${esc(v)}</b><span>${k}</span></div>`).join("")}</div>
       ${basis ? `<p class="sub">${basis}</p>` : ""}
-      ${n.payback_years ? details("money", "More about the money", `${moneyRows(n)}<p>${esc(l.cost)}</p>`) : `<p class="sub">${esc(l.cost)}</p>`}
+      ${n.payback_years ? details("money", "More about the money", `${n.value_gbp_year ? `<div class="money"><span>Value a year</span><span>${esc(range(n.value_gbp_year, gbp))}</span></div>` : ""}<p>${esc(l.cost)}</p>`) : `<p class="sub">${esc(l.cost)}</p>`}
     </section>`;
   }
 

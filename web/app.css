@@ -90,8 +90,8 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .sub { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.45; }
 .sub .link { font-size: 15px; padding: 0; }
 .ifYes { margin: 0; font-size: 14px; font-weight: 600; color: var(--link); }
-.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s4); padding: var(--s1) 0; }
-.fig b { display: block; font-size: 24px; font-weight: 600; line-height: 1.2; }
+.figs { display: flex; flex-wrap: wrap; gap: var(--s3) 28px; padding: var(--s1) 0; }
+.fig b { display: block; font-size: 22px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 .fig span { font-size: 14px; color: var(--muted); }
 details.x { border-top: 1px solid var(--line); padding-top: var(--s3); margin-top: var(--s1); }
 details.x > summary, details.more > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: var(--s2); font-size: 15px; font-weight: 600; color: var(--link); }
@@ -172,7 +172,7 @@ details.more .xb { padding-left: var(--s4); }
   .meta { display: none; }
   .q { font-size: 24px; }
   .card { padding: var(--s4); }
-  .fig b { font-size: 21px; }
+  .fig b { font-size: 20px; }
   .ev { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .ev .no { display: none; }
 }

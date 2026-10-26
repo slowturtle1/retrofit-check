@@ -1,6 +1,6 @@
 {
- "commit": "1c181a8 (uncommitted changes)",
- "generated_at": "2026-10-26T10:13:56+00:00",
+ "commit": "907d37a (uncommitted changes)",
+ "generated_at": "2026-10-26T11:58:30+00:00",
  "live": false,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "48 commits scanned, no secret found",
+   "detail": "58 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -630,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 1.9 MB, largest tracked file samples/cache.sqlite (172 KB)",
+   "detail": "git objects 2.3 MB, largest tracked file samples/cache.sqlite (172 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [
@@ -645,7 +645,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "13 source sections, seven fields each",
+   "detail": "14 source sections, seven fields each",
    "owner": "C",
    "text": "data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits",
    "source": [
@@ -781,7 +781,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "'14. Limitations': 9 points",
+   "detail": "'14. Limitations': 13 points",
    "owner": "C",
    "text": "The README states limitations honestly in its own section",
    "source": [

@@ -4,9 +4,13 @@
 const $ = (id) => document.getElementById(id);
 const D2R = Math.PI / 180, R = 6378137;
 const C = (h, a = 1) => Cesium.Color.fromCssColorString(h).withAlpha(a);
-const INK = "#1D1D2B", YELLOW = "#FFD21F", LAV = "#A79FE6", CORAL = "#FF5A5F", TEAL = "#2EC4A0";
+const INK = "#13202B", YELLOW = "#FFD21F", LAV = "#A79FE6", CORAL = "#FF5A5F", TEAL = "#2EC4A0";
 const ST_CLASS = { allowed: "y", allowed_with_conditions: "c", check_with_council: "c", needs_permission: "n", needs_consent: "n" };
+const ST_TAG = { allowed: "Allowed", allowed_with_conditions: "Allowed, with conditions", check_with_council: "Check with the council", needs_permission: "Needs permission", needs_consent: "Needs consent" };
 const REC_CLASS = { "Worth getting quotes": "go", "Ask the council first": "ask", "Probably not worth it for this house": "no" };
+// One action per next step; no button when the advice is not to go ahead.
+const CTA = { "Worth getting quotes": ["Find MCS certified installers", "https://mcscertified.com/find-an-installer/"],
+  "Ask the council first": ["Find your council", "https://www.gov.uk/find-local-council"] };
 const FACING = { N: "north", NE: "north east", E: "east", SE: "south east", S: "south", SW: "south west", W: "west", NW: "north west" };
 const AGENT_OF = { start: "planner", decision: "planner", intake: "planner", thought: "planner", note: "planner", done: "planner", error: "planner",
   tool_start: "analyst", tool_end: "analyst", house: "analyst", zetaris: "analyst", requery: "analyst", challenge: "evaluator",
@@ -19,7 +23,7 @@ const api = {
   run: (n) => (STATIC ? `samples/${n}.json` : `/api/runs/${encodeURIComponent(n)}`),
   examples: () => (STATIC ? "samples/index.json" : "/api/examples"),
 };
-let viewer, state = { answer: null, result: null, old: false, open: false, request: null, live: false };
+let viewer, state = { answer: null, result: null, old: false, open: false, det: {}, request: null, live: false };
 const S = { center: null, hpr: null, home: null, house: [], overlay: [] };
 let tapMode = false, evCount = 0, source = null;
 
@@ -61,7 +65,7 @@ function aimHome(az) { if (!S.home) return; S.home.heading = ((az + 180) % 360) 
 
 // Map labels are the film's dark pills.
 const mapLabel = (text, height) => viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(S.lonlat[0], S.lonlat[1], height ?? (window.GOOGLE_MAPS_API_KEY ? 70 : 5)), label: {
-  text, font: "700 15px Bricolage Grotesque, sans-serif", fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: C(INK, 0.95),
+  text, font: "600 15px IBM Plex Sans, sans-serif", fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: C(INK, 0.95),
   backgroundPadding: new Cesium.Cartesian2(12, 7), pixelOffset: new Cesium.Cartesian2(0, -30), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
 
 /* What the solar answer looks like on the house: the sunny slope, or the listed building */
@@ -85,7 +89,7 @@ async function overlayFor(open) {
   if (!area || !area.entity) return;
   try {
     const g = await (await fetch(api.area(area.entity))).json();
-    if (state.answer !== a || !state.open) return;
+    if (state.result !== res) return;
     S.overlay.push(...drapeGeo(s.status === "needs_consent" ? g.fill : g.edge, s.status === "needs_consent" ? CORAL : TEAL, s.status === "needs_consent" ? 0.55 : 0.95));
     S.overlay.push(mapLabel(s.status === "needs_consent" ? "Listed building" : `${g.name || "Conservation area"}`, 60));
   } catch (e) { trace({ type: "error", agent_name: "planner", status: "failed", text: "area outline did not load: " + e }); }
@@ -97,7 +101,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
 const cap = (s) => String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1);
 const gbp = (n) => "£" + Number(n).toLocaleString("en-GB");
 const range = (r, f = (x) => x) => (r && r.length === 2 ? `${f(r[0])} to ${f(r[1])}` : "");
-const SUN = `<svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="${YELLOW}" stroke="currentColor" stroke-width="2.5"/></svg>`;
+const SUN = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#F0A23A"/></svg>`;
 
 function factsLine(a) {
   const f = Object.fromEntries((a.house_facts || []).map((x) => [x.key, x]));
@@ -131,13 +135,21 @@ function chain(s) {
 
 const IF_YES = { check_with_council: "If the council says yes:", needs_permission: "If you get planning permission:", needs_consent: "If you get listed building consent:" };
 
-function moneyRows(n, status) {
-  const rows = [];
-  if (n.cost_gbp) rows.push(["Rough cost", range(n.cost_gbp, gbp)]);
-  if (n.value_gbp_year) rows.push(["Value a year", range(n.value_gbp_year, gbp)]);
-  if (n.payback_years) rows.push(["Pays back in", `${range(n.payback_years)} years`]);
-  return rows.length ? `${IF_YES[status] ? `<p><b>${IF_YES[status]}</b></p>` : ""}<div class="money">${rows.map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div>` : "";
+// The one condition an owner must know, from this house's facts: which walls face a road, or the roof rule.
+function condition(a) {
+  const s = a.solar, rule = (id) => s.rules.find((r) => r.id === id);
+  if (s.status !== "allowed" && s.status !== "allowed_with_conditions") return s.lines.one;
+  const walls = ((a.house_facts || []).find((f) => f.key === "road_walls") || {}).value || "";
+  const dirs = [...new Set(String(walls).split(/,\s*/).filter((w) => / to /.test(w)).map((w) => w.replace(/ to .*$/, "").trim()))];
+  if (rule("solar-ca-wall") && dirs.length) {
+    const list = dirs.length > 1 ? `${dirs.slice(0, -1).join(", ")} or ${dirs[dirs.length - 1]}` : dirs[0];
+    return `Not on the ${list} wall: ${dirs.length > 1 ? "they face" : "it faces"} a road. The roof is fine.`;
+  }
+  const r = rule("solar-ca-wall") || rule("solar-pitched");
+  return r ? r.plain : s.lines.one;
 }
+
+const details = (key, label, body) => `<details class="x" data-k="${key}"${state.det[key] ? " open" : ""}><summary>${label}</summary><div class="xb">${body}</div></details>`;
 
 function sources(s) {
   const rules = s.rules.map((r) => `<li class="src"><b>${esc(r.clause)}</b>, in force ${esc(fmtDate(r.in_force))}${r.amended_by ? ", last change " + esc(r.amended_by) : ""}. ${esc(r.plain || "")} ${/^https?:/.test(r.source_url || "") ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener">Read the rule</a>` : ""}</li>`);
@@ -145,41 +157,63 @@ function sources(s) {
   return `<ul class="srcs">${[...rules, ...facts].join("")}</ul>`;
 }
 
+// The answer as a stack: status and condition, cost and payback, the next step, then sources and limits.
+// state.open is "Why this answer" (demo.js opens it); the other details keep their state across re-renders.
 function renderCard() {
   const a = state.answer;
-  if (state.old) { $("card").innerHTML = `<div class="card"><p class="old" style="padding:16px">This recording comes from an older version of the app, so the card cannot show it. Run the check again.</p></div>`; return; }
+  if (state.old) { $("card").innerHTML = `<div class="card"><p class="old">This recording comes from an older version of the app, so the card cannot show it. Run the check again.</p></div>`; return; }
   if (!a) { $("card").innerHTML = ""; return; }
-  const s = a.solar, k = ST_CLASS[s.status] || "c", l = s.lines || {}, conf = s.confidence || {};
+  state.det.why = state.open;
+  const s = a.solar, l = s.lines || {}, n = s.numbers || {}, conf = s.confidence || {}, allowed = /^allowed/.test(s.status);
   const pct = Math.round((conf.score || 0) * 100);
   const who = s.written_by === "nemotron" ? `Explained by Nemotron via Nightshift, checked by ${esc(s.checked_by || "code")}.`
     : `Written from the rules in code.${state.live ? " Nemotron is rewriting it now." : ""}`;
-  const addElec = !s.usage && !STATIC && !state.replay && s.numbers && s.numbers.kwh_year;
-  $("card").innerHTML = `<div class="card ${state.open ? "open" : ""}">
-    <button class="ch" id="cardHead" type="button" aria-expanded="${state.open}" aria-controls="cardBody">
-      <span class="sun">${SUN}</span>
-      <span>
-        <span class="nm">Solar panels</span>
-        <span class="st ${k}">${esc(s.status_text)}</span>
-        <span class="one">${esc(l.one)}</span>
-        ${s.usage ? `<span class="use">${esc(s.usage.text)}</span>` : ""}
-        ${s.recommendation ? `<span class="rec ${REC_CLASS[s.recommendation] || ""}">→ ${esc(s.recommendation)}</span>` : ""}
-        <span class="conf"><span>Confidence</span><span class="bar" role="img" aria-label="Confidence ${esc(conf.level)}, ${pct} of 100"><i style="width:${pct}%"></i></span></span>
-        <span class="limit">${esc(conf.text || cap(conf.level))}</span>
-        ${s.limitations && s.limitations[0] ? `<span class="limit">${esc(s.limitations[0])}</span>` : ""}
-        <span class="more">${state.open ? "Hide details" : "Show details"}</span>
-      </span>
-    </button>
-    ${addElec ? `<div class="addRow"><button class="link" id="addElec" type="button">Add your electricity use to compare it with the roof</button></div>` : ""}
-    <div class="cb2" id="cardBody">
-      <div class="sec"><h3><span class="n">1</span>Why this answer</h3><p>${esc(l.why)}</p><div class="chain">${chain(s)}</div></div>
-      <div class="sec"><h3><span class="n">2</span>What you can do</h3><p>${esc(l.get)}</p></div>
-      <div class="sec"><h3><span class="n">3</span>Money: cost, help with cost, payback</h3>${moneyRows(s.numbers || {}, s.status)}<p>${esc(l.cost)}</p></div>
-      <div class="sec"><h3><span class="n">4</span>Next step</h3><p>${esc(s.next_step)}</p><ul class="lims">${(s.limitations || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
-      <div class="sec"><h3><span class="n">5</span>Sources</h3>${sources(s)}</div>
-      <div class="who">${who}</div>
-    </div>
-  </div>`;
-  $("cardHead").onclick = () => { state.open = !state.open; renderCard(); overlayFor(state.open); if (!state.open) $("reset").onclick(); $("cardHead").focus(); };
+  const addElec = !s.usage && !STATIC && !state.replay && n.kwh_year;
+  const tag = ST_TAG[s.status] || s.status_text;
+
+  const why = [
+    allowed && l.one ? `<p class="roofLine">${esc(l.one)}</p>` : "",
+    s.usage ? `<p>${esc(s.usage.text)}</p>` : "",
+    `<p>${esc(l.why)}</p>`, `<div class="chain">${chain(s)}</div>`,
+    `<div class="conf"><span>Confidence</span><span class="bar" role="img" aria-label="Confidence ${esc(conf.level)}, ${pct} of 100"><i style="width:${pct}%"></i></span></div>`,
+    `<p class="sub">${esc(conf.text || cap(conf.level))}</p>`,
+  ].join("");
+  const status = `<section class="card" aria-label="Solar panels">
+    <div class="cardTop"><span class="sun">${SUN}</span><h3>Solar panels</h3><span class="tag ${ST_CLASS[s.status] || "c"}">${esc(tag)}</span></div>
+    <p class="cond">${esc(condition(a))}</p>
+    ${s.status_text !== tag ? `<p class="sub">${esc(s.status_text)}</p>` : ""}
+    ${details("why", "Why this answer", why)}
+  </section>`;
+
+  let money = "";
+  if (n.cost_gbp) {
+    const figs = [[range(n.cost_gbp, gbp), "to install"]];
+    if (n.payback_years) figs.push([`${range(n.payback_years)} years`, "to pay back"]);
+    else if (n.value_gbp_year) figs.push([range(n.value_gbp_year, gbp), "value a year"]);
+    const basis = s.usage ? `For the ${Number(s.usage.elec_kwh).toLocaleString("en-GB")} kWh a year you use.`
+      : n.value_gbp_year ? `For a home with typical use (Ofgem).${addElec ? ` <button class="link" id="addElec" type="button">Add your electricity use</button>` : ""}` : "";
+    money = `<section class="card" aria-label="Cost and payback">
+      <h3>Cost and payback</h3>
+      ${IF_YES[s.status] ? `<p class="ifYes">${IF_YES[s.status]}</p>` : ""}
+      <div class="figs">${figs.map(([v, k]) => `<div class="fig"><b>${esc(v)}</b><span>${k}</span></div>`).join("")}</div>
+      ${basis ? `<p class="sub">${basis}</p>` : ""}
+      ${n.payback_years ? details("money", "More about the money", `${n.value_gbp_year ? `<div class="money"><span>Value a year</span><span>${esc(range(n.value_gbp_year, gbp))}</span></div>` : ""}<p>${esc(l.cost)}</p>`) : `<p class="sub">${esc(l.cost)}</p>`}
+    </section>`;
+  }
+
+  const rec = s.recommendation, cta = CTA[rec];
+  const step = `<section class="card step rc-${REC_CLASS[rec] || "ask"}" aria-label="Next step">
+    <span class="eye">Next step</span>
+    ${rec ? `<h3>${esc(rec)}</h3>` : ""}
+    <p>${esc(s.next_step)}</p>
+    ${cta ? `<a class="cta" href="${cta[1]}" target="_blank" rel="noopener">${cta[0]} <span aria-hidden="true">↗</span><span class="sr"> (opens in a new tab)</span></a>` : ""}
+  </section>`;
+
+  const more = `<details class="more" data-k="src"${state.det.src ? " open" : ""}><summary>Sources and limits</summary><div class="xb">
+    ${sources(s)}<ul class="lims">${(s.limitations || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul><div class="who">${who}</div></div></details>`;
+
+  $("card").innerHTML = status + money + step + more;
+  $("card").querySelectorAll("details[data-k]").forEach((d) => d.addEventListener("toggle", () => { state.det[d.dataset.k] = d.open; if (d.dataset.k === "why") state.open = d.open; }));
   if ($("addElec")) $("addElec").onclick = () => { openFacts(true); $("elec").focus(); $("facts").scrollIntoView({ block: "nearest" }); };
 }
 
@@ -226,8 +260,8 @@ function trace(e) {
 /* ---------------- runs ---------------- */
 function handle(e) {
   trace(e);
-  if (e.type === "house") { $("houseBox").classList.remove("hid"); $("place").textContent = e.label; $("here").textContent = e.label; $("factsLine").textContent = "Checking…"; showHouse({ ...e, footprint_m2: null }); }
-  if (e.type === "answer") { state.result = e.result; state.old = !e.answer; state.answer = e.answer || null; renderAll(); }
+  if (e.type === "house") { $("houseBox").classList.remove("hid"); $("place").textContent = e.label; $("here").textContent = e.label; $("factsLine").textContent = "Checking…"; S.ready = showHouse({ ...e, footprint_m2: null }); }
+  if (e.type === "answer") { state.result = e.result; state.old = !e.answer; state.answer = e.answer || null; renderAll(); Promise.resolve(S.ready).then(() => { if (viewer && state.result === e.result) overlayFor(true); }); }   // the map shows where as soon as the answer is in
   if (e.type === "answer_update" && e.answer) { state.answer = e.answer; renderAll(); }
   if (e.type === "done" || e.type === "error") { state.live = false; $("traceDot").classList.remove("live"); $("panel").setAttribute("aria-busy", "false"); renderCard(); }
   if (e.type === "error") { $("err").style.display = "block"; $("err").textContent = e.text; }
@@ -239,7 +273,7 @@ function setInputs(on) { $("elecForm").classList.toggle("hid", !on); $("noteTogg
 function resetForRun(sameHouse = false) {
   if (source) source.close();
   if (!sameHouse) { $("elec").value = ""; $("note").value = ""; $("elec").removeAttribute("aria-invalid"); $("houseBox").classList.add("hid"); }
-  state = { ...state, answer: null, result: null, old: false, open: false, live: true };
+  state = { ...state, answer: null, result: null, old: false, open: false, det: {}, live: true };
   $("card").innerHTML = ""; $("err").style.display = "none"; $("traceBody").innerHTML = ""; evCount = 0;
   $("traceDot").classList.add("live"); $("tap").classList.remove("on"); tapMode = false; $("panel").setAttribute("aria-busy", "true");
   if (viewer) clearOverlay();
