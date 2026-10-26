@@ -275,7 +275,8 @@ def test_a_model_failure_is_logged_as_a_fallback(dartmouth, monkeypatch):
     assert any(e["agent_name"] == "reporter" and e["status"] == "fallback" for e in run.events)
 
 
-def test_an_unknown_house_gets_a_clear_message():
+def test_an_unknown_house_gets_a_clear_message(monkeypatch):
+    monkeypatch.setenv("DIRECT_SOURCES", "false")   # snapshot only; tests/test_any_house.py covers the direct sources
     run = Run(offline=True)
     with pytest.raises(LookupError, match="(?i)sample"):
         run.check(way=1)

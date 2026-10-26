@@ -24,11 +24,15 @@ def _free_port() -> int:
 
 
 @pytest.fixture(scope="module")
-def server():
+def server(tmp_path_factory):
     port = _free_port()
-    env = {**os.environ, "SAMPLE_MODE": "true", "PORT": str(port), "HOST": "127.0.0.1", "LOG_STDOUT": "false", "GOOGLE_MAPS_API_KEY": ""}
+    # snapshot only (no direct sources, so no network), and the growing local copy in a temporary folder, not runs/
+    env = {**os.environ, "SAMPLE_MODE": "true", "PORT": str(port), "HOST": "127.0.0.1", "LOG_STDOUT": "false", "GOOGLE_MAPS_API_KEY": "",
+           "DIRECT_SOURCES": "false"}
+    live = tmp_path_factory.mktemp("live") / "live-cache.sqlite"
+    boot = f"import runpy; import retrofit.offline as o; from pathlib import Path; o.LIVE = Path({str(live)!r}); runpy.run_module('retrofit.server', run_name='__main__')"
     started = time.time()
-    proc = subprocess.Popen([sys.executable, "-m", "retrofit.server"], cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    proc = subprocess.Popen([sys.executable, "-c", boot], cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     url = f"http://127.0.0.1:{port}"
     try:
         while time.time() - started < 60:
