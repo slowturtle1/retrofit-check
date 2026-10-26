@@ -1,6 +1,6 @@
 {
- "commit": "b19d20b (uncommitted changes)",
- "generated_at": "2026-10-26T17:57:53+00:00",
+ "commit": "51b49d2 (uncommitted changes)",
+ "generated_at": "2026-10-26T18:39:08+00:00",
  "live": false,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "67 commits scanned, no secret found",
+   "detail": "71 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -352,7 +352,7 @@
    "criterion": "technical",
    "tier": 2,
    "status": "pass",
-   "detail": "fresh clone of HEAD, empty environment: 15 houses answered in 0.1 s (1 s with startup)",
+   "detail": "fresh clone of HEAD, empty environment: 15 houses answered in 0.2 s (1 s with startup)",
    "owner": "B",
    "text": "Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers)",
    "source": [
@@ -630,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 3.0 MB, largest tracked file samples/cache.sqlite (172 KB)",
+   "detail": "git objects 0.6 MB, largest tracked file samples/cache.sqlite (172 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [

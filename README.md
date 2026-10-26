@@ -9,6 +9,20 @@
 [![tests](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml) [![approach](https://github.com/slowturtle1/retrofit-check/actions/workflows/approach.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/approach.yml)
 Scorecard against the HackOS APPROACH guide and judging criteria: [`approach/report.md`](approach/report.md) (run `make approach`)
 
+## Try it in two minutes
+
+1. Without installing anything: [slowturtle1.github.io/retrofit-check](https://slowturtle1.github.io/retrofit-check/) replays recorded checks of the example houses.
+2. Run it yourself, with no keys and no sponsor services:
+   ```bash
+   git clone https://github.com/slowturtle1/retrofit-check && cd retrofit-check
+   python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+   SAMPLE_MODE=true .venv/bin/python -m retrofit.server      # then open http://localhost:5173
+   ```
+3. The intro explains the steps. Click **See an example house** and pick one, or search an address in England and tap the roof of a house on the map.
+4. Read the card: the status, the one condition, the roof, cost and payback, one next step and the house's 7 facts. Under the map, **How we checked** lists every step and the agent that took it.
+
+No address in England to hand? Try "1 Royal Crescent, Bath" (Grade I listed, so consent), "Abbey Road Studios" or "Baker Street, London".
+
 ## 1. Problem
 
 A homeowner in England who wants solar panels has to find out three things: whether the panels are allowed, whether the roof is worth it, and what to do next. The answer is spread over separate sources. The listing and the conservation area are on planning.data. The council's own Article 4 decisions are on its website, and they do not always match planning.data. The law is on legislation.gov.uk, the roof is in Environment Agency LIDAR, the sun is in PVGIS, the roads are in OpenStreetMap, and the prices come from Ofgem and DESNZ. Today the owner pieces this together by hand, or pays someone to.
