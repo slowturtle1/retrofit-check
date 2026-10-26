@@ -85,6 +85,8 @@ flowchart TD
 
 ### Sample mode (no keys, about a minute)
 
+Works with the Python that comes with macOS (3.9) or any newer one.
+
 ```bash
 git clone https://github.com/slowturtle1/retrofit-check && cd retrofit-check
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
