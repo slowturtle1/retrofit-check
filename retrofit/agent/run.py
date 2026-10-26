@@ -46,6 +46,44 @@ def _line(e: dict) -> str:
 HEATING = ("gas", "oil", "lpg", "coal", "electric", "heat_pump")
 
 
+class OutsideEngland(Exception):
+    """The house is in Scotland, Wales or Northern Ireland, where the planning rules and records are not England's."""
+
+
+_NATIONS: dict[tuple[float, float], str] = {}   # a house asked once is not asked again while the server runs
+
+
+def nation(lat: float, lon: float) -> str | None:
+    """The UK nation a point is in, from postcodes.io's nearest postcode; None when it cannot tell (offline, or far from any postcode)."""
+    import requests
+
+    from ..config import USER_AGENT
+    key = (round(lat, 5), round(lon, 5))
+    if key in _NATIONS:
+        return _NATIONS[key]
+    try:
+        r = requests.get("https://api.postcodes.io/postcodes", params={"lon": lon, "lat": lat, "limit": 1, "radius": 2000},
+                         headers={"User-Agent": USER_AGENT}, timeout=8)
+        found = r.json().get("result") or []
+    except Exception:  # noqa: BLE001  not knowing never blocks a check
+        return None
+    if found and found[0].get("country"):
+        _NATIONS[key] = found[0]["country"]
+        return _NATIONS[key]
+    return None
+
+
+def _in_snapshot(house_id: str) -> bool:
+    import sqlite3
+
+    from ..offline import CACHE
+    con = sqlite3.connect(f"file:{CACHE}?mode=ro", uri=True)
+    try:
+        return con.execute("SELECT 1 FROM house WHERE house_id = ?", (house_id,)).fetchone() is not None
+    finally:
+        con.close()
+
+
 class SourceUnavailable(RuntimeError):
     """A source the answer cannot do without did not answer, and the snapshot has nothing for this house."""
 
@@ -178,6 +216,11 @@ class Run:
         if not house:
             self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": "no building at that point"})
             raise LookupError("No building outline at that point. Tap the roof of the house.")
+        if not _in_snapshot(house["house_id"]):   # the shipped snapshot holds English houses only
+            where = nation(house["lat"], house["lon"])
+            if where and where != "England":
+                self.emit({"type": "tool_end", "tool": "find_house", "ok": False, "error": f"the house is in {where}"})
+                raise OutsideEngland(f"Retrofit Check covers England only. This house is in {where}, where the planning rules and records are different.")
         house["label"] = label or house.get("street") or "Your house"
         self.emit({"type": "tool_end", "tool": "find_house", "ok": True, "house_id": house["house_id"], "footprint_m2": house["footprint_m2"]})
         self.emit({"type": "house", "house_id": house["house_id"], "label": house["label"], "lat": house["lat"], "lon": house["lon"], "coords": house["coords"]})

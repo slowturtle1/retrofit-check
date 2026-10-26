@@ -53,6 +53,9 @@ def sources(tmp_path, monkeypatch):
         return osm._house(f"osm-way-{way}", COORDS, {"building": "house", "addr:street": "Test Road"}, f"OpenStreetMap way {way}", way_id=way)
 
     def http_get(url, params=None, **k):
+        if "postcodes.io" in url:                  # which UK nation the house is in
+            calls.append("postcodes.io")
+            return _Resp({"result": [{"country": "England"}]})
         calls.append("planning.data")
         if "geometry=" in url:                     # the footprint query planning.read sends direct
             return _Resp({"entities": PLANNING})
@@ -179,3 +182,23 @@ def test_a_list_entry_tag_historic_england_does_not_hold_is_not_used(sources, mo
     a = Run(offline=True).check(way=NEW)["answer"]
     assert a["solar"]["status"] == "allowed"
     assert next(f for f in a["house_facts"] if f["key"] == "listed")["value"] == "Not listed"
+
+
+def test_a_house_outside_england_gets_a_plain_england_only_answer(sources, monkeypatch):
+    """10 Cathedral Road, Cardiff got "Allowed" from England's rules, with no conservation area: planning.data is England only."""
+    from retrofit import server
+    from retrofit.agent import run as run_mod
+    monkeypatch.setattr(run_mod, "nation", lambda lat, lon: "Wales")
+    with pytest.raises(run_mod.OutsideEngland, match="England only. This house is in Wales"):
+        Run(offline=True).check(way=NEW)
+    monkeypatch.setattr(server, "SAMPLE", True)
+    resp = server.check_sync(server.CheckSyncIn(way=NEW))
+    body = json.loads(resp.body)
+    assert resp.status_code == 422 and body["error"]["code"] == "outside_england"
+    assert "lidar" not in sources and "pvgis" not in sources      # stops before measuring anything
+
+
+def test_the_example_houses_never_ask_which_nation_they_are_in(monkeypatch):
+    from retrofit.agent import run as run_mod
+    monkeypatch.setattr(run_mod, "nation", lambda lat, lon: (_ for _ in ()).throw(AssertionError("asked postcodes.io for a snapshot house")))
+    assert Run(offline=True).check(way=1106478076)["answer"]["solar"]["status"] == "allowed"

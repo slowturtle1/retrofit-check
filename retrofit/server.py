@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field
 from .config import ROOT, USER_AGENT, env
 
 from .agent import memory
-from .agent.run import RUNS, Run, SourceUnavailable
+from .agent.run import RUNS, OutsideEngland, Run, SourceUnavailable
 
 SAMPLE = os.environ.get("SAMPLE_MODE", "").lower() in ("1", "true", "yes")
 SAMPLES = ROOT / "samples"
@@ -44,8 +44,8 @@ EXAMPLES = [
 
 class CheckIn(BaseModel):
     way: int | None = Field(None, gt=0)
-    lat: float | None = Field(None, ge=49.8, le=55.9)    # England
-    lon: float | None = Field(None, ge=-6.5, le=1.8)
+    lat: float | None = Field(None, ge=49.8, le=60.9)    # the UK: a house outside England gets a plain "England only" answer
+    lon: float | None = Field(None, ge=-8.7, le=1.8)
     label: str | None = Field(None, max_length=120)
     note: str | None = Field(None, max_length=1000)
     heating: str | None = None
@@ -105,6 +105,8 @@ def start_check(body: CheckIn):
     def work():
         try:
             run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh, elec_kwh=body.elec_kwh)
+        except OutsideEngland as e:
+            run.emit({"type": "error", "code": "outside_england", "text": str(e)[:300]})
         except LookupError as e:
             run.emit({"type": "error", "code": "not_found", "text": str(e)[:300]})
         except SourceUnavailable as e:
@@ -131,6 +133,8 @@ def check_sync(body: CheckSyncIn):
     run = Run(use_model=body.use_model and not SAMPLE, offline=SAMPLE)
     try:
         rec = run.check(way=body.way, lat=body.lat, lon=body.lon, label=body.label, note=body.note, heating=body.heating, gas_kwh=body.gas_kwh, elec_kwh=body.elec_kwh)
+    except OutsideEngland as e:
+        return _err(422, "outside_england", str(e), run.id)
     except LookupError as e:
         return _err(404, "not_found", str(e), run.id)
     except SourceUnavailable as e:

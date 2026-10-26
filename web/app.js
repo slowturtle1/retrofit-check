@@ -330,25 +330,29 @@ $("searchForm").onsubmit = async (ev) => {
   ev.preventDefault();
   const q = $("addr").value.trim(); if (!q) return;
   $("err").style.display = "none";
-  let ll = null;
-  const nominatim = async (text, box = "") => { const j = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=gb&limit=1&q=${encodeURIComponent(text)}${box}`)).json(); return j[0] ? [+j[0].lon, +j[0].lat] : null; };
+  let ll = null, nation = null;   // nation: England, Scotland, Wales or Northern Ireland, when the search says
+  const nominatim = async (text, box = "") => {
+    const j = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=gb&limit=1&addressdetails=1&q=${encodeURIComponent(text)}${box}`)).json();
+    if (j[0]) { ll = [+j[0].lon, +j[0].lat]; nation = (j[0].address || {}).state || null; }
+  };
   try {
     if (/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(q)) {
       const j = await (await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(q)}`)).json();
-      if (j.result) ll = [j.result.longitude, j.result.latitude];
+      if (j.result) { ll = [j.result.longitude, j.result.latitude]; nation = j.result.country; }
     } else {
-      ll = await nominatim(q);
+      await nominatim(q);
       // Nominatim finds nothing when the text holds only the first half of a postcode ("Laurier Road, London NW5"):
       // search again without it, inside that postcode district.
       const part = /\b([A-Z]{1,2}\d[A-Z\d]?)\b(?!\s*\d[A-Z]{2})/i.exec(q);
       if (!ll && part) {
         const o = await (await fetch(`https://api.postcodes.io/outcodes/${encodeURIComponent(part[1])}`)).json();
         const rest = q.replace(part[0], "").replace(/\s*,\s*(,|$)/g, "$1").replace(/\s{2,}/g, " ").trim();
-        if (o.result && rest) { const x = o.result.longitude, y = o.result.latitude; ll = await nominatim(rest, `&viewbox=${x - 0.04},${y + 0.03},${x + 0.04},${y - 0.03}&bounded=1`); }
+        if (o.result && rest) { const x = o.result.longitude, y = o.result.latitude; await nominatim(rest, `&viewbox=${x - 0.04},${y + 0.03},${x + 0.04},${y - 0.03}&bounded=1`); }
       }
     }
   } catch (e) { /* shown below */ }
-  if (!ll) { $("err").style.display = "block"; $("err").textContent = "Could not find that place. Try a postcode."; return; }
+  if (!ll) { $("err").style.display = "block"; $("err").textContent = "Could not find that place in England. Try a street and town, like Royal Crescent, Bath, or pick an example."; return; }
+  if (nation && nation !== "England") { $("err").style.display = "block"; $("err").textContent = `Retrofit Check covers England only. ${q} is in ${nation}, where the planning rules and records are different.`; return; }
   viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
   viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(ll[0], ll[1] - 0.0016, 230), orientation: { heading: 0, pitch: -45 * D2R, roll: 0 }, duration: 2 });
   tapMode = true; $("tap").classList.add("on");

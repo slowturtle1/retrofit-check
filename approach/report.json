@@ -1,6 +1,6 @@
 {
- "commit": "8c2581c (uncommitted changes)",
- "generated_at": "2026-10-26T12:31:38+00:00",
+ "commit": "add5c6a (uncommitted changes)",
+ "generated_at": "2026-10-26T12:50:45+00:00",
  "live": false,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "60 commits scanned, no secret found",
+   "detail": "62 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -406,7 +406,7 @@
    "criterion": "technical",
    "tier": 2,
    "status": "pass",
-   "detail": "9 tests pass",
+   "detail": "11 tests pass",
    "owner": "A",
    "text": "Judges can use their own inputs: in sample mode any house in England is fetched from the public sources (no keys), kept on the machine and read back with the same SQL; OpenStreetMap down gives a 503",
    "source": [
@@ -449,7 +449,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "14 HTTP calls in retrofit/, every one with a timeout",
+   "detail": "15 HTTP calls in retrofit/, every one with a timeout",
    "owner": "A",
    "text": "Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout",
    "source": [
@@ -630,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 2.5 MB, largest tracked file samples/cache.sqlite (172 KB)",
+   "detail": "git objects 2.6 MB, largest tracked file samples/cache.sqlite (172 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [
