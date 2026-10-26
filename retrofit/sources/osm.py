@@ -53,13 +53,15 @@ def building_at(lat: float, lon: float) -> dict | None:
     rel = _relation_at(lat, lon, pt)
     if rel:
         return house_from_relation(rel)
+    minor = {"garage", "garages", "shed", "roof", "carport", "hut", "kiosk", "greenhouse"}
     buildings = [(wid, w) for wid, w in ways.items() if "building" in w["tags"] and len(w["coords"]) >= 4]
     hits = [(wid, w) for wid, w in buildings if Polygon(w["coords"]).contains(pt)]
     if not hits:
-        # An address search lands on the street or the front door: take the nearest building within 20 m.
+        # An address point often sits on the front door: take a house within 8 m. Further out it may be the
+        # street centre, and the nearest building could be another house, so the owner is asked to tap the roof.
         to = _local((lon, lat))
-        near = [(Polygon([to(c) for c in w["coords"]]).distance(Point(0, 0)), wid, w) for wid, w in buildings]
-        near = [x for x in near if x[0] <= 20]
+        near = [(Polygon([to(c) for c in w["coords"]]).distance(Point(0, 0)), wid, w) for wid, w in buildings if w["tags"].get("building") not in minor]
+        near = [x for x in near if x[0] <= 8]
         if not near:
             return None
         return house_from_way(int(min(near, key=lambda x: x[0])[1]))

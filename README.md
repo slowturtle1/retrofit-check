@@ -253,6 +253,9 @@ Every source, its licence, the subset we use, record counts, how it is registere
 
 - Rules for England. The evaluation houses are in London; we also tried houses in Bristol, Bath, Hebden Bridge and Manchester. Councils publish Article 4 directions unevenly.
 - A house outside the snapshot needs an internet connection the first time, because the agent fetches it from the public sources.
+- A house fetched this way is kept on the machine until the shipped snapshot changes. Delete `runs/live-cache.sqlite` to fetch it again.
+- Listing data is incomplete in both sources: planning.data holds most listings as points, and Historic England has not drawn an outline for every entry. When neither shows a listing, the card says "No listing is on record", not "not listed". Check Historic England's map before you apply.
+- An address point is matched to a house only if it falls on the house or within 8 m of it; otherwise the owner taps the roof.
 - Houses only. Flats, tenants, building regulations and income based grants are out of scope.
 - What an Article 4 direction removes is on file only for the directions around the example houses, in Camden and Westminster. Anywhere else, a house under an Article 4 gets "Check with the council".
 - Roof size and yield come from 1 m LIDAR and PVGIS, and panel capacity per m² is an estimate. An installer's survey confirms the roof.

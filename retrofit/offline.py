@@ -35,16 +35,27 @@ def direct_allowed() -> bool:
 
 
 def db_path():
-    """The growing copy once a new house was fetched, else the shipped snapshot."""
+    """The growing copy once a new house was fetched, else the shipped snapshot. A broken copy is dropped."""
     if LIVE.exists() and CACHE.exists() and LIVE.stat().st_mtime < CACHE.stat().st_mtime:
-        LIVE.unlink()   # a newer snapshot came with the repo: start the copy again
+        LIVE.unlink(missing_ok=True)   # a newer snapshot came with the repo: start the copy again
+    if LIVE.exists():
+        try:
+            con = sqlite3.connect(f"file:{LIVE}?mode=ro", uri=True)
+            try:
+                con.execute("SELECT count(*) FROM house").fetchone()
+            finally:
+                con.close()
+        except sqlite3.DatabaseError:
+            LIVE.unlink(missing_ok=True)
     return LIVE if LIVE.exists() else CACHE
 
 
 def _live() -> sqlite3.Connection:
     if not LIVE.exists():
         LIVE.parent.mkdir(exist_ok=True)
-        shutil.copy(CACHE, LIVE)
+        tmp = LIVE.with_suffix(f".tmp{os.getpid()}")
+        shutil.copy(CACHE, tmp)
+        os.replace(tmp, LIVE)   # readers see the old file or the whole copy, never half of it
     return sqlite3.connect(LIVE)
 
 REWRITES = [
@@ -80,8 +91,12 @@ class OfflineZetaris:
                 _ensure_council(m.group(1))
             if m := re.search(r"FROM listed_outline AS e WHERE e.house_key = '(\w+)'", q):
                 _ensure_outline(m.group(1))
-            if m := re.search(r"FROM he_listed AS f WHERE f.house_key = '(\w+)'", q):
+        if m := re.search(r"FROM he_listed AS f WHERE f.house_key = '(\w+)'", q):
+            if direct_allowed():
                 _ensure_he(m.group(1))
+            if not _has("he_listed", "house_key", m.group(1)):   # never checked is not the same as checked, none
+                self._done(sql, purpose, started, None, error="Historic England was not asked for this house")
+                raise ZetarisError("Historic England was not asked for this house")
         if re.search(r"\b(planning_data|pvgis)\.", q, re.I):
             self._done(sql, purpose, started, None, error="not in the sample snapshot")
             raise ZetarisError("this request is not in the sample snapshot")
@@ -186,9 +201,9 @@ def he_rows(coords: list) -> list[tuple]:
     """Historic England listed outlines touching a footprint, straight from its ArcGIS service."""
     import requests
 
-    from .agent.evaluator import HE_LISTED
+    from .agent.evaluator import HE_LISTED, inner_ring
     from .config import USER_AGENT
-    geom = {"rings": [[[round(x, 7), round(y, 7)] for x, y in coords]], "spatialReference": {"wkid": 4326}}
+    geom = {"rings": [[[round(x, 7), round(y, 7)] for x, y in inner_ring(coords)]], "spatialReference": {"wkid": 4326}}
     r = requests.post(HE_LISTED, data={"geometry": json.dumps(geom), "geometryType": "esriGeometryPolygon", "inSR": 4326, "spatialRel": "esriSpatialRelIntersects",
                                        "outFields": "ListEntry,Name,Grade", "returnGeometry": "false", "f": "json"},
                       headers={"User-Agent": USER_AGENT}, timeout=float(os.environ.get("PLANNING_TIMEOUT", "60")))
@@ -207,7 +222,7 @@ def _ensure_he(house_key: str) -> None:
     finally:
         con.close()
     if not row:
-        return
+        raise ZetarisError("Historic England was not asked: this house is not stored on this machine")
     try:
         found = he_rows(json.loads(row[0])["coordinates"][0])
     except Exception as e:  # noqa: BLE001  the evaluator says the check could not run

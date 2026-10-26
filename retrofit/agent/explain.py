@@ -124,17 +124,18 @@ def _solar_lines(result: dict, v: dict) -> dict:
                         f"{council} has not published what {ref} takes away, so we will not guess whether panels need permission.")
         elif "article4_coverage_unknown" in unsure and not result.get("council"):
             one = f"We could not tell which council keeps the Article 4 record for {ca_name or 'this area'}, so we cannot rule one out."
-            why = (f"{label} is not listed and sits in {ca_name}. " if ca_name else f"{label} is not listed. ") + \
+            why = (f"No listing is on record for this house, and it sits in {ca_name}. " if ca_name else "No listing is on record for this house. ") + \
                   f"Panels on the {slope} would be permitted development unless an Article 4 direction removes that right."
         elif "article4_coverage_unknown" in unsure:
             one = f"{council} has not published Article 4 directions for {ca_name or 'its conservation areas'}, so we cannot rule one out."
-            why = (f"{label} is not listed and sits in {ca_name}. " if ca_name else f"{label} is not listed. ") + \
+            why = (f"No listing is on record for this house, and it sits in {ca_name}. " if ca_name else "No listing is on record for this house. ") + \
                   f"Panels on the {slope} would be permitted development unless an Article 4 direction removes that right, and {council} keeps that record itself."
         else:
             one, why = ("The listing near this house was found as a point only, so it may belong to the building next door.",
                         "If the house is listed, panels need listed building consent; if it is not, they are likely permitted development.")
         get = (f"Your {slope} could make about {n['kwh_year']:,} kWh a year from about {n['kwp']} kWp if {council} says yes." if n else
-               f"No roof slope here faces between east and west, so panels would make little even if {council} says yes.")
+               f"No roof slope here faces between east and west, so panels would make little even if {council} says yes." if "no_sunny_roof" in unsure else
+               f"Ask {council} first; the roof was not measured.")
         cost = (f"If {council} says yes: about {_gbp(m['cost'])} to install {n['kwp']} kWp, worth about {_gbp(m['value_year'])} a year."
                 if m.get("cost") else f"Cost is shown once {council} confirms.")
         return {"one": one, "why": why, "get": get, "cost": cost}
@@ -142,10 +143,10 @@ def _solar_lines(result: dict, v: dict) -> dict:
     # Allowed under permitted development
     if not n:
         return {"one": f"Allowed, but no roof slope at {label} faces between east and west.",
-                "why": f"{label} is not listed" + (f" and sits in {ca_name}" if ca_name else "") + ". Panels are allowed, but a roof facing north makes little.",
+                "why": "No listing is on record for this house" + (f", and it sits in {ca_name}" if ca_name else "") + ". Panels are allowed, but a roof facing north makes little.",
                 "get": "Little direct sun on this roof.", "cost": f"No cost estimate for {label}: the roof gets too little sun."}
     one = f"Your {slope} has room for about {n['kwp']} kWp, about {n['kwh_year']:,} kWh a year."
-    why = [f"{label} is not listed" + (f" and sits in {ca_name}." if ca_name else " and is not in a conservation area.")]
+    why = ["No listing is on record for this house" + (f", and it sits in {ca_name}." if ca_name else ", and it is not in a conservation area.")]
     if ca_name and roads:
         why.append(f"In a conservation area panels cannot go on a wall that faces a road: your {' and your '.join(roads)}. Roof slopes are fine, so the {side} slope can take them.")
     elif ca_name:

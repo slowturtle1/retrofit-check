@@ -41,7 +41,7 @@ def council(org: str) -> str:
             name = r.json().get("name") if r.ok else None
         except (requests.RequestException, ValueError):
             name = None
-        _NAMES[org] = re.sub(r"^(London Borough of|Royal Borough of|City of) | (City|Borough|District|County|Metropolitan Borough) Council$| Council$", "",
+        _NAMES[org] = re.sub(r"^(London Borough of|Royal Borough of|City of) | (City|Borough|District|County|Metropolitan Borough|Metropolitan District) Council$| Council$", "",
                              name).strip() if name else "the council"
     return _NAMES[org]
 
@@ -66,15 +66,22 @@ def council_publishes_ca_article4(z: Zetaris, org: str) -> tuple[int, int]:
     url = BASE + "?" + urlencode([("dataset", "article-4-direction-area"), ("organisation_entity", org), ("exclude_field", "geometry"), ("limit", "500")])
     table = f"a4_council_{org}"
     _rest(z, table, "PLANNING_DATA", url, f"Register every Article 4 area {council(org)} has published")
-    rows = z.run(f"""SELECT count(*) AS n,
+    rows = z.run(f"""SELECT count(e.reference) AS n,
        sum(CASE WHEN lower(e.name) LIKE '%conservation area%' OR lower(e.name) LIKE '%various properties%' THEN 1 ELSE 0 END) AS ca
 FROM planning_data.{table} LATERAL VIEW explode(entities) AS e""", purpose=f"Does {council(org)} publish conservation area Article 4s at all?").rows
     return int(rows[0][0] or 0), int(rows[0][1] or 0)
 
 
+def inner_ring(coords: list) -> list:
+    """The footprint about 1 m inward, so an outline that only touches a party wall (the neighbour's listing) does not count."""
+    from shapely.geometry import Polygon
+    inner = Polygon(coords).buffer(-0.00001)
+    return [list(p) for p in inner.exterior.coords] if inner.geom_type == "Polygon" and not inner.is_empty else coords
+
+
 def he_listed(z: Zetaris, house_id: str, coords: list) -> list[dict]:
-    """Historic England listed building outlines that touch the footprint, read through Zetaris as a REST table."""
-    geom = {"rings": [[[round(x, 7), round(y, 7)] for x, y in coords]], "spatialReference": {"wkid": 4326}}
+    """Historic England listed building outlines inside the footprint, read through Zetaris as a REST table."""
+    geom = {"rings": [[[round(x, 7), round(y, 7)] for x, y in inner_ring(coords)]], "spatialReference": {"wkid": 4326}}
     url = HE_LISTED + "?" + urlencode({"geometry": json.dumps(geom, separators=(",", ":")), "geometryType": "esriGeometryPolygon", "inSR": 4326,
                                        "spatialRel": "esriSpatialRelIntersects", "outFields": "ListEntry,Name,Grade", "returnGeometry": "false", "f": "json"})
     table = "he_" + house_id.replace("-", "_")
@@ -141,7 +148,8 @@ def _he_flags(z: Zetaris, f: dict, des: list, coords: list, emit: Emit) -> list[
         return []
     if not rows:
         emit({"type": "requery", "by": "analyst", "about": "listed", "ok": True,
-              "text": "No Historic England listed outline touches this footprint: not listed, the finding stands."})
+              "text": "No Historic England listed outline lies on this footprint either. Its outlines are not complete, so this lowers the doubt "
+                      "but does not prove the house is unlisted; the answer says to check the listing before applying."})
         return []
     r = rows[0]
     emit({"type": "requery", "by": "analyst", "about": "listed", "ok": False,

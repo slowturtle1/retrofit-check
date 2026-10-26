@@ -144,7 +144,7 @@ class Run:
 
         from ..offline import houses
         for h in houses():
-            if (way and h["house_id"] in (f"osm-way-{way}", f"osm-relation-{way}")) or (
+            if (way and h["house_id"] == f"osm-way-{way}") or (
                     not way and lat is not None and Polygon(h["coords"]).buffer(0.00002).contains(Point(lon, lat))):
                 return {**h, "osm_way": way}
         return None
