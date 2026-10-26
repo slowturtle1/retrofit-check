@@ -146,7 +146,7 @@ requirements:
   evidence: "README first paragraph"
   legacy: A1
 - id: I2
-  text: "The problem sentence is about the solar MVP (Is my house eligible for solar panels?)"
+  text: "The problem sentence is about the solar MVP (Can I put solar panels on my house, and where?)"
   source: [HO D1, AG 8]
   criterion: impact
   tier: 1

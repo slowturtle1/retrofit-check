@@ -1,6 +1,6 @@
 # Retrofit Check
 
-**Is my house eligible for solar panels?** Know what's possible, what it costs and what to do next, for your house.
+**Can I put solar panels on my house, and where?** Know what's possible, what it costs and what to do next, for your house.
 
 > Track: Solving Fragmented Intelligence (Track 1), Open Agent Hackathon 2026, team Buccies (solo)
 > Sponsor technology: Zetaris (data layer), Meterless H-MEM (engine) and Nightshift (AI provider), NVIDIA Nemotron

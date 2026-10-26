@@ -1,6 +1,6 @@
 # Approach scorecard
 
-Commit 55329ec (uncommitted changes), 26 Oct 2026 13:27 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
+Commit 9a7e14b (uncommitted changes), 26 Oct 2026 17:36 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
 
 **0 gaps in Tiers 1 to 3.** 10 not run, 19 manual (open), 1 manual (done), 1 n/a, 64 pass (of 95 requirements).
 
@@ -25,7 +25,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | I8 | The deck covers the problem and target users, the solution, and future enhancements (heat pump, outside walls, watch this house) | manual | manual (open) | deck v3 slides | C |
 | I1 | The README states the problem in one sentence in the guide's format (We are building an agent that helps [user] solve [problem] by [capability] using [data], producing [output]) | 1 | pass | README.md matches 1 patterns | C |
 | I10 | The self score (guide section 13) is at least 16 of 20, honest, with one evidence link per question | 1 | pass | 18 of 20, every question with evidence | C |
-| I2 | The problem sentence is about the solar MVP (Is my house eligible for solar panels?) | 1 | pass | README.md matches 1 patterns | C |
+| I2 | The problem sentence is about the solar MVP (Can I put solar panels on my house, and where?) | 1 | pass | README.md matches 1 patterns | C |
 | I3 | One user, one decision, one data slice, one strong output (homeowner in England, solar panels, one page answer) | 1 | pass | README.md matches 2 patterns | C |
 | I5 | Track fit for Fragmented Intelligence: several small sources that disagree, registered in Zetaris, and the answer shows where they disagree | 2 | pass | 2 tests pass | A |
 | I6 | Every answer leads to a decision the owner can act on (a recommendation and a next step) | 2 | pass | 1 tests pass | A |
@@ -46,7 +46,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
 | T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 2.8 MB, largest tracked file samples/cache.sqlite (172 KB) | B |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 2.9 MB, largest tracked file samples/cache.sqlite (172 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 14 source sections, seven fields each | C |
 | T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 14 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
@@ -144,7 +144,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | G11 | .env.example holds placeholders only | 1 | pass | every key, token and password is empty or a placeholder | B |
 | G3 | Work from before 22 Oct 00:00 UTC is declared in the README | 1 | pass | README.md matches 3 patterns | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 65 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 66 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 
