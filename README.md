@@ -182,6 +182,7 @@ The recommendation is decided in code (`retrofit/money.py`). The yearly value us
 
 | Failure | Behaviour |
 |---|---|
+| Zetaris accepts the connection but never answers | One quick check (`ZETARIS_PROBE_TIMEOUT`, 8 s), then the local snapshot; the trace says so |
 | Zetaris cannot reach planning.data or PVGIS in time | The same request goes direct; the trace and the source line say so |
 | A Zetaris query fails during a second check | The finding stays and the answer is marked uncertain |
 | Nightshift or Nemotron fails | Each call is retried; then the checked draft from the rules stays, and the trace records every failure |
@@ -195,7 +196,7 @@ The recommendation is decided in code (`retrofit/money.py`). The yearly value us
 | Historic England's outline service does not answer | planning.data's answer stands, and the trace says it is unchecked |
 | Malformed input | 400 with `{"error": {"code": "bad_request", "message": ...}}`, never a stack trace |
 
-Every sponsor call has a time limit (`ZETARIS_TIMEOUT`, `MODEL_TIMEOUT` in `.env.example`).
+Every sponsor call has a time limit (`ZETARIS_TIMEOUT`, `MODEL_TIMEOUT` in `.env.example`), and Nemotron's rewrite stops at `MODEL_BUDGET` (150 s from the start of a check). The card is on screen before the rewrite starts, and Check again works while it runs.
 
 ## 9. Logs and traces
 
