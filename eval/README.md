@@ -39,6 +39,7 @@ Until 25 Oct the evaluation scored all three upgrades (45 answers): Retrofit Che
 
 - Fifteen houses is small, and the expected answers are decided by designations. The site specific part (which roof slope faces a road in a conservation area, and how much the roof makes) is not scored.
 - Historic England's conservation area data is "indicative"; the definitive boundary is the council's. Where the two disagree near an edge, a house can be scored against the wrong boundary.
+- Since 26 Oct the agent also checks Historic England's listed building outlines, the same service the ground truth uses for listing, so the listing half of the comparison is no longer independent; the Article 4 and conservation area halves still are.
 - The labelling rule and the agent's rules share the same reading of the GPDO; what the test checks is whether the facts behind each answer are right and whether conflicts and gaps in the data are caught.
 
 Run again: `.venv/bin/python eval/run.py` (needs the live stack; Nemotron alone needs Nightshift). Score stored answers again without running: `--rescore`.

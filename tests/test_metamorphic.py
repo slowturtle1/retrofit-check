@@ -105,3 +105,12 @@ def test_electricity_use_changes_the_card(cache):
     assert low["lines"]["cost"] != high["lines"]["cost"]
     assert low["usage"]["share_pct"] > high["usage"]["share_pct"]
     assert "2,500" in low["usage"]["text"] and "4,500" in high["usage"]["text"]
+
+
+def test_a_historic_england_outline_that_planning_data_lacks_says_check_with_the_council(cache):
+    cache("INSERT INTO he_listed VALUES ('osm_way_1106478076', '1999997', 'Test House', 'II')")
+    run = Run(offline=True)
+    s = run.check(way=F)["answer"]["solar"]
+    assert any(e["type"] == "requery" and e.get("about") == "listed" and not e.get("ok") for e in run.events)
+    assert "listed_he_only" in s["uncertain"] and s["status"] == "check_with_council" and s["confidence"]["level"] == "low"
+    assert s["recommendation"] == "Ask the council first" and "Historic England" in s["next_step"]

@@ -1,13 +1,13 @@
 # Approach scorecard
 
-Commit 5d960a4 (uncommitted changes), 25 Oct 2026 21:45 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
+Commit 1c181a8 (uncommitted changes), 26 Oct 2026 10:13 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
 
-**0 gaps in Tiers 1 to 3.** 10 not run, 19 manual (open), 1 manual (done), 1 n/a, 63 pass (of 94 requirements).
+**0 gaps in Tiers 1 to 3.** 10 not run, 19 manual (open), 1 manual (done), 1 n/a, 64 pass (of 95 requirements).
 
 | Criterion | Points | Pass | Gaps (Tiers 1 to 3) | Manual open | Not run |
 |---|---|---|---|---|---|
 | Impact | 30 | 7 of 10 | 0 | 3 | 0 |
-| Technical | 20 | 25 of 28 | 0 | 3 | 0 |
+| Technical | 20 | 26 of 29 | 0 | 3 | 0 |
 | Innovation | 15 | 11 of 12 | 0 | 0 | 1 |
 | Demo | 15 | 0 of 8 | 0 | 6 | 2 |
 | Product and UX | 10 | 8 of 10 | 0 | 2 | 0 |
@@ -42,24 +42,25 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | T10 | A model failure retries, then falls back with a logged reason (the checked draft stays) | 2 | pass | 1 tests pass | A |
 | T11 | A programmatic way in (POST /run), structured input and output, no interactive input; the UI does not block it | 2 | pass | 3 tests pass | A |
 | T12 | No hardcoded outputs; answers differ across inputs, nothing reads output_examples/ at runtime, no input maps to a saved output | 2 | pass | 1 tests pass; no agent code reads output_examples/ or saved runs (server.py serves labelled replays only) | A |
-| T13 | Metamorphic: change one cached fact and the right answer changes (listed, a solar Article 4, a north roof, LIDAR noise, electricity use) | 2 | pass | 9 tests pass | B |
+| T13 | Metamorphic: change one cached fact and the right answer changes (listed, a solar Article 4, a north roof, LIDAR noise, electricity use) | 2 | pass | 10 tests pass | B |
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
 | T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 1.6 MB, largest tracked file samples/cache.sqlite (168 KB) | B |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 1.9 MB, largest tracked file samples/cache.sqlite (172 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 13 source sections, seven fields each | C |
-| T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 13 | C |
+| T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 14 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
 | T20 | The README covers setup, usage and dependencies, agent roles, examples and limitations, and how to set up Zetaris and Nightshift | 1 | pass | README.md matches 7 patterns | C |
 | T21 | The README has exact commands, including a curl call on a file in input_examples/ | 1 | pass | README.md matches 2 patterns | C |
 | T22 | The entry point exists and is documented (python -m retrofit.server, POST /run) | 1 | pass | README.md matches 2 patterns; retrofit/server.py, requirements.txt | C |
-| T23 | Nothing installs or downloads after the app starts; sample mode makes no network call | 2 | pass | 1 tests pass; no installs or downloads of packages in retrofit/ | A |
+| T23 | Nothing installs or downloads after the app starts; sample mode makes no network call for the shipped houses | 2 | pass | 1 tests pass; no installs or downloads of packages in retrofit/ | A |
 | T24 | No local GPU and no training at runtime (no torch, tensorflow or CUDA dependencies) | 1 | pass | no torch, tensorflow, jax or CUDA packages | B |
 | T27 | The README states limitations honestly in its own section | 1 | pass | '14. Limitations': 9 points | C |
+| T29 | Judges can use their own inputs: in sample mode any house in England is fetched from the public sources (no keys), kept on the machine and read back with the same SQL; OpenStreetMap down gives a 503 | 2 | pass | 7 tests pass | A |
 | T3 | Judges can test their own inputs; the sample snapshot holds every sample house and every evaluation house (house D, the vicarage dropped on 25 Oct, excepted) | 1 | pass | 15 houses: all 6 sample houses and 14 evaluation houses (osm-way-460070558 left out on purpose) | A |
 | T4 | Startup takes under 30 seconds | 2 | pass | 1 tests pass | B |
 | T5 | Runs are bounded; the model budget is at most 300 s and each step is timed against the guide's budget (total 5 to 10 minutes) | 2 | pass | 3 tests pass | A |
-| T6 | Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout | 1 | pass | 10 HTTP calls in retrofit/, every one with a timeout | A |
+| T6 | Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout | 1 | pass | 13 HTTP calls in retrofit/, every one with a timeout | A |
 | T7 | Retries and agent turns are capped so a run cannot hang (model retries at most 2, at most two rewrites, no unbounded loops) | 1 | pass | model retries 1, rewrite rounds 1, 2, no unbounded loops | A |
 | T8 | The agent still answers when Zetaris, Nightshift, OpenStreetMap or planning.data is down, with a fallback event, in bounded time | 2 | pass | 5 tests pass | A |
 | T9 | Malformed input returns 400 with a validation message; an unknown house returns 404 with a clear message; no stack traces | 2 | pass | 8 tests pass | A |
@@ -143,7 +144,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | G11 | .env.example holds placeholders only | 1 | pass | every key, token and password is empty or a placeholder | B |
 | G3 | Work from before 22 Oct 00:00 UTC is declared in the README | 1 | pass | README.md matches 3 patterns | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 41 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 48 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 

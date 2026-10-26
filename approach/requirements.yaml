@@ -250,6 +250,14 @@ requirements:
   check: {fn: sample_houses, exclude: [osm-way-460070558]}
   owner: A
   evidence: "samples/cache.sqlite house table"
+- id: T29
+  text: "Judges can use their own inputs: in sample mode any house in England is fetched from the public sources (no keys), kept on the machine and read back with the same SQL; OpenStreetMap down gives a 503"
+  source: [DQ 8, DQ 15, AG 5]
+  criterion: technical
+  tier: 2
+  check: {test: [tests/test_any_house.py]}
+  owner: A
+  evidence: "tests/test_any_house.py with every source replaced by fixed data"
 - id: T4
   text: "Startup takes under 30 seconds"
   source: [AG 11]
@@ -411,7 +419,7 @@ requirements:
   owner: C
   evidence: "README run section"
 - id: T23
-  text: "Nothing installs or downloads after the app starts; sample mode makes no network call"
+  text: "Nothing installs or downloads after the app starts; sample mode makes no network call for the shipped houses"
   source: [DQ 4, AG 11, DQ 15]
   criterion: technical
   tier: 2

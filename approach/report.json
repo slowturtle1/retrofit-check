@@ -1,6 +1,6 @@
 {
- "commit": "5d960a4 (uncommitted changes)",
- "generated_at": "2026-10-25T21:45:07+00:00",
+ "commit": "1c181a8 (uncommitted changes)",
+ "generated_at": "2026-10-26T10:13:56+00:00",
  "live": false,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "41 commits scanned, no secret found",
+   "detail": "48 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -402,6 +402,21 @@
    "evidence": "samples/cache.sqlite house table"
   },
   {
+   "id": "T29",
+   "criterion": "technical",
+   "tier": 2,
+   "status": "pass",
+   "detail": "7 tests pass",
+   "owner": "A",
+   "text": "Judges can use their own inputs: in sample mode any house in England is fetched from the public sources (no keys), kept on the machine and read back with the same SQL; OpenStreetMap down gives a 503",
+   "source": [
+    "DQ 8",
+    "DQ 15",
+    "AG 5"
+   ],
+   "evidence": "tests/test_any_house.py with every source replaced by fixed data"
+  },
+  {
    "id": "T4",
    "criterion": "technical",
    "tier": 2,
@@ -434,7 +449,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "10 HTTP calls in retrofit/, every one with a timeout",
+   "detail": "13 HTTP calls in retrofit/, every one with a timeout",
    "owner": "A",
    "text": "Every call to Zetaris, Nightshift, H-MEM and public APIs has a timeout",
    "source": [
@@ -546,7 +561,7 @@
    "criterion": "technical",
    "tier": 2,
    "status": "pass",
-   "detail": "9 tests pass",
+   "detail": "10 tests pass",
    "owner": "B",
    "text": "Metamorphic: change one cached fact and the right answer changes (listed, a solar Article 4, a north roof, LIDAR noise, electricity use)",
    "source": [
@@ -615,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 1.6 MB, largest tracked file samples/cache.sqlite (168 KB)",
+   "detail": "git objects 1.9 MB, largest tracked file samples/cache.sqlite (172 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [
@@ -644,7 +659,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "retrofit_pg has 11 tables (db/init), the sample snapshot 13",
+   "detail": "retrofit_pg has 11 tables (db/init), the sample snapshot 14",
    "owner": "C",
    "text": "The table counts stated in README.md and data/README.md match the database schema and the sample snapshot",
    "source": [
@@ -707,7 +722,7 @@
    "status": "pass",
    "detail": "1 tests pass; no installs or downloads of packages in retrofit/",
    "owner": "A",
-   "text": "Nothing installs or downloads after the app starts; sample mode makes no network call",
+   "text": "Nothing installs or downloads after the app starts; sample mode makes no network call for the shipped houses",
    "source": [
     "DQ 4",
     "AG 11",
