@@ -44,7 +44,13 @@ $("rl").onclick = () => { readHpr(); if (S.hpr) { S.hpr.heading -= 30 * D2R; app
 $("rr").onclick = () => { readHpr(); if (S.hpr) { S.hpr.heading += 30 * D2R; applyView(); } };
 $("zi").onclick = () => { readHpr(); if (S.hpr) { S.hpr.range = Math.max(30, S.hpr.range * 0.75); applyView(); } };
 $("zo").onclick = () => { readHpr(); if (S.hpr) { S.hpr.range = Math.min(1500, S.hpr.range * 1.33); applyView(); } };
-$("reset").onclick = () => { if (S.home) { S.hpr = Cesium.HeadingPitchRange.clone(S.home); viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 1.2, complete: applyView }); } };
+// Reset: back to the house on screen, or the place just searched; before either, back to the London start view.
+const START = { destination: () => Cesium.Cartesian3.fromDegrees(-0.135, 51.47, 9000), orientation: { heading: 0, pitch: -0.9, roll: 0 } };
+$("reset").onclick = () => {
+  if (S.home && S.center) { S.hpr = Cesium.HeadingPitchRange.clone(S.home); viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 1.2, complete: applyView }); return; }
+  viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+  viewer.camera.flyTo({ destination: START.destination(), orientation: START.orientation, duration: 1.5 });
+};
 
 async function groundAt(lon, lat, fb) { if (!window.GOOGLE_MAPS_API_KEY) return Cesium.Cartesian3.fromDegrees(lon, lat, 0); try { const r = await viewer.scene.clampToHeightMostDetailed([Cesium.Cartesian3.fromDegrees(lon, lat, 800)]); if (r && r[0]) return r[0]; } catch (e) { /* fallback */ } return Cesium.Cartesian3.fromDegrees(lon, lat, fb); }
 
@@ -355,7 +361,10 @@ $("searchForm").onsubmit = async (ev) => {
   if (!ll) { $("err").style.display = "block"; $("err").textContent = "Could not find that place in England. Try a street and town, like Royal Crescent, Bath, or pick an example."; return; }
   if (nation && nation !== "England") { $("err").style.display = "block"; $("err").textContent = `Retrofit Check covers England only. ${q} is in ${nation}, where the planning rules and records are different.`; return; }
   viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-  viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(ll[0], ll[1] - 0.0016, 230), orientation: { heading: 0, pitch: -45 * D2R, roll: 0 }, duration: 2 });
+  // The searched place becomes the centre the map buttons and Reset turn around, until a roof is tapped.
+  S.center = Cesium.Cartesian3.fromDegrees(ll[0], ll[1], window.GOOGLE_MAPS_API_KEY ? 50 : 0);
+  S.home = new Cesium.HeadingPitchRange(0, -45 * D2R, 330); S.hpr = Cesium.HeadingPitchRange.clone(S.home);
+  viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 2, complete: applyView });
   tapMode = true; $("tap").classList.add("on");
 };
 $("factsToggle").onclick = () => openFacts($("facts").classList.contains("hid"));
@@ -445,7 +454,7 @@ async function main() {
     if (!STATIC) $("hint").textContent = "Map: © OpenStreetMap contributors. Add a Google key for 3D.";
   }
   viewer.scene.screenSpaceCameraController.minimumZoomDistance = 25;
-  viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(-0.135, 51.47, 9000), orientation: { heading: 0, pitch: -0.9, roll: 0 } });
+  viewer.camera.setView({ destination: START.destination(), orientation: START.orientation });
   new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas).setInputAction((click) => {
     if (!tapMode) return;
     const p = (viewer.scene.pickPositionSupported && viewer.scene.pickPosition(click.position)) || viewer.camera.pickEllipsoid(click.position);  // flat map: the ellipsoid
