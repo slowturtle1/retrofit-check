@@ -6,7 +6,7 @@
 > Sponsor technology: Zetaris (data layer), Meterless H-MEM (engine) and Nightshift (AI provider), NVIDIA Nemotron
 > Run without keys: `SAMPLE_MODE=true .venv/bin/python -m retrofit.server`, then open http://localhost:5173 or `POST /run`. Any house in England works; a new house needs an internet connection
 
-[![tests](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml)
+[![tests](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml) [![approach](https://github.com/slowturtle1/retrofit-check/actions/workflows/approach.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/approach.yml)
 Scorecard against the HackOS APPROACH guide and judging criteria: [`approach/report.md`](approach/report.md) (run `make approach`)
 
 ## 1. Problem
