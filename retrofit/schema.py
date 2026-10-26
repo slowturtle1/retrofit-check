@@ -24,7 +24,7 @@ HOUSE_FACTS = ("listed", "conservation_area", "article_4", "road_walls", "roof",
 SOLAR_FIELDS = ("status", "status_text", "rules_status", "recommendation", "confidence", "limitations", "next_step", "facts", "rules",
                 "numbers", "usage", "lines", "written_by", "checked_by", "uncertain")
 LINES = ("one", "why", "get", "cost")
-QUESTION = "Is my house eligible for solar panels?"
+QUESTION = "Can I put solar panels on my house, and where?"
 
 # One level per fixed score, so the page and the tests agree on the words.
 CONFIDENCE = {"high": 0.9, "medium": 0.6, "low": 0.3}

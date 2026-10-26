@@ -4,9 +4,8 @@
 const $ = (id) => document.getElementById(id);
 const D2R = Math.PI / 180, R = 6378137;
 const C = (h, a = 1) => Cesium.Color.fromCssColorString(h).withAlpha(a);
-const INK = "#13202B", YELLOW = "#FFD21F", LAV = "#A79FE6", CORAL = "#FF5A5F", TEAL = "#2EC4A0";
+const INK = "#1D1D2B", YELLOW = "#FFD21F", LAV = "#A79FE6", CORAL = "#FF5A5F", TEAL = "#2EC4A0";
 const ST_CLASS = { allowed: "y", allowed_with_conditions: "c", check_with_council: "c", needs_permission: "n", needs_consent: "n" };
-const ST_TAG = { allowed: "Allowed", allowed_with_conditions: "Allowed, with conditions", check_with_council: "Check with the council", needs_permission: "Needs permission", needs_consent: "Needs consent" };
 const REC_CLASS = { "Worth getting quotes": "go", "Ask the council first": "ask", "Probably not worth it for this house": "no" };
 // One action per next step; no button when the advice is not to go ahead.
 const CTA = { "Worth getting quotes": ["Find MCS certified installers", "https://mcscertified.com/find-an-installer/"],
@@ -65,7 +64,7 @@ function aimHome(az) { if (!S.home) return; S.home.heading = ((az + 180) % 360) 
 
 // Map labels are the film's dark pills.
 const mapLabel = (text, height) => viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(S.lonlat[0], S.lonlat[1], height ?? (window.GOOGLE_MAPS_API_KEY ? 70 : 5)), label: {
-  text, font: "600 15px IBM Plex Sans, sans-serif", fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: C(INK, 0.95),
+  text, font: "700 15px Bricolage Grotesque, sans-serif", fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: C(INK, 0.95),
   backgroundPadding: new Cesium.Cartesian2(12, 7), pixelOffset: new Cesium.Cartesian2(0, -30), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
 
 /* What the solar answer looks like on the house: the sunny slope, or the listed building */
@@ -101,7 +100,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
 const cap = (s) => String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1);
 const gbp = (n) => "£" + Number(n).toLocaleString("en-GB");
 const range = (r, f = (x) => x) => (r && r.length === 2 ? `${f(r[0])} to ${f(r[1])}` : "");
-const SUN = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#F0A23A"/></svg>`;
+const SUN = `<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="${YELLOW}" stroke="currentColor" stroke-width="2.5"/></svg>`;
 
 function factsLine(a) {
   const f = Object.fromEntries((a.house_facts || []).map((x) => [x.key, x]));
@@ -157,8 +156,22 @@ function sources(s) {
   return `<ul class="srcs">${[...rules, ...facts].join("")}</ul>`;
 }
 
-// The answer as a stack: status and condition, cost and payback, the next step, then sources and limits.
-// state.open is "Why this answer" (demo.js opens it); the other details keep their state across re-renders.
+// The house's 7 facts as the film's short chips; the full facts, with sources and dates, open from the facts line.
+function chipText(f) {
+  const v = String(f.value || "");
+  switch (f.key) {
+    case "conservation_area": { const y = /\((\d{4})\)/.exec(v); return v === "None" ? "No conservation area" : `Conservation area${y ? ", " + y[1] : ""}`; }
+    case "article_4": return /^None/.test(v) ? "Article 4: none on file" : `Article 4: ${v.split(" (")[0].replace(/^article 4\s*/i, "").toLowerCase()}`;
+    case "road_walls": { const d = v.split(/,\s*/).filter((w) => / to /.test(w)).map((w) => w.replace(/ to .*$/, "")); return d.length ? `Road walls: ${[...new Set(d)].join(", ")}` : "No road walls"; }
+    case "roof": { const m = /^([a-z ]+) slope, ([\d.]+°)/.exec(v); return m ? `${cap(m[1])} slope ${m[2]}` : `Roof: ${v.split(/[(:,]/)[0].trim().toLowerCase()}`; }
+    case "sun": { const m = /([\d,]+) kWh a year/.exec(v); return m ? `${m[1]} kWh a year` : `Sun: ${v.split(/[(:,]/)[0].trim().toLowerCase()}`; }
+    case "electricity_use": return `You use ${v.replace(/ a year$/, "")}`;
+    default: return cap(v);
+  }
+}
+
+// The answer as one card, as in the project film: status, the one condition, roof, use, money, one next step and the
+// house's 7 facts; why and the money in detail fold inside it. state.open is "Why this answer" (demo.js opens it).
 function renderCard() {
   const a = state.answer;
   if (state.old) { $("card").innerHTML = `<div class="card"><p class="old">This recording comes from an older version of the app, so the card cannot show it. Run the check again.</p></div>`; return; }
@@ -169,50 +182,37 @@ function renderCard() {
   const who = s.written_by === "nemotron" ? `Explained by Nemotron via Nightshift, checked by ${esc(s.checked_by || "code")}.`
     : `Written from the rules in code.${state.live ? " Nemotron is rewriting it now." : ""}`;
   const addElec = !s.usage && !STATIC && !state.replay && n.kwh_year;
-  const tag = ST_TAG[s.status] || s.status_text;
-
-  const why = [
-    allowed && l.one ? `<p class="roofLine">${esc(l.one)}</p>` : "",
-    s.usage ? `<p>${esc(s.usage.text)}</p>` : "",
-    `<p>${esc(l.why)}</p>`, `<div class="chain">${chain(s)}</div>`,
-    `<div class="conf"><span>Confidence</span><span class="bar" role="img" aria-label="Confidence ${esc(conf.level)}, ${pct} of 100"><i style="width:${pct}%"></i></span></div>`,
-    `<p class="sub">${esc(conf.text || cap(conf.level))}</p>`,
-  ].join("");
-  const status = `<section class="card" aria-label="Solar panels">
-    <div class="cardTop"><span class="sun">${SUN}</span><h3>Solar panels</h3><span class="tag ${ST_CLASS[s.status] || "c"}">${esc(tag)}</span></div>
-    <p class="cond">${esc(condition(a))}</p>
-    ${s.status_text !== tag ? `<p class="sub">${esc(s.status_text)}</p>` : ""}
-    ${details("why", "Why this answer", why)}
-  </section>`;
-
-  let money = "";
-  if (n.cost_gbp) {
-    const figs = [[range(n.cost_gbp, gbp), "to install"]];
-    if (n.payback_years) figs.push([`${range(n.payback_years)} years`, "to pay back"]);
-    else if (n.value_gbp_year) figs.push([range(n.value_gbp_year, gbp), "value a year"]);
-    const basis = s.usage ? `For the ${Number(s.usage.elec_kwh).toLocaleString("en-GB")} kWh a year you use.`
-      : n.value_gbp_year ? `For a home with typical use (Ofgem).${addElec ? ` <button class="link" id="addElec" type="button">Add your electricity use</button>` : ""}` : "";
-    money = `<section class="card" aria-label="Cost and payback">
-      <h3>Cost and payback</h3>
-      ${IF_YES[s.status] ? `<p class="ifYes">${IF_YES[s.status]}</p>` : ""}
-      <div class="figs">${figs.map(([v, k]) => `<div class="fig"><b>${esc(v)}</b><span>${k}</span></div>`).join("")}</div>
-      ${basis ? `<p class="sub">${basis}</p>` : ""}
-      ${n.payback_years ? details("money", "More about the money", `${n.value_gbp_year ? `<div class="money"><span>Value a year</span><span>${esc(range(n.value_gbp_year, gbp))}</span></div>` : ""}<p>${esc(l.cost)}</p>`) : `<p class="sub">${esc(l.cost)}</p>`}
-    </section>`;
-  }
-
+  const plane = ((state.result && state.result.planes) || []).find((x) => x.facing === n.facing);
+  const roof = n.kwp ? `${cap(FACING[n.facing] || n.facing || "best")} slope${plane ? " " + plane.pitch_deg + "°" : ""} · ${n.kwp} kWp · about ${Number(n.kwh_year).toLocaleString("en-GB")} kWh a year` : "";
+  const use = s.usage ? `About ${s.usage.share_pct}% of the ${Number(s.usage.elec_kwh).toLocaleString("en-GB")} kWh you use a year` : "";
+  const money = n.cost_gbp ? `<b>${esc(range(n.cost_gbp, gbp))}</b> to install` + (n.payback_years ? ` · back in <b>${esc(range(n.payback_years))} years</b>` : n.value_gbp_year ? ` · worth <b>${esc(range(n.value_gbp_year, gbp))}</b> a year` : "") : "";
   const rec = s.recommendation, cta = CTA[rec];
-  const step = `<section class="card step rc-${REC_CLASS[rec] || "ask"}" aria-label="Next step">
-    <span class="eye">Next step</span>
-    ${rec ? `<h3>${esc(rec)}</h3>` : ""}
-    <p>${esc(s.next_step)}</p>
-    ${cta ? `<a class="cta" href="${cta[1]}" target="_blank" rel="noopener">${cta[0]} <span aria-hidden="true">↗</span><span class="sr"> (opens in a new tab)</span></a>` : ""}
-  </section>`;
+  const facts = (a.house_facts || []).map((f) => f.key === "electricity_use" && !f.value
+    ? (addElec ? `<button class="chip" id="addElec" type="button">+ Add your electricity use</button>` : `<span class="chip">Your use: not given</span>`)
+    : `<span class="chip" title="${esc(f.source)}${f.date ? ", " + esc(fmtDate(f.date)) : ""}">${esc(chipText(f))}</span>`).join("");
 
-  const more = `<details class="more" data-k="src"${state.det.src ? " open" : ""}><summary>Sources and limits</summary><div class="xb">
+  const why = [`<p>${esc(l.why)}</p>`, `<div class="chain">${chain(s)}</div>`,
+    `<div class="conf"><span>Confidence</span><span class="bar" role="img" aria-label="Confidence ${esc(conf.level)}, ${pct} of 100"><i style="width:${pct}%"></i></span></div>`,
+    `<p class="sub">${esc(conf.text || cap(conf.level))}</p>`].join("");
+  const moneyMore = n.cost_gbp ? details("money", "More about the money", `<div class="moneyRows">${[["Rough cost", range(n.cost_gbp, gbp)], ["Value a year", range(n.value_gbp_year, gbp)], ["Pays back in", n.payback_years ? range(n.payback_years) + " years" : ""]]
+    .filter(([, v]) => v).map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div><p>${esc(l.cost)}</p>`) : "";
+
+  $("card").innerHTML = `<section class="card" aria-label="Solar panels">
+    <div class="cardTop"><span class="sun">${SUN}</span><h3>Solar panels</h3></div>
+    <p class="st ${ST_CLASS[s.status] || "c"}">${esc(s.status_text)}</p>
+    <p class="cond">${esc(condition(a))}</p>
+    ${allowed && roof ? `<p class="line">${esc(roof)}</p>` : ""}
+    ${use ? `<p class="line strong">${esc(use)}</p>` : ""}
+    ${money ? `${IF_YES[s.status] ? `<p class="ifYes">${IF_YES[s.status]}</p>` : ""}<p class="money">${money}</p>` : ""}
+    <div class="recRow">${rec ? `<span class="rec rc-${REC_CLASS[rec] || "ask"}">→ ${esc(rec)}</span>` : ""}${cta ? `<a class="cta" href="${cta[1]}" target="_blank" rel="noopener">${cta[0]} <span aria-hidden="true">↗</span><span class="sr"> (opens in a new tab)</span></a>` : ""}</div>
+    <p class="nextTx">${esc(s.next_step)}</p>
+    <span class="eye">Your house: ${(a.house_facts || []).length} facts</span>
+    <div class="chips">${facts}</div>
+    ${details("why", "Why this answer", why)}
+    ${moneyMore}
+  </section>
+  <details class="more" data-k="src"${state.det.src ? " open" : ""}><summary>Sources and limits</summary><div class="xb">
     ${sources(s)}<ul class="lims">${(s.limitations || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul><div class="who">${who}</div></div></details>`;
-
-  $("card").innerHTML = status + money + step + more;
   $("card").querySelectorAll("details[data-k]").forEach((d) => d.addEventListener("toggle", () => { state.det[d.dataset.k] = d.open; if (d.dataset.k === "why") state.open = d.open; }));
   if ($("addElec")) $("addElec").onclick = () => { openFacts(true); $("elec").focus(); $("facts").scrollIntoView({ block: "nearest" }); };
 }

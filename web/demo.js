@@ -9,12 +9,12 @@
     #stageOv.on { display: flex; }
     #stageOv .sc { max-width: 980px; padding: 40px; }
     #stageOv .ey { display: inline-block; background: var(--ink); color: var(--surface); font: 600 14px "IBM Plex Mono", monospace; letter-spacing: 2px; padding: 8px 18px; border-radius: 999px; }
-    #stageOv h2 { font-size: 54px; line-height: 1.1; margin: 18px 0 18px; font-weight: 600; }
+    #stageOv h2 { font-size: 54px; line-height: 1.1; margin: 18px 0 18px; font-weight: 800; }
     #stageOv p { font-size: 22px; color: var(--muted); margin: 0 0 10px; line-height: 1.45; font-weight: 500; }
     #stageOv .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 22px; margin-top: 22px; }
-    #stageOv .grid div { font-size: 18px; color: var(--muted); line-height: 1.4; background: var(--surface); border: 1px solid var(--line2); border-radius: 16px; padding: 14px 18px; }
-    #stageOv .grid b { color: var(--ink); display: block; font-size: 20px; font-weight: 600; }
-    #caption { position: fixed; left: 16px; right: 480px; top: 130px; z-index: 15; display: none; background: var(--surface); border: 1px solid var(--line2); border-radius: 16px; padding: 14px 20px; font-size: 21px; line-height: 1.45; font-weight: 500; max-width: 900px; }
+    #stageOv .grid div { font-size: 18px; color: var(--muted); line-height: 1.4; background: var(--surface); border: 2.5px solid var(--ink); border-radius: 22px; padding: 14px 18px; }
+    #stageOv .grid b { color: var(--ink); display: block; font-size: 20px; font-weight: 800; }
+    #caption { position: fixed; left: 16px; right: 480px; top: 130px; z-index: 15; display: none; background: var(--surface); border: 2.5px solid var(--ink); border-radius: 22px; padding: 14px 20px; font-size: 21px; line-height: 1.45; font-weight: 500; max-width: 900px; }
     #caption.on { display: block; }
     #caption .sp { display: inline-block; background: var(--ink); color: var(--surface); font: 600 12px "IBM Plex Mono", monospace; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
     #caption .tx { display: block; }`;
@@ -35,7 +35,7 @@
 
   async function demo() {
     await wait(1500);
-    stage(`<span class="ey">RETROFIT CHECK · SOLAR</span><h2>Is my house eligible for solar panels?</h2><p>Today the answer is spread across seven sources: the listing, the conservation area, Article 4, the roads, the roof, the sun and what you use. And it depends.</p>`);
+    stage(`<span class="ey">RETROFIT CHECK · SOLAR</span><h2>Can I put solar panels on my house, and where?</h2><p>Today the answer is spread across seven sources: the listing, the conservation area, Article 4, the roads, the roof, the sun and what you use. And it depends.</p>`);
     await wait(7000);
     stage(null);
 

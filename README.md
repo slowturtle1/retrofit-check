@@ -136,7 +136,7 @@ Response (abridged, a real sample mode run for house F):
   "schema": "1",
   "trace_id": "20261025T195942-aac30d",
   "mode": "sample",
-  "question": "Is my house eligible for solar panels?",
+  "question": "Can I put solar panels on my house, and where?",
   "solar": {
     "status": "allowed",
     "status_text": "Allowed under permitted development",
