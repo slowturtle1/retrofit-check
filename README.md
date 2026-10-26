@@ -25,7 +25,7 @@ No address in England to hand? Try "1 Royal Crescent, Bath" (Grade I listed, so 
 
 ## 1. Problem
 
-A homeowner in England who wants solar panels has to find out three things: whether the panels are allowed, whether the roof is worth it, and what to do next. The answer is spread over separate sources. The listing and the conservation area are on planning.data. The council's own Article 4 decisions are on its website, and they do not always match planning.data. The law is on legislation.gov.uk, the roof is in Environment Agency LIDAR, the sun is in PVGIS, the roads are in OpenStreetMap, and the prices come from Ofgem and DESNZ. Today the owner pieces this together by hand, or pays someone to.
+A homeowner in England who wants solar panels has to find out three things: whether the panels are allowed, whether the panels would pay for themselves on this roof, and what to do next. The answer is spread over separate sources. The listing and the conservation area are on planning.data. The council's own Article 4 decisions are on its website, and they do not always match planning.data. The law is on legislation.gov.uk, the roof is in Environment Agency LIDAR, the sun is in PVGIS, the roads are in OpenStreetMap, and the prices come from Ofgem and DESNZ. Today the owner pieces this together by hand, or pays someone to.
 
 We are building an agent that helps a homeowner in England decide whether to get quotes for solar panels by reconciling planning records, the council's Article 4 decisions, national rules, roof measurements and prices through Zetaris, producing one answer with a status, the reason, the rule and its date, rough money, a confidence level, its limits and one next step.
 
@@ -126,7 +126,7 @@ The NVIDIA key goes into Nightshift (Setup, Providers), not into `.env`. The Goo
 
 ## 6. Usage
 
-On the page: type a postcode or pick an example, tap the roof, and the answer appears while the trace shows each step.
+On the page: click **See an example house** and pick one, or search an address in England and tap the roof. The answer appears while the trace shows each step.
 
 From code:
 
@@ -179,7 +179,7 @@ Response (abridged, a real sample mode run for house F):
 
 `house_facts` always holds the same 7 facts in the same order: listed, conservation area, Article 4, walls facing a road, roof direction and slope, sun on the roof, and your electricity use. `rules_status` is what the rules alone say; `status` can be more careful, for example "Check with the council" when the council has not published its Article 4 directions. `usage` compares the owner's yearly electricity use with what the roof makes, once they have given it. The full contract is in `retrofit/schema.py`.
 
-The recommendation is decided in code (`retrofit/money.py`). The yearly value uses the MCS share of solar power used at home, for the owner's own electricity use when they have given it and for Ofgem's typical 2,500 kWh otherwise. "Worth getting quotes" needs the typical payback to fit within the panels' life of about 25 years. A roof that is very small or gets little sun is "Probably not worth it for this house", and an open legal question means "Ask the council first". Three inputs and their saved real outputs are in [`input_examples/`](input_examples/) and [`output_examples/`](output_examples/). The output examples are copies of real runs for reading; the app never returns them.
+The recommendation is decided in code (`retrofit/money.py`). The yearly value uses the MCS share of solar power used at home, for the owner's own electricity use when they have given it and for Ofgem's typical 2,500 kWh otherwise. "Worth getting quotes" needs the typical payback to fit within the panels' life of about 25 years. A roof that is very small or gets little sun is "Probably not worth it for this house", and an open legal question means "Ask the council first". Four inputs and five saved real outputs (house F twice, to show memory) are in [`input_examples/`](input_examples/) and [`output_examples/`](output_examples/). The output examples are copies of real runs for reading; the app never returns them.
 
 ## 7. Sample houses
 
