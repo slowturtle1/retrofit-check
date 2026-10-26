@@ -4,7 +4,7 @@
 
 > Track: Solving Fragmented Intelligence (Track 1), Open Agent Hackathon 2026, team Buccies (solo)
 > Sponsor technology: Zetaris (data layer), Meterless H-MEM (engine) and Nightshift (AI provider), NVIDIA Nemotron
-> Run without keys: `SAMPLE_MODE=true .venv/bin/python -m retrofit.server`, then open http://localhost:5173 or `POST /run`
+> Run without keys: `SAMPLE_MODE=true .venv/bin/python -m retrofit.server`, then open http://localhost:5173 or `POST /run`. Any house in England works; a new house needs an internet connection
 
 [![tests](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml)
 Scorecard against the HackOS APPROACH guide and judging criteria: [`approach/report.md`](approach/report.md) (run `make approach`)
@@ -24,8 +24,8 @@ Every trace event names the agent that acted. The status itself always comes fro
 | Agent | Responsibility | Can block or retry |
 |---|---|---|
 | `planner` | Finds the building, recalls what the owner told us, reads the owner's note (Nemotron), and decides what is worth measuring: planning first, so a listed building skips the roof survey | Yes: stops early for a listed building; an unknown house gets a clear message |
-| `analyst` | Reads every fact through Zetaris; registers planning.data and PVGIS as Zetaris REST tables per house | Yes: queries again when the evaluator challenges; measures a noisy roof again with a wider margin; goes direct if Zetaris cannot reach a source, and says so |
-| `evaluator` | Challenges the evidence behind the first answer: a missing Article 4 record, a listing found only as a point, two sources that disagree, one cost figure that hides the spread, one share of solar power used at home that hides who is home in the day | Yes: sends the analyst back to Zetaris; marks the answer uncertain when the new query does not settle it |
+| `analyst` | Reads every fact through Zetaris; registers planning.data and PVGIS as Zetaris REST tables per house | Yes: queries again when the evaluator challenges; measures a noisy roof again with a wider margin; goes direct if Zetaris cannot reach a source, and says so; in sample mode, fetches a house outside the snapshot straight from the public sources |
+| `evaluator` | Challenges the evidence behind the first answer: a missing Article 4 record, a listing found only as a point, two sources that disagree, one cost figure that hides the spread, one share of solar power used at home that hides who is home in the day, a house planning.data shows as not listed (checked against Historic England's own outlines) | Yes: sends the analyst back to Zetaris; marks the answer uncertain when the new query does not settle it, and a listed outline that planning.data lacks gives "Check with the council" |
 | `reporter` | Writes the checked draft from the evidence; Nemotron rewrites it in plain words | Yes: rewrites with the critic's reasons, at most twice |
 | `critic` | Checks the rewrite in code (no new numbers, place names kept, status not softened), then asks Nemotron YES or NO | Yes: blocks a rewrite; after two rejections the checked draft stays |
 | `memory` | H-MEM keeps what the owner told us, with the date, and supersedes it on a correction | No |
@@ -33,6 +33,7 @@ Every trace event names the agent that acted. The status itself always comes fro
 ## 3. What makes this an agent system
 
 - The evaluator does not trust a missing record. "No Article 4 on record" is only accepted after the analyst asks Zetaris whether the council publishes conservation area Article 4s at all. Camden does; Haringey has published none, so there the answer says to ask the council.
+- planning.data holds most listings as points, so a house it shows as not listed is checked against Historic England's own listed building outlines, read live through Zetaris as a REST table. An outline that planning.data lacks gives "Check with the council".
 - When sources disagree, the agent shows both. planning.data still lists Hampstead's Article 4 A4Ha1 with no end date; Camden ended it on 9 Jun 2026, and the agent follows the council.
 - The planner branches: a listed building stops before the roof survey: consent is needed whatever the roof is like.
 - The critic sends a rejected rewrite back to the reporter with the reasons. The critic can also block it, and then the owner sees the checked draft.
@@ -90,7 +91,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 SAMPLE_MODE=true .venv/bin/python -m retrofit.server      # http://localhost:5173
 ```
 
-No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables in `samples/cache.sqlite` for 15 houses (the six below and the evaluation houses): the same SQL it sends to Zetaris, answered locally. No answers are stored; each one is computed again. Without Nightshift the text is the checked draft from the rules. A house that is not in the snapshot gets a clear message; any house in England works in live mode.
+No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables in `samples/cache.sqlite` for 15 houses (the six below and the evaluation houses): the same SQL it sends to Zetaris, answered locally. No answers are stored; each one is computed again. Without Nightshift the text is the checked draft from the rules. Any other house in England works too, still without keys. The agent fetches it straight from OpenStreetMap, planning.data, Environment Agency LIDAR and PVGIS, keeps it in `runs/live-cache.sqlite` and reads it back with the same SQL. The trace marks this as a fallback, because Zetaris is not in the path; with the full stack the same data goes through Zetaris. An address search snaps to the nearest building within 20 m. We tried houses in Bristol (Horfield), Bath (Royal Crescent), Hebden Bridge (Grade II listed, so consent) and Manchester (Withington). `DIRECT_SOURCES=false` keeps sample mode to the snapshot only.
 
 ### Live mode
 
@@ -187,7 +188,9 @@ The recommendation is decided in code (`retrofit/money.py`). The yearly value us
 | Noisy LIDAR roof (above 25% noise) | Measured again with a wider margin; if still noisy, the roof numbers are marked rough |
 | H-MEM not running | Nothing is recalled, and the trace says so; the answer still comes back |
 | Council has not published its Article 4 directions, or an Article 4's contents are not on file | The answer says "Check with the council" with low confidence, never "Allowed" |
-| House not in the sample snapshot | 404 with `{"error": {"code": "not_found", "message": ...}}` |
+| Sample mode, a house outside the snapshot | Fetched straight from the public sources and kept on this machine; the trace marks it as a fallback |
+| OpenStreetMap does not answer for a new house, or `DIRECT_SOURCES=false` | 503 `source_unavailable` or 404 `not_found`, as `{"error": {"code": ..., "message": ...}}` |
+| Historic England's outline service does not answer | planning.data's answer stands, and the trace says it is unchecked |
 | Malformed input | 400 with `{"error": {"code": "bad_request", "message": ...}}`, never a stack trace |
 
 Every sponsor call has a time limit (`ZETARIS_TIMEOUT`, `MODEL_TIMEOUT` in `.env.example`).
@@ -225,7 +228,7 @@ Not used. The project was built with Claude Code, which the organisers allow.
 
 ### What was unique
 
-The evaluator questions a missing record. Before "no Article 4 here" can stand, it asks Zetaris whether the council publishes conservation area Article 4s at all, and when planning.data and the council disagree it shows both and follows the council. H-MEM makes the owner a dated source next to the official ones.
+The evaluator questions a missing record. Before "no Article 4 here" can stand, it asks Zetaris whether the council publishes conservation area Article 4s at all, and when planning.data and the council disagree it shows both and follows the council. A house planning.data shows as not listed is checked against Historic England's own outlines. H-MEM makes the owner a dated source next to the official ones.
 
 ## 11. Evaluation
 
@@ -248,9 +251,10 @@ Every source, its licence, the subset we use, record counts, how it is registere
 
 ## 14. Limitations
 
-- Rules for England; demo data checked for London. Councils publish Article 4 directions unevenly.
+- Rules for England. The evaluation houses are in London; we also tried houses in Bristol, Bath, Hebden Bridge and Manchester. Councils publish Article 4 directions unevenly.
+- A house outside the snapshot needs an internet connection the first time, because the agent fetches it from the public sources.
 - Houses only. Flats, tenants, building regulations and income based grants are out of scope.
-- Article 4 contents are on file only around the sample houses; anywhere else the agent says to check with the council.
+- What an Article 4 direction removes is on file only for the directions around the example houses, in Camden and Westminster. Anywhere else, a house under an Article 4 gets "Check with the council".
 - Roof size and yield come from 1 m LIDAR and PVGIS, and panel capacity per m² is an estimate. An installer's survey confirms the roof.
 - The share of solar power used at home follows the MCS tables for a whole year without a battery. A household's own pattern can differ, and the answer says so.
 - "Faces a road" comes from OpenStreetMap geometry and can be wrong; the owner can correct it.
