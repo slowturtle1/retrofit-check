@@ -93,7 +93,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 SAMPLE_MODE=true .venv/bin/python -m retrofit.server      # http://localhost:5173
 ```
 
-No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables in `samples/cache.sqlite` for 15 houses (the six below and the evaluation houses): the same SQL it sends to Zetaris, answered locally. No answers are stored; each one is computed again. Without Nightshift the text is the checked draft from the rules. Any other house in England works too, still without keys. The agent fetches it straight from OpenStreetMap, planning.data, Environment Agency LIDAR and PVGIS, keeps it in `runs/live-cache.sqlite` and reads it back with the same SQL. The trace marks this as a fallback, because Zetaris is not in the path; with the full stack the same data goes through Zetaris. An address search snaps to the nearest building within 20 m. We tried houses in Bristol (Horfield), Bath (Royal Crescent, Grade I, so consent), Hebden Bridge (Grade II listed, so consent) and Manchester (Withington). No UK address to hand? Type "1 Royal Crescent, Bath", "Abbey Road Studios" or "Baker Street, London", then tap a roof. Scotland, Wales and Northern Ireland get a plain "England only" answer. `DIRECT_SOURCES=false` keeps sample mode to the snapshot only.
+No `.env`, Zetaris, Nightshift, H-MEM or keys. The agent runs its real logic (planner, rules, evaluator challenges, money, the critic's code checks) on a snapshot of the Zetaris tables in `samples/cache.sqlite` for 15 houses (the six below and the evaluation houses): the same SQL it sends to Zetaris, answered locally. No answers are stored; each one is computed again. Without Nightshift the text is the checked draft from the rules. Any other house in England works too, still without keys. The agent fetches it straight from OpenStreetMap, planning.data, Environment Agency LIDAR and PVGIS, keeps it in `runs/live-cache.sqlite` and reads it back with the same SQL. The trace marks this as a fallback, because Zetaris is not in the path; with the full stack the same data goes through Zetaris. An address search snaps to a building within 8 m of the address point; otherwise you tap the roof. We tried houses in Bristol (Horfield), Bath (Royal Crescent, Grade I, so consent), Hebden Bridge (Grade II listed, so consent) and Manchester (Withington). No UK address to hand? Type "1 Royal Crescent, Bath", "Abbey Road Studios" or "Baker Street, London", then tap a roof. Scotland, Wales and Northern Ireland get a plain "England only" answer. `DIRECT_SOURCES=false` keeps sample mode to the snapshot only.
 
 ### Live mode
 
@@ -260,6 +260,8 @@ Every source, its licence, the subset we use, record counts, how it is registere
 - A house fetched this way is kept on the machine until the shipped snapshot changes. Delete `runs/live-cache.sqlite` to fetch it again.
 - Listing data is incomplete in both sources: planning.data holds most listings as points, and Historic England has not drawn an outline for every entry. When neither shows a listing, the card says "No listing is on record", not "not listed". Check Historic England's map before you apply.
 - An address point is matched to a house only if it falls on the house or within 8 m of it; otherwise the owner taps the roof.
+- The map takes a tap on a roof after an address search. To check the house next door, search again.
+- Houses in a row that OpenStreetMap draws as one building, common for older terraces (for example in Bath), get one outline for several houses. The planning answer (listing, conservation area, Article 4) still holds, but the roof size, yield and money are for the whole row. Houses with their own outline, such as house F, are measured on their own.
 - Houses only. Flats, tenants, building regulations and income based grants are out of scope.
 - What an Article 4 direction removes is on file only for the directions around the example houses, in Camden and Westminster. Anywhere else, a house under an Article 4 gets "Check with the council".
 - Roof size and yield come from 1 m LIDAR and PVGIS, and panel capacity per m² is an estimate. An installer's survey confirms the roof.
@@ -274,6 +276,7 @@ Every source, its licence, the subset we use, record counts, how it is registere
 - Heat pump and outside wall insulation answers. The rules, grants and prices are already in `retrofit_pg` and computed in code, but not shown in this version.
 - Watch this house: tell the owner when a rule, a price or a council decision that touches their answer changes.
 - Article 4 contents for every council, not only around the sample houses.
+- Houses in a row drawn as one building: split the outline at the tapped house, for example with HM Land Registry INSPIRE polygons, so the roof numbers are for that house only.
 
 ## 16. Work from before the hackathon
 
