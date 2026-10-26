@@ -106,7 +106,9 @@ def evaluate(f: dict, heating: str | None = None, off_gas_grid: bool | None = No
     pv = f["pv"]
     survey = f["survey"]
 
-    base_facts = [{"fact": "listed", "value": ", ".join(f"{d['name']} (grade {d['grade'] or '?'}, {d['start_date']})" for d in listed) or "no", "source": "planning.data listed-building"}]
+    by_entry = any(d.get("organisation") == "historic-england" for d in listed)   # confirmed by list entry (facts._listed_by_tag)
+    base_facts = [{"fact": "listed", "value": ", ".join(f"{d['name']} (grade {d['grade'] or '?'}, {d['start_date']})" for d in listed) or "no",
+                   "source": "Historic England list entry, tagged on the building in OpenStreetMap" if by_entry else "planning.data listed-building"}]
     for d in protected:
         base_facts.append({"fact": d["dataset"], "value": f"{d['name']} ({d['reference']}, since {d['start_date'] or 'unknown date'})", "source": "planning.data " + d["dataset"]})
     for d in a4:

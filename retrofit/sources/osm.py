@@ -124,6 +124,7 @@ def _house(house_id: str, coords: list, tags: dict, source: str, way_id: int) ->
         "coords": coords,
         "source": source,
         "name": tags.get("name"),
+        "nhle": tags.get("ref:GB:nhle"),   # Historic England list entry, when mappers tagged the building with it
     }
 
 

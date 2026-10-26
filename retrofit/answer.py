@@ -129,7 +129,8 @@ def house_facts(res: dict, v: dict) -> list[dict]:
         fact("listed", "Listed", (", ".join(f"Grade {a['grade']} listed" if a.get("grade") else "Listed" for a in listed[:1]) +
                                   (" (found as a point only, may be next door)" if "listed_point_only" in v["uncertain"] else "")) if listed else
              ("Not on planning.data, but Historic England shows a listed outline here" if "listed_he_only" in v["uncertain"] else "Not listed"),
-             "Historic England, via planning.data", read),
+             "Historic England, list entry on the building in OpenStreetMap" if "OpenStreetMap" in next((f["source"] for f in v["facts"] if f["fact"] == "listed"), "")
+             else "Historic England, via planning.data", read),
         fact("conservation_area", "Conservation area", ", ".join(f"{a['name']} ({a['start_date'][:4]})" if a.get("start_date") else a["name"] for a in ca) or "None", "planning.data", read),
         fact("article_4", "Article 4", "; ".join(a4_text) or "None on file", "planning.data and the council", read),
         fact("road_walls", "Walls facing a road", ", ".join(dict.fromkeys(f"{compass(w['facing_deg'])} to {w['highway_name']}" for w in roads)) or "None", "OpenStreetMap", read),

@@ -331,13 +331,21 @@ $("searchForm").onsubmit = async (ev) => {
   const q = $("addr").value.trim(); if (!q) return;
   $("err").style.display = "none";
   let ll = null;
+  const nominatim = async (text, box = "") => { const j = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=gb&limit=1&q=${encodeURIComponent(text)}${box}`)).json(); return j[0] ? [+j[0].lon, +j[0].lat] : null; };
   try {
     if (/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(q)) {
       const j = await (await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(q)}`)).json();
       if (j.result) ll = [j.result.longitude, j.result.latitude];
     } else {
-      const j = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=gb&limit=1&q=${encodeURIComponent(q)}`)).json();
-      if (j[0]) ll = [+j[0].lon, +j[0].lat];
+      ll = await nominatim(q);
+      // Nominatim finds nothing when the text holds only the first half of a postcode ("Laurier Road, London NW5"):
+      // search again without it, inside that postcode district.
+      const part = /\b([A-Z]{1,2}\d[A-Z\d]?)\b(?!\s*\d[A-Z]{2})/i.exec(q);
+      if (!ll && part) {
+        const o = await (await fetch(`https://api.postcodes.io/outcodes/${encodeURIComponent(part[1])}`)).json();
+        const rest = q.replace(part[0], "").replace(/\s*,\s*(,|$)/g, "$1").replace(/\s{2,}/g, " ").trim();
+        if (o.result && rest) { const x = o.result.longitude, y = o.result.latitude; ll = await nominatim(rest, `&viewbox=${x - 0.04},${y + 0.03},${x + 0.04},${y - 0.03}&bounded=1`); }
+      }
     }
   } catch (e) { /* shown below */ }
   if (!ll) { $("err").style.display = "block"; $("err").textContent = "Could not find that place. Try a postcode."; return; }
@@ -375,7 +383,8 @@ async function main() {
     fixedHouse(); $("elecForm").classList.add("hid"); $("noteToggle").classList.add("hid"); $("tap").classList.remove("on");
     $("hint").textContent = "Replays of recorded runs. Clone the repo to check any house.";
   } else {
-    fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) { fixedHouse(); $("hint").textContent = "Sample mode: the agent runs on cached data, no keys needed"; } }).catch(() => {});
+    // Sample mode keeps the search: a house outside the snapshot is fetched from the public sources, still without keys.
+    fetch("/api/mode").then((r) => r.json()).then((m) => { if (m.sample) $("hint").textContent = "Sample mode, no keys: pick an example or search any address in England"; }).catch(() => {});
   }
   const opts = { baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false };
   if (window.GOOGLE_MAPS_API_KEY) {

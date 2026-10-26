@@ -153,3 +153,29 @@ def test_an_address_on_the_street_takes_the_nearest_building(monkeypatch):
     monkeypatch.setattr(osm, "house_from_way", lambda wid: {"house_id": f"osm-way-{wid}"})
     assert osm.building_at(51.56028, -0.14204)["house_id"] == "osm-way-111"      # about 5 m south of the footprint
     assert osm.building_at(51.56070, -0.14204) is None                          # about 30 m clear of every building
+
+
+def test_a_terrace_listed_as_one_entry_is_found_through_its_list_entry_tag(sources, monkeypatch):
+    """1 Royal Crescent, Bath: planning.data keeps Nos. 1-30 as one point that misses this house; OpenStreetMap tags it with the entry."""
+    tags = {"building": "yes", "addr:street": "Test Road", "ref:GB:nhle": "1999997"}
+    monkeypatch.setattr(osm, "house_from_way", lambda way: osm._house(f"osm-way-{way}", COORDS, tags, f"OpenStreetMap way {way}", way_id=way))
+    asked = []
+    monkeypatch.setattr(offline, "he_entry", lambda e: asked.append(e) or {"entry": e, "name": "Nos. 1-30, TEST CRESCENT", "grade": "I", "since": "1950-06-12"})
+    run = Run(offline=True)
+    a = run.check(way=NEW)["answer"]
+    assert asked == ["1999997"]
+    assert a["solar"]["status"] == "needs_consent"
+    listed = next(f for f in a["house_facts"] if f["key"] == "listed")
+    assert listed["value"].startswith("Grade I listed") and "OpenStreetMap" in listed["source"]
+    assert "listed_point_only" not in a["solar"]["uncertain"]
+    said = [e["text"] for e in run.events if e.get("about") == "listed"]
+    assert any("list entry 1999997" in t for t in said) and any("confirms" in t for t in said)
+
+
+def test_a_list_entry_tag_historic_england_does_not_hold_is_not_used(sources, monkeypatch):
+    tags = {"building": "yes", "addr:street": "Test Road", "ref:GB:nhle": "1999996"}
+    monkeypatch.setattr(osm, "house_from_way", lambda way: osm._house(f"osm-way-{way}", COORDS, tags, f"OpenStreetMap way {way}", way_id=way))
+    monkeypatch.setattr(offline, "he_entry", lambda e: None)
+    a = Run(offline=True).check(way=NEW)["answer"]
+    assert a["solar"]["status"] == "allowed"
+    assert next(f for f in a["house_facts"] if f["key"] == "listed")["value"] == "Not listed"

@@ -161,7 +161,7 @@ def _he_flags(z: Zetaris, f: dict, des: list, coords: list, emit: Emit) -> list[
 def _listed_flags(z: Zetaris, f: dict, des: list, coords: list, emit: Emit) -> list[str]:
     flags: list[str] = []
     # 2. A listing point without an outline may belong to the building next door.
-    points = [d for d in des if d["dataset"] == "listed-building"]
+    points = [d for d in des if d["dataset"] == "listed-building" and d.get("organisation") != "historic-england"]
     outlines = [d for d in des if d["dataset"] == "listed-building-outline"]
     if points and not outlines:
         emit({"type": "challenge", "by": "evaluator", "about": "listed",

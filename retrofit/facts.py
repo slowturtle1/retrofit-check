@@ -38,6 +38,31 @@ def cached(house_id: str, z: Zetaris) -> bool:
                       purpose="Is this house already in the cache?").rows)
 
 
+def _listed_by_tag(house: dict, step: Step) -> list[dict]:
+    """planning.data keeps most listings as one point, so a terrace listed as one entry (Nos. 1-30 Royal Crescent, Bath)
+    misses most of its houses. When OpenStreetMap tags this building with a list entry, ask Historic England for it."""
+    from . import offline
+    entry = house["nhle"]
+    step({"type": "challenge", "by": "evaluator", "about": "listed",
+          "text": f"planning.data shows no listing on this footprint, but OpenStreetMap tags this building with Historic England list entry {entry}. "
+                  "A terrace listed as one entry has one point on planning.data. Ask Historic England."})
+    try:
+        he = offline.he_entry(entry)
+    except Exception as e:  # noqa: BLE001  the trace says the check could not run
+        step({"type": "requery", "by": "analyst", "about": "listed", "ok": False, "status": "fallback",
+              "text": f"Historic England did not answer ({str(e)[:80]}), so the tag alone is not proof: the listing is not used."})
+        return []
+    if not he:
+        step({"type": "requery", "by": "analyst", "about": "listed", "ok": False,
+              "text": f"Historic England has no list entry {entry}: the tag is not used."})
+        return []
+    step({"type": "requery", "by": "analyst", "about": "listed", "ok": True,
+          "text": f"Historic England confirms list entry {he['entry']}: {he['name']}, Grade {he['grade']}, listed since {he['since']}. The building is listed."})
+    # organisation-entity "historic-england" marks a listing confirmed by list entry, not a point that could be next door
+    return [{"dataset": "listed-building", "reference": he["entry"], "name": he["name"], "listed-building-grade": he["grade"],
+             "start-date": he["since"], "end-date": None, "entity": None, "organisation-entity": "historic-england"}]
+
+
 def gather(house: dict, z: Zetaris, step: Step, refresh: bool = False) -> dict:
     """house comes from osm.house_from_way or osm.building_at."""
     hid = house["house_id"]
@@ -58,6 +83,9 @@ def gather(house: dict, z: Zetaris, step: Step, refresh: bool = False) -> dict:
     if pd["via"] == "direct":
         step({"type": "note", "text": "Zetaris could not reach planning.data in time; the same request went direct and is cached for Zetaris to read", "why": pd.get("why")})
     listed = [e for e in pd["entities"] if e["dataset"] in ("listed-building", "listed-building-outline")]
+    if not listed and house.get("nhle"):
+        listed = _listed_by_tag(house, step)
+        pd["entities"] += listed
     walls = _timed(step, "osm_walls", "OpenStreetMap API", osm.walls, house)
     roof, pv = None, None
     if listed:

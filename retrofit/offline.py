@@ -211,6 +211,25 @@ def he_rows(coords: list) -> list[tuple]:
     return [(f["attributes"].get("ListEntry"), f["attributes"].get("Name"), f["attributes"].get("Grade")) for f in r.json().get("features", [])]
 
 
+def he_entry(entry: str) -> dict | None:
+    """One list entry from Historic England's register (its points layer), or None when it holds no such entry."""
+    import requests
+    from datetime import datetime, timezone
+
+    from .agent.evaluator import HE_LISTED
+    from .config import USER_AGENT
+    r = requests.get(HE_LISTED.replace("/FeatureServer/3/", "/FeatureServer/0/"),
+                     params={"where": f"ListEntry={int(entry)}", "outFields": "ListEntry,Name,Grade,ListDate", "returnGeometry": "false", "f": "json"},
+                     headers={"User-Agent": USER_AGENT}, timeout=float(os.environ.get("PLANNING_TIMEOUT", "60")))
+    r.raise_for_status()
+    feats = r.json().get("features") or []
+    if not feats:
+        return None
+    a = feats[0]["attributes"]
+    since = datetime.fromtimestamp(a["ListDate"] / 1000, tz=timezone.utc).date().isoformat() if a.get("ListDate") is not None else None
+    return {"entry": str(a.get("ListEntry")), "name": a.get("Name"), "grade": a.get("Grade"), "since": since}
+
+
 def _ensure_he(house_key: str) -> None:
     """One row per outline, or one empty row meaning "checked, none", for a house fetched on this machine."""
     con = sqlite3.connect(f"file:{db_path()}?mode=ro", uri=True)
