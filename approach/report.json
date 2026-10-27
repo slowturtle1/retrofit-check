@@ -1,6 +1,6 @@
 {
- "commit": "ffebd14 (uncommitted changes)",
- "generated_at": "2026-10-27T18:44:39+00:00",
+ "commit": "865fe8f (uncommitted changes)",
+ "generated_at": "2026-10-27T18:49:32+00:00",
  "live": false,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "81 commits scanned, no secret found",
+   "detail": "82 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -630,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 2.1 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB)",
+   "detail": "git objects 2.6 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [

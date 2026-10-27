@@ -6,6 +6,7 @@ marked uncertain and the homeowner is told to ask the council. Every challenge a
 
 from __future__ import annotations
 
+import hashlib
 import json
 from typing import Callable
 from urllib.parse import urlencode
@@ -73,10 +74,19 @@ FROM planning_data.{table} LATERAL VIEW explode(entities) AS e""", purpose=f"Doe
 
 
 def inner_ring(coords: list) -> list:
-    """The footprint about 1 m inward, so an outline that only touches a party wall (the neighbour's listing) does not count."""
+    """The footprint about 1 m inward, so an outline that only touches a party wall (the neighbour's listing) does not count.
+    Sharp corners and at most about 40 points: rounded corners added up to 16 points each, and Historic England answers
+    404 to a query URL past about 2,000 characters (Hampstead's 19 point house became 109 points, 3,829 characters).
+    Simplifying by less than the 1 m keeps the ring inside the house."""
     from shapely.geometry import Polygon
-    inner = Polygon(coords).buffer(-0.00001)
-    return [list(p) for p in inner.exterior.coords] if inner.geom_type == "Polygon" and not inner.is_empty else coords
+    inner = Polygon(coords).buffer(-0.00001, join_style="mitre")
+    if inner.geom_type != "Polygon" or inner.is_empty:
+        return coords
+    for tol in (0.000003, 0.000006, 0.000009):   # about 0.3, 0.6 and 0.9 m
+        if len(inner.exterior.coords) <= 40:
+            break
+        inner = inner.simplify(tol, preserve_topology=True)
+    return [list(p) for p in inner.exterior.coords]
 
 
 def he_listed(z: Zetaris, house_id: str, coords: list) -> list[dict]:
@@ -84,7 +94,9 @@ def he_listed(z: Zetaris, house_id: str, coords: list) -> list[dict]:
     geom = {"rings": [[[round(x, 7), round(y, 7)] for x, y in inner_ring(coords)]], "spatialReference": {"wkid": 4326}}
     url = HE_LISTED + "?" + urlencode({"geometry": json.dumps(geom, separators=(",", ":")), "geometryType": "esriGeometryPolygon", "inSR": 4326,
                                        "spatialRel": "esriSpatialRelIntersects", "outFields": "ListEntry,Name,Grade", "returnGeometry": "false", "f": "json"})
-    table = "he_" + house_id.replace("-", "_")
+    # The query's own hash in the name: a table registered with an older query (a longer ring that Historic England
+    # refused) is never reused for a new one. Sample mode reads the house key without it (offline.REWRITES).
+    table = "he_" + house_id.replace("-", "_") + "_v" + hashlib.sha1(url.encode()).hexdigest()[:6]
     _rest(z, table, "PLANNING_DATA", url, "Register Historic England's listed building outlines for this footprint")
     try:
         return z.run(f"SELECT f.attributes.ListEntry AS entry, f.attributes.Name AS name, f.attributes.Grade AS grade FROM planning_data.{table} LATERAL VIEW explode(features) AS f",

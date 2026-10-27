@@ -61,7 +61,7 @@ def _live() -> sqlite3.Connection:
 REWRITES = [
     (re.compile(r"FROM planning_data\.a4_council_(\w+) LATERAL VIEW explode\(entities\) AS e", re.I), r"FROM council_a4 AS e WHERE e.org = '\1'"),
     (re.compile(r"FROM planning_data\.lbo_(\w+) LATERAL VIEW explode\(entities\) AS e", re.I), r"FROM listed_outline AS e WHERE e.house_key = '\1'"),
-    (re.compile(r"FROM planning_data\.he_(\w+) LATERAL VIEW explode\(features\) AS f", re.I), r"FROM he_listed AS f WHERE f.house_key = '\1' AND f.ListEntry IS NOT NULL"),
+    (re.compile(r"FROM planning_data\.he_(\w+?)(?:_v[0-9a-f]{6})? LATERAL VIEW explode\(features\) AS f", re.I), r"FROM he_listed AS f WHERE f.house_key = '\1' AND f.ListEntry IS NOT NULL"),
     (re.compile(r"\bf\.attributes\.(\w+)"), r"f.\1"),
     (re.compile(r"\bretrofit_pg\."), ""),
 ]
