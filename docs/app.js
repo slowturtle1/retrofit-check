@@ -25,6 +25,7 @@ const api = {
 let viewer, state = { answer: null, result: null, old: false, open: false, det: {}, request: null, live: false, ownerElec: null };   // ownerElec: kWh a year from the welcome or the facts
 const S = { center: null, hpr: null, home: null, house: [], overlay: [] };
 let tapMode = false, evCount = 0, source = null;
+let runGen = 0;   // each check or replay gets a number; events of an older one are dropped, so two runs never mix on screen
 
 /* ---------------- map ---------------- */
 const local = (o) => { const k = Math.cos(o[1] * D2R); return { to: (p) => [(p[0] - o[0]) * D2R * R * k, (p[1] - o[1]) * D2R * R], back: (p) => [o[0] + p[0] / (R * k) / D2R, o[1] + p[1] / R / D2R] }; };
@@ -37,7 +38,7 @@ function drapeGeo(geom, color, alpha) {
   const polys = geom.type === "Polygon" ? [geom.coordinates] : geom.type === "MultiPolygon" ? geom.coordinates : [];
   return polys.map((p) => viewer.entities.add({ polygon: { hierarchy: new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(p[0].flat()), p.slice(1).map((h) => new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(h.flat())))), material: C(color, alpha), classificationType: CLASSIFY() } }));
 }
-const clearOverlay = () => { S.overlay.forEach((e) => viewer.entities.remove(e)); S.overlay = []; };
+const clearOverlay = () => { S.overlay.forEach((e) => viewer.entities.remove(e)); S.overlay = []; S.house.forEach((e) => (e.show = true)); };
 const applyView = () => { if (S.center && S.hpr) viewer.camera.lookAt(S.center, S.hpr); };
 function readHpr() { if (!S.center) return; const cam = viewer.camera; S.hpr = new Cesium.HeadingPitchRange(cam.heading, cam.pitch, Cesium.Cartesian3.distance(cam.positionWC, S.center)); }
 $("rl").onclick = () => { readHpr(); if (S.hpr) { S.hpr.heading -= 30 * D2R; applyView(); } };
@@ -84,8 +85,11 @@ async function overlayFor(open) {
     const az = plane ? +plane.azimuth_deg : 180, n = [Math.sin(az * D2R), Math.cos(az * D2R)];
     const rel = pts.map((p) => [p[0] - c0[0], p[1] - c0[1]]);
     const sunny = clipHalf(rel, n), other = clipHalf(rel, [-n[0], -n[1]]);
-    if (sunny.length > 2) S.overlay.push(drape(sunny.map((p) => L.back([p[0] + c0[0], p[1] + c0[1]])), YELLOW, 0.85));
-    if (other.length > 2) S.overlay.push(drape(other.map((p) => L.back([p[0] + c0[0], p[1] + c0[1]])), LAV, 0.55));
+    // The two halves stand in for the house's own shape: two shapes draped on one roof can paint in either order,
+    // and the house's shape could hide the yellow slope.
+    const halves = [[sunny, YELLOW, 0.85], [other, LAV, 0.75]].filter(([h]) => h.length > 2);
+    if (halves.length) S.house.forEach((e) => (e.show = false));
+    halves.forEach(([h, col, alpha]) => S.overlay.push(drape(h.map((p) => L.back([p[0] + c0[0], p[1] + c0[1]])), col, alpha)));
     S.overlay.push(mapLabel(`${cap(FACING[s.numbers.facing] || s.numbers.facing)} roof${plane ? " · " + plane.pitch_deg + "°" : ""} · indicative`));
     aimHome(az);
     return;
@@ -271,17 +275,38 @@ function handle(e) {
   if (e.type === "answer_update" && e.answer) { state.answer = e.answer; renderAll(); }
   if (e.type === "done" || e.type === "error") { state.live = false; $("traceDot").classList.remove("live"); $("panel").setAttribute("aria-busy", "false"); renderCard(); }
   if (e.type === "error") { $("err").style.display = "block"; $("err").textContent = e.text; }
+  if (e.type === "error" && state.fromTap && S.searchLL) setTap(true, "Tap the roof of your house again.");   // a tap that found no house: the next tap still works
+}
+
+// Tap mode: the yellow line in the panel, and the same words on the map, where the tap happens.
+function setTap(on, text) {
+  tapMode = on;
+  if (on) $("tap").textContent = text;
+  $("tap").classList.toggle("on", on);
+  let pill = $("mapTap");
+  if (!pill) { pill = document.createElement("span"); pill.id = "mapTap"; pill.className = "mapTap hid"; pill.textContent = "Tap the roof of your house"; $("stage").appendChild(pill); }
+  pill.classList.toggle("hid", !on);
+}
+
+// A new place searched: the last house's answer, trace and shapes go, so nothing on screen belongs to another house.
+function clearForSearch() {
+  resetForRun();
+  state.live = false; $("traceDot").classList.remove("live"); $("panel").setAttribute("aria-busy", "false"); $("traceCount").textContent = "";
+  if (viewer) { S.house.forEach((e) => viewer.entities.remove(e)); S.house = []; }
+  document.querySelectorAll("#examples button").forEach((o) => { o.classList.remove("on"); o.setAttribute("aria-pressed", "false"); });
+  $("panel").scrollTop = 0;
 }
 
 // The owner's inputs belong to one house: a new house or a replay clears them; replays cannot run a check.
 function setInputs(on) { $("elecForm").classList.toggle("hid", !on); $("noteToggle").classList.toggle("hid", !on); if (!on) $("noteBox").classList.add("hid"); }
 
 function resetForRun(sameHouse = false) {
+  runGen++;
   if (source) source.close();
   if (!sameHouse) { $("elec").value = ""; $("note").value = ""; $("elec").removeAttribute("aria-invalid"); $("houseBox").classList.add("hid"); }
   state = { ...state, answer: null, result: null, old: false, open: false, det: {}, live: true };
   $("card").innerHTML = ""; $("err").style.display = "none"; $("traceBody").innerHTML = ""; evCount = 0;
-  $("traceDot").classList.add("live"); $("tap").classList.remove("on"); tapMode = false; $("panel").setAttribute("aria-busy", "true");
+  $("traceDot").classList.add("live"); setTap(false); $("panel").setAttribute("aria-busy", "true");
   if (viewer) clearOverlay();
 }
 
@@ -290,21 +315,23 @@ async function apiError(r) {
   try { const j = JSON.parse(text); return (j.error && j.error.message) || (typeof j.detail === "string" ? j.detail : "the input was not accepted"); } catch (e) { return text.slice(0, 160) || `error ${r.status}`; }
 }
 
-// said: what the owner typed for this same house (electricity use, a note); absent for a new house.
-async function startCheck(body, said) {
+// said: what the owner typed for this same house (electricity use, a note); absent for a new house. fromTap: the house came from a tap on the map.
+async function startCheck(body, said, fromTap = false) {
   resetForRun(!!said);
-  state.request = body; state.replay = false;
+  const gen = runGen;
+  state.request = body; state.replay = false; state.fromTap = fromTap;
   if (!STATIC) setInputs(true);
   const payload = { ...body, note: (said && said.note) || null, elec_kwh: (said && said.elec_kwh) || state.ownerElec || null };
   try {
     const r = await fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
-    if (!r.ok) { handle({ type: "error", text: `The check could not start: ${await apiError(r)}` }); return; }
+    if (!r.ok) { const why = await apiError(r); if (gen === runGen) handle({ type: "error", text: `The check could not start: ${why}` }); return; }
     const { run_id } = await r.json();
-    source = new EventSource(`/api/runs/${run_id}/events`);
-    source.onmessage = (m) => handle(JSON.parse(m.data));
-    source.addEventListener("end", () => { source.close(); state.live = false; renderCard(); });
-    source.onerror = () => { if (!state.live) return; source.close(); handle({ type: "error", text: "Lost the connection to the server before the check finished. Try again." }); };
-  } catch (e) { handle({ type: "error", text: "Could not reach the server. Is it running?" }); }
+    if (gen !== runGen) return;   // another check or replay started while this one was being set up
+    const es = source = new EventSource(`/api/runs/${run_id}/events`);
+    es.onmessage = (m) => { if (gen === runGen) handle(JSON.parse(m.data)); };
+    es.addEventListener("end", () => { es.close(); if (gen !== runGen) return; state.live = false; renderCard(); });
+    es.onerror = () => { es.close(); if (gen !== runGen || !state.live) return; handle({ type: "error", text: "Lost the connection to the server before the check finished. Try again." }); };
+  } catch (e) { if (gen === runGen) handle({ type: "error", text: "Could not reach the server. Is it running?" }); }
 }
 
 // Send what the owner typed, for the house on screen; the number is checked first.
@@ -322,13 +349,16 @@ function sendSaid() {
 }
 
 async function replay(name, maxGapMs = 1200) {
-  resetForRun(); state.replay = true; setInputs(false);
+  resetForRun(); state.replay = true; state.fromTap = false; setInputs(false);
+  const gen = runGen;   // a click on another example mid replay stops this one
   const r = await fetch(api.run(name));
+  if (gen !== runGen) return;
   if (!r.ok) { handle({ type: "error", text: "no recorded run " + name }); return; }
   const run = await r.json();
+  if (gen !== runGen) return;
   $("hint").textContent = `Replay of a recorded run · ${run.run_id}`;
   let prev = 0;
-  for (const e of run.events) { await new Promise((ok) => setTimeout(ok, Math.min(maxGapMs, Math.max(40, (e.t - prev) * 1000)))); prev = e.t; handle(e); }
+  for (const e of run.events) { await new Promise((ok) => setTimeout(ok, Math.min(maxGapMs, Math.max(40, (e.t - prev) * 1000)))); if (gen !== runGen) return; prev = e.t; handle(e); }
   state.live = false; $("traceDot").classList.remove("live"); $("panel").setAttribute("aria-busy", "false"); renderCard();
 }
 
@@ -337,15 +367,19 @@ $("searchForm").onsubmit = async (ev) => {
   ev.preventDefault();
   const q = $("addr").value.trim(); if (!q) return;
   $("err").style.display = "none";
-  let ll = null, nation = null;   // nation: England, Scotland, Wales or Northern Ireland, when the search says
+  setTap(false); S.searchLL = null;   // a failed search must not leave the last place's tap behind
+  let ll = null, nation = null, found = null;   // nation: England, Scotland, Wales or Northern Ireland, when the search says
+  const nationOf = (x) => ((x.address || {}).state || "").split(" / ").pop() || null;   // "Alba / Scotland" → Scotland
   const nominatim = async (text, box = "") => {
-    const j = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=gb&limit=1&addressdetails=1&q=${encodeURIComponent(text)}${box}`)).json();
-    if (j[0]) { ll = [+j[0].lon, +j[0].lat]; nation = ((j[0].address || {}).state || "").split(" / ").pop() || null; }   // "Alba / Scotland" → Scotland
+    // Five results, the first one in England first: "Big Ben" alone is also a hill in the Highlands.
+    const j = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=gb&limit=5&addressdetails=1&q=${encodeURIComponent(text)}${box}`)).json();
+    const hit = j.find((x) => nationOf(x) === "England") || j[0];
+    if (hit) { ll = [+hit.lon, +hit.lat]; nation = nationOf(hit); found = String(hit.display_name || "").split(", ").slice(0, 3).join(", "); }
   };
   try {
     if (/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(q)) {
       const j = await (await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(q)}`)).json();
-      if (j.result) { ll = [j.result.longitude, j.result.latitude]; nation = j.result.country; }
+      if (j.result) { ll = [j.result.longitude, j.result.latitude]; nation = j.result.country; found = j.result.postcode; }
     } else {
       await nominatim(q);
       // Nominatim finds nothing when the text holds only the first half of a postcode ("Laurier Road, London NW5"):
@@ -360,12 +394,14 @@ $("searchForm").onsubmit = async (ev) => {
   } catch (e) { /* shown below */ }
   if (!ll) { $("err").style.display = "block"; $("err").textContent = "Could not find that place in England. Try a street and town, like Royal Crescent, Bath, or pick an example."; return; }
   if (nation && nation !== "England") { $("err").style.display = "block"; $("err").textContent = `Retrofit Check covers England only. ${q} is in ${nation}, where the planning rules and records are different.`; return; }
+  clearForSearch();
   viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
   // The searched place becomes the centre the map buttons and Reset turn around, until a roof is tapped.
   S.center = Cesium.Cartesian3.fromDegrees(ll[0], ll[1], window.GOOGLE_MAPS_API_KEY ? 50 : 0);
   S.home = new Cesium.HeadingPitchRange(0, -45 * D2R, 330); S.hpr = Cesium.HeadingPitchRange.clone(S.home);
   viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(S.center, 12), { offset: S.hpr, duration: 2, complete: applyView });
-  tapMode = true; $("tap").textContent = "Now tap the roof of your house."; $("tap").classList.add("on");
+  S.searchLL = ll; S.searchLabel = q;
+  setTap(true, `Found ${found || q}. Now tap the roof of your house.`);
 };
 $("factsToggle").onclick = () => openFacts($("facts").classList.contains("hid"));
 $("noteToggle").onclick = () => { const open = $("noteBox").classList.toggle("hid") === false; $("noteToggle").setAttribute("aria-expanded", String(open)); };
@@ -467,8 +503,12 @@ async function main() {
     if (!tapMode) return;
     const p = (viewer.scene.pickPositionSupported && viewer.scene.pickPosition(click.position)) || viewer.camera.pickEllipsoid(click.position);  // flat map: the ellipsoid
     if (!p) return;
-    const c = Cesium.Cartographic.fromCartesian(p);
-    startCheck({ lat: c.latitude / D2R, lon: c.longitude / D2R, label: $("addr").value.trim() || null });   // a new house: inputs cleared
+    const c = Cesium.Cartographic.fromCartesian(p), lon = c.longitude / D2R, lat = c.latitude / D2R;
+    // A tap from high above, or far from the place searched, would check whatever building happens to be under it.
+    const high = viewer.camera.positionCartographic.height > 2000;
+    const far = S.searchLL && Math.hypot((lon - S.searchLL[0]) * Math.cos(lat * D2R), lat - S.searchLL[1]) * D2R * R > 3000;
+    if (high || far) { $("err").style.display = "block"; $("err").textContent = high ? "Zoom in until you can see the roofs, then tap your house." : "That is far from the place you searched. Tap a roof near it, or search again."; return; }
+    startCheck({ lat, lon, label: S.searchLabel || null }, null, true);   // a new house: inputs cleared
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   const rp = new URLSearchParams(location.search).get("replay");
   if (rp) replay(rp);
