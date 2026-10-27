@@ -174,3 +174,27 @@ def test_a_hanging_zetaris_costs_the_quick_check_not_the_query_timeout(dead, osm
     assert [e["purpose"] for e in rec["events"] if e["type"] == "zetaris"][0] == "Is Zetaris answering? (quick check)"
     assert "zetaris" in rec["fallbacks"] and rec["answer"]["solar"]["status"] == "allowed"
     assert secs < 15
+
+
+class _ZetarisNoOutline:
+    """Historic England answers "features": [] and Zetaris types it as array<string>, as it does live."""
+
+    def __init__(self, outlines=0):
+        self.outlines, self.sql = outlines, []
+
+    def run(self, sql, limit=500, purpose=""):
+        self.sql.append(sql)
+        if "LATERAL VIEW explode(features)" in sql:
+            raise ZetarisError('Zetaris 400: {"msg":"[INVALID_EXTRACT_BASE_FIELD_TYPE] Can\'t extract a value from \\"f\\". Need a complex type [STRUCT, ARRAY, MAP] but got \\"STRING\\"."}')
+        if "size(features)" in sql:
+            return Result(["n"], [[str(self.outlines)]], 0.0)
+        return Result([], [], 0.0)
+
+
+def test_no_historic_england_outline_counts_as_checked():
+    from retrofit.agent import evaluator
+    z = _ZetarisNoOutline()
+    assert evaluator.he_listed(z, "osm-way-1106478076", [[-0.14, 51.56], [-0.14, 51.5601], [-0.1399, 51.5601], [-0.1399, 51.56], [-0.14, 51.56]]) == []
+    assert any("size(features)" in s for s in z.sql)
+    with pytest.raises(ZetarisError):   # outlines there but unreadable: still an error, never "none"
+        evaluator.he_listed(_ZetarisNoOutline(outlines=1), "osm-way-1", [[-0.14, 51.56], [-0.14, 51.5601], [-0.1399, 51.5601], [-0.1399, 51.56], [-0.14, 51.56]])

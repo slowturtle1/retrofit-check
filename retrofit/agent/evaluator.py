@@ -86,8 +86,18 @@ def he_listed(z: Zetaris, house_id: str, coords: list) -> list[dict]:
                                        "spatialRel": "esriSpatialRelIntersects", "outFields": "ListEntry,Name,Grade", "returnGeometry": "false", "f": "json"})
     table = "he_" + house_id.replace("-", "_")
     _rest(z, table, "PLANNING_DATA", url, "Register Historic England's listed building outlines for this footprint")
-    return z.run(f"SELECT f.attributes.ListEntry AS entry, f.attributes.Name AS name, f.attributes.Grade AS grade FROM planning_data.{table} LATERAL VIEW explode(features) AS f",
-                 purpose="Cross check the listing against Historic England's own outlines").dicts()
+    try:
+        return z.run(f"SELECT f.attributes.ListEntry AS entry, f.attributes.Name AS name, f.attributes.Grade AS grade FROM planning_data.{table} LATERAL VIEW explode(features) AS f",
+                     purpose="Cross check the listing against Historic England's own outlines").dicts()
+    except ZetarisError as e:
+        # No outline here: Historic England answers "features": [], and Zetaris types an empty list as array<string>,
+        # so the attributes cannot be read. Count the outlines instead; none means checked, nothing on this footprint.
+        if "INVALID_EXTRACT_BASE_FIELD_TYPE" not in str(e):
+            raise
+        rows = z.run(f"SELECT size(features) AS n FROM planning_data.{table}", purpose="Count Historic England's outlines on this footprint").rows
+        if rows and int(rows[0][0] or 0) == 0:
+            return []
+        raise
 
 
 def listed_outline(z: Zetaris, house_id: str, coords: list) -> int:
