@@ -2,6 +2,10 @@
 
 **Can I put solar panels on my house, and where?** Know what's possible, what it costs and what to do next, for your house.
 
+[![House F in Dartmouth Park, London, in Google 3D with its sunny south slope in yellow. The card says solar panels are allowed under permitted development but not on the west or south wall, which face a road; £4,600 to £6,100 to install, back in 9 to 22 years: worth getting quotes. Below, the evaluator challenges a missing Article 4 record and the cost, and the analyst asks Zetaris again.](media/house-f.jpg)](https://slowturtle1.github.io/retrofit-check/)
+
+House F, a recorded run replayed on [GitHub Pages](https://slowturtle1.github.io/retrofit-check/): the evaluator does not accept "no Article 4 on record" until Zetaris shows that Camden publishes its Article 4s, and it compares the cost with a second official price series.
+
 > Track: Solving Fragmented Intelligence (Track 1), Open Agent Hackathon 2026, team Buccies (solo)
 > Sponsor technology: Zetaris (data layer), Meterless H-MEM (engine) and Nightshift (AI provider), NVIDIA Nemotron
 > Run without keys: `SAMPLE_MODE=true .venv/bin/python -m retrofit.server`, then open http://localhost:5173 or `POST /run`. Any house in England works; a new house needs an internet connection
