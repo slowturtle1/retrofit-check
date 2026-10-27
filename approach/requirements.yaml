@@ -450,9 +450,9 @@ requirements:
   criterion: technical
   tier: manual
   check: manual
-  done: false
+  done: true
   owner: C
-  evidence: "C7 pass over README, deck and form texts"
+  evidence: "Spot check 27 Oct of the README against the code, today's traces and runs: nine parallel Zetaris reads (rules.load), at most two rewrites (Run.write_and_check), the Article 4 join, council Article 4 counts, Hampstead A4Ha1, England only (422), a noisy roof above 25%, the evaluation table; deck numbers match the README; no claim of production readiness"
 - id: T27
   text: "The README states limitations honestly in its own section"
   source: [DQ 3, DQ 13, SS 6, SS 15, AG 13 Q10]
