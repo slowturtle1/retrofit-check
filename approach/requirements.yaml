@@ -46,7 +46,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: her
   evidence: "Submitted on HackOS 27 Oct about 18:20 UTC: description, sponsor texts, video uploaded as a file (2:42), GitHub repository and deck link"
 - id: G3
@@ -98,7 +97,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: her
   evidence: "Submitted 27 Oct about 18:20 UTC, about 5 h 25 min before 23:45 (the 18:00 target missed by about 20 min)"
 - id: G9
@@ -134,7 +132,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: her
   evidence: "Final video checked 27 Oct, a frame every 6 s: the app, the stack slide and GitHub only; no terminal, console, /config.js or key. Deck: app replicas and isometric clips, no key"
 
@@ -172,7 +169,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "README header (the question, Track 1, solo), deck cover (homeowners in England on protected streets or in listed buildings, Track 1), video opening on the intro with the question"
 - id: I5
@@ -198,7 +194,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "README first line and the deck cover state the question and the value in one sentence each; the video's voice text says both in its first 15 s (video-voice-2m35.md)"
 - id: I8
@@ -208,7 +203,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "Submission deck read 27 Oct: cover (the user), Context and Why it is hard (the problem), Solution, Limits and next (heat pump, outside wall insulation, watch this house)"
 - id: I9
@@ -447,7 +441,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "data/README.md gives the licence of all 16 sources; README section 13: the owner facts in the sample runs are demo values"
   legacy: P7
@@ -475,7 +468,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: B
   evidence: "Fresh clone of f7fd789 on 27 Oct, macOS Python 3.9.6, empty environment: 102 passed, 2 skipped (H-MEM engine not set up); the sample mode server answered house F, Hampstead and 10 Downing Street and gave 400 for bad input. The same evening live through Zetaris: house F and Hampstead"
 
@@ -603,7 +595,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: her
   evidence: "Final video (2:42), checked 27 Oct: a live run of house F with Zetaris queries, H-MEM recalling 3,100 kWh and the Nightshift calls in the trace, then Hampstead"
 - id: D3
@@ -613,7 +604,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: her
   evidence: "Final video: Hampstead, the evaluator's challenge on A4Ha1 and the answer that follows Camden, highlighted in the trace"
 - id: D4
@@ -649,7 +639,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: A
   evidence: "?demo=1 ran end to end on Pages 27 Oct (3 houses, about 2 min, no errors); captions read each run's answer; replays are labelled 'Replay of a recorded run'"
 - id: D8
@@ -659,7 +648,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "Submission deck: Agent workflow (five agents, two loops) and Technical stack slides"
   legacy: H5
@@ -731,7 +719,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: A
   evidence: "axe-core 4.10.2 on Pages 27 Oct, WCAG 2.1 A and AA: 0 violations in light and dark, at 1440 and 360 px, intro open and house F's answer with every detail open. Keyboard: focus stays in the intro (fixed d2bab91), Enter runs an example. No horizontal scroll at 390 px"
 - id: U9
@@ -741,7 +728,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "Submission deck: Solution is a replica of the running app's answer for house F; Product shows the app recording of house F"
 - id: U10
@@ -851,7 +837,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "README section 10 and the submitted sponsor text: Cursor not used, built with Claude Code"
 - id: S12
@@ -861,7 +846,6 @@ requirements:
   tier: manual
   check: manual
   done: true
-  done: false
   owner: C
   evidence: "Submission deck: 'How Zetaris and Meterless were used' and 'What was unique' slides"
 - id: S13
