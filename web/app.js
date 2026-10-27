@@ -240,13 +240,18 @@ function openFacts(open) { $("facts").classList.toggle("hid", !open); $("factsTo
 function trace(e) {
   evCount++; $("traceCount").textContent = `${evCount} steps`;
   const agent = e.agent_name || AGENT_OF[e.type] || (e.type === "model" && String(e.role).startsWith("critic") ? "critic" : e.type === "model" ? "reporter" : "planner");
-  let kind = "", txt = "", extra = "", tag = "";
+  let kind = "", txt = "", extra = "", tag = "", reused = false;
   switch (e.type) {
     case "start": txt = `Run ${e.run_id} started`; break;
     case "tool_start": kind = "step"; txt = `${e.tool} → ${e.source}`; break;
     case "tool_end": kind = "step"; txt = `${e.tool} ${e.ok ? "done" : "failed: " + (e.error || "")}${e.seconds !== undefined ? ` (${e.seconds} s)` : ""}`; break;
     case "house": txt = `Found the house ${e.house_id}`; break;
-    case "zetaris": kind = "zetaris"; txt = `${e.purpose || "query"} · ${e.rows ?? "no"} rows · ${e.seconds} s`; extra = `<details><summary>SQL</summary><pre>${esc(e.sql)}${e.error ? "\n\nERROR " + esc(e.error) : ""}</pre></details>`; break;
+    case "zetaris":
+      // A REST table an earlier check registered: Zetaris refuses the second CREATE, and the agent reads the table it has
+      // (retrofit/schema.py reused_table). Zetaris's own message stays under SQL.
+      reused = /already exists/i.test(e.error || "") && /^\s*CREATE LIGHTNING REST TABLE/i.test(e.sql || "");
+      kind = "zetaris"; txt = `${e.purpose || "query"} · ${reused ? "already registered, reused" : `${e.rows ?? "no"} rows`} · ${e.seconds} s`;
+      extra = `<details><summary>SQL</summary><pre>${esc(e.sql)}${e.error ? "\n\nERROR " + esc(e.error) : ""}</pre></details>`; break;
     case "model": kind = "nemotron"; txt = `${e.role} · ${e.ok ? (e.routed_model || e.model) + " · " + e.seconds + " s · receipt " + (e.receipt_id || "none") : "no answer after " + e.seconds + " s: " + (e.error || "").slice(0, 90)}`; break;
     case "critic": txt = `Critic, round ${e.round}: ${e.ok ? "accepted" : "rejected: " + (e.problems || []).join("; ")}`; break;
     case "memory_recall": kind = "h-mem"; txt = `Recall: ${e.memories && e.memories.length ? e.memories.map((m) => m.content).join(" · ") : "nothing yet"}`; break;
@@ -259,7 +264,7 @@ function trace(e) {
     case "done": txt = `Done in ${e.seconds} s`; break;
     default: txt = e.text || e.output_summary || e.type;
   }
-  if (!tag && STATUS_WORD[e.status]) tag = `<span class="tag ${e.status === "failed" || e.status === "blocked" ? "bad" : "soft"}">${STATUS_WORD[e.status]}</span>`;
+  if (!tag && !reused && STATUS_WORD[e.status]) tag =`<span class="tag ${e.status === "failed" || e.status === "blocked" ? "bad" : "soft"}">${STATUS_WORD[e.status]}</span>`;
   if (!tag && e.level === "warn") tag = `<span class="tag soft">note</span>`;
   const li = document.createElement("li"); li.className = `ev ${e.type}`;
   li.title = e.ts || `${(+e.t || 0).toFixed(1)} s`;

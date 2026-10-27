@@ -282,3 +282,13 @@ def test_an_unknown_house_gets_a_clear_message(monkeypatch):
         run.check(way=1)
     end = [e for e in run.events if e["type"] == "tool_end"]
     assert end and end[-1]["status"] == "failed" and end[-1]["output_summary"]
+
+
+def test_a_rest_table_registered_before_is_reused_not_failed():
+    sql = 'CREATE LIGHTNING REST TABLE a4_council_90 FROM PLANNING_DATA REQUEST( endpoint "https://www.planning.data.gov.uk/entity.json" )'
+    again = schema.event({"type": "zetaris", "sql": sql, "purpose": "Register every Article 4 area Camden has published", "seconds": 0.1, "t": 1.0,
+                          "rows": None, "error": 'A table named "a4_council_90" already exists in database "PLANNING_DATA".'}, "t1")
+    assert again["status"] == "success" and "reused" in again["output_summary"] and not schema.check_event(again)
+    broken = schema.event({"type": "zetaris", "sql": "SELECT 1 FROM planning_data.a4_council_90", "purpose": "Count", "seconds": 0.1, "t": 1.0,
+                           "rows": None, "error": "Table or view not found"}, "t1")
+    assert broken["status"] == "failed"

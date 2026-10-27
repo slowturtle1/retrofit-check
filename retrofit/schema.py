@@ -49,6 +49,12 @@ def _retry(role: str) -> int:
     return int(m.group(1)) if m else (1 if (role or "").endswith("_repair") else 0)
 
 
+def reused_table(e: dict) -> bool:
+    """A REST table an earlier check registered: Zetaris refuses the second CREATE, and the agent reads the table it has."""
+    return ("already exists" in str(e.get("error") or "").lower()
+            and str(e.get("sql") or "").lstrip().upper().startswith("CREATE LIGHTNING REST TABLE"))
+
+
 def _defaults(e: dict) -> dict:
     """What each event type means in contract terms. An emitter may set any field itself."""
     t, ok = e["type"], e.get("ok", True) is not False
@@ -68,9 +74,11 @@ def _defaults(e: dict) -> dict:
     if t == "intake":
         return dict(agent_name="planner", action="read_owner_note", input_summary=_short(e.get("note")), output_summary=_short(e.get("understood")))
     if t == "zetaris":
+        reused = reused_table(e)
         return dict(agent_name="analyst", action="zetaris_query", input_summary=_short(e.get("purpose") or e.get("sql")),
-                    output_summary=_short(f"error: {e['error']}" if e.get("error") else f"{e.get('rows')} rows in {e.get('seconds')} s"),
-                    status="failed" if e.get("error") else "success")
+                    output_summary=_short("already registered in Zetaris, reused" if reused else f"error: {e['error']}" if e.get("error")
+                                          else f"{e.get('rows')} rows in {e.get('seconds')} s"),
+                    status="failed" if e.get("error") and not reused else "success")
     if t == "challenge":
         return dict(agent_name="evaluator", action="challenge", target_agent="analyst", input_summary=_short(e.get("about")),
                     output_summary=_short(e.get("text")), status="needs_revision")
