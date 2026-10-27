@@ -16,7 +16,7 @@ Slide deck (11 slides, PDF): [`deck/retrofit-check-deck.pdf`](deck/retrofit-chec
 
 ## Try it in two minutes
 
-1. Without installing anything: [slowturtle1.github.io/retrofit-check](https://slowturtle1.github.io/retrofit-check/) replays recorded checks of the example houses.
+1. Without installing anything: [slowturtle1.github.io/retrofit-check](https://slowturtle1.github.io/retrofit-check/) replays recorded checks of the example houses. For a captioned tour of three houses with no clicks (about 2 minutes), open [the tour](https://slowturtle1.github.io/retrofit-check/?demo=1).
 2. Run it yourself, with no keys and no sponsor services:
    ```bash
    git clone https://github.com/slowturtle1/retrofit-check && cd retrofit-check
