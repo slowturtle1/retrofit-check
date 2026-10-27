@@ -16,3 +16,9 @@ def test_pages_page_is_the_static_replay_site():
     page = (ROOT / "docs" / "index.html").read_text()
     assert "window.STATIC_SITE = true" in page
     assert 'window.GOOGLE_MAPS_API_KEY = ""' in page, "the Pages key is added by the workflow from a secret, never committed"
+
+
+def test_pages_has_a_link_preview_picture():
+    page = (ROOT / "docs" / "index.html").read_text()
+    assert '<meta property="og:image" content="https://slowturtle1.github.io/retrofit-check/og.jpg">' in page
+    assert (ROOT / "docs" / "og.jpg").read_bytes() == (ROOT / "media" / "og.jpg").read_bytes()

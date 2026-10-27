@@ -14,6 +14,17 @@ from retrofit.server import area  # noqa: E402  same area outline and edge band 
 
 ROOT = Path(__file__).resolve().parent.parent
 WEB, SAMPLES, OUT = ROOT / "web", ROOT / "samples", ROOT / "docs"
+SITE = "https://slowturtle1.github.io/retrofit-check/"
+# Link previews (LinkedIn, Slack): the picture is media/og.jpg, house F on this site, 1200 x 630.
+OG = f"""<meta property="og:type" content="website">
+<meta property="og:title" content="Retrofit Check: can I put solar panels on my house, and where?">
+<meta property="og:description" content="An agent checks one house in England against planning records, council rules, the law, LIDAR and PVGIS, and shows every step. Replays of recorded runs.">
+<meta property="og:url" content="{SITE}">
+<meta property="og:image" content="{SITE}og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="House F in Dartmouth Park, London, in 3D with its sunny roof slope in yellow, next to the answer card: allowed under permitted development, worth getting quotes.">
+<meta name="twitter:card" content="summary_large_image">"""
 
 
 def main() -> None:
@@ -22,10 +33,11 @@ def main() -> None:
     html = (WEB / "index.html").read_text()
     html = html.replace('<script src="/config.js"></script>', '<script>window.GOOGLE_MAPS_API_KEY = ""; window.STATIC_SITE = true;</script>')
     html = html.replace("/static/", "")
-    html = html.replace("<title>Retrofit Check</title>", "<title>Retrofit Check</title>\n<meta name=\"description\" content=\"Can I put solar panels on my house, and where? Replays of recorded agent runs.\">")
+    html = html.replace("<title>Retrofit Check</title>", "<title>Retrofit Check</title>\n<meta name=\"description\" content=\"Can I put solar panels on my house, and where? Replays of recorded agent runs.\">\n" + OG)
     (OUT / "index.html").write_text(html)
     for f in ("app.js", "app.css", "demo.js"):
         shutil.copy(WEB / f, OUT / f)
+    shutil.copy(ROOT / "media" / "og.jpg", OUT / "og.jpg")
     index = json.loads((SAMPLES / "index.json").read_text())
     (OUT / "samples" / "index.json").write_text(json.dumps(index, indent=1))
     entities = set()
