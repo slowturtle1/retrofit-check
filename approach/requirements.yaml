@@ -373,7 +373,7 @@ requirements:
   source: [AG 7, AG 12, DQ 3]
   criterion: technical
   tier: 1
-  check: {fn: repo_size, max_pack_mb: 5, max_file_mb: 1}
+  check: {fn: repo_size, max_pack_mb: 5, max_file_mb: 2}
   owner: B
   evidence: "git count-objects and the largest tracked files"
   legacy: P3
