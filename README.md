@@ -8,6 +8,7 @@
 
 [![tests](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/tests.yml) [![approach](https://github.com/slowturtle1/retrofit-check/actions/workflows/approach.yml/badge.svg?branch=main)](https://github.com/slowturtle1/retrofit-check/actions/workflows/approach.yml)
 Scorecard against the HackOS APPROACH guide and judging criteria: [`approach/report.md`](approach/report.md) (run `make approach`)
+Slide deck (11 slides, PDF): [`deck/retrofit-check-deck.pdf`](deck/retrofit-check-deck.pdf)
 
 ## Try it in two minutes
 
