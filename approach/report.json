@@ -1,6 +1,6 @@
 {
- "commit": "7e3e174 (uncommitted changes)",
- "generated_at": "2026-10-27T19:22:29+00:00",
+ "commit": "c30edcf (uncommitted changes)",
+ "generated_at": "2026-10-27T19:23:31+00:00",
  "live": true,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "93 commits scanned, no secret found",
+   "detail": "95 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -764,8 +764,8 @@
    "id": "T26",
    "criterion": "technical",
    "tier": "manual",
-   "status": "manual_open",
-   "detail": "C7 pass over README, deck and form texts",
+   "status": "manual_done",
+   "detail": "Spot check 27 Oct of the README against the code, today's traces and runs: nine parallel Zetaris reads (rules.load), at most two rewrites (Run.write_and_check), the Article 4 join, council Article 4 counts, Hampstead A4Ha1, England only (422), a noisy roof above 25%, the evaluation table; deck numbers match the README; no claim of production readiness",
    "owner": "C",
    "text": "The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready",
    "source": [
@@ -774,7 +774,7 @@
     "DQ 15",
     "AG 20"
    ],
-   "evidence": "C7 pass over README, deck and form texts"
+   "evidence": "Spot check 27 Oct of the README against the code, today's traces and runs: nine parallel Zetaris reads (rules.load), at most two rewrites (Run.write_and_check), the Article 4 join, council Article 4 counts, Hampstead A4Ha1, England only (422), a noisy roof above 25%, the evaluation table; deck numbers match the README; no claim of production readiness"
   },
   {
    "id": "T27",

@@ -1,13 +1,13 @@
 # Approach scorecard
 
-Commit 7e3e174, 27 Oct 2026 19:22 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
+Commit c30edcf, 27 Oct 2026 19:23 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
 
-**0 gaps in Tiers 1 to 3.** 2 manual (open), 17 manual (done), 2 n/a, 74 pass (of 95 requirements).
+**0 gaps in Tiers 1 to 3.** 1 manual (open), 18 manual (done), 2 n/a, 74 pass (of 95 requirements).
 
 | Criterion | Points | Pass | Gaps (Tiers 1 to 3) | Manual open | Not run |
 |---|---|---|---|---|---|
 | Impact | 30 | 10 of 10 | 0 | 0 | 0 |
-| Technical | 20 | 28 of 29 | 0 | 1 | 0 |
+| Technical | 20 | 29 of 29 | 0 | 0 | 0 |
 | Innovation | 15 | 12 of 12 | 0 | 0 | 0 |
 | Demo | 15 | 6 of 8 | 0 | 1 | 0 |
 | Product and UX | 10 | 10 of 10 | 0 | 0 | 0 |
@@ -35,8 +35,8 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| T26 | The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready | manual | manual (open) | C7 pass over README, deck and form texts | C |
 | T25 | Data is allowed for prototype use and holds no sensitive personal data; owner facts in samples are demo values and say so | manual | manual (done) | data/README.md gives the licence of all 16 sources; README section 13: the owner facts in the sample runs are demo values | C |
+| T26 | The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready | manual | manual (done) | Spot check 27 Oct of the README against the code, today's traces and runs: nine parallel Zetaris reads (rules.load), at most two rewrites (Run.write_and_check), the Article 4 join, council Article 4 counts, Hampstead A4Ha1, England only (422), a noisy roof above 25%, the evaluation table; deck numbers match the README; no claim of production readiness | C |
 | T28 | Full validation from a fresh clone (Disqualification Checklist section 14), with Zetaris and Nightshift stopped and then running, twice on Monday | manual | manual (done) | Fresh clone of f7fd789 on 27 Oct, macOS Python 3.9.6, empty environment: 102 passed, 2 skipped (H-MEM engine not set up); the sample mode server answered house F, Hampstead and 10 Downing Street and gave 400 for bad input. The same evening live through Zetaris: house F and Hampstead | B |
 | T1 | Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers) | 2 | pass | fresh clone of HEAD, empty environment: 15 houses answered in 0.1 s (0 s with startup) | B |
 | T10 | A model failure retries, then falls back with a logged reason (the checked draft stays) | 2 | pass | 1 tests pass | A |
@@ -144,7 +144,7 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | G4 | Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py) | 4 | pass | form.md names all 3 | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
 | G7 | README, slide deck, form texts and video script name the same track | 4 | pass | README, deck, form and video script all name Track 1, Solving Fragmented Intelligence | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 93 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 95 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 
@@ -163,4 +163,4 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 - Yes: "The agents have distinct responsibilities." (N12, T15, N1)
 - Yes: "The logs prove real collaboration, not a linear chain." (N1, N5, N6, T14)
 - Yes: "The output is something the user could act on." (I6, U1, U2)
-- Not yet: "The team made thoughtful trade-offs and was honest about limits." (T26, T27, U10; open: T26)
+- Yes: "The team made thoughtful trade-offs and was honest about limits." (T26, T27, U10)
