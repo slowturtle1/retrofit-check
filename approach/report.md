@@ -1,6 +1,6 @@
 # Approach scorecard
 
-Commit dab6a35 (uncommitted changes), 27 Oct 2026 18:59 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
+Commit d54fca0, 27 Oct 2026 19:04 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
 
 **0 gaps in Tiers 1 to 3.** 19 manual (open), 1 manual (done), 1 n/a, 74 pass (of 95 requirements).
 
@@ -144,7 +144,7 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | G4 | Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py) | 4 | pass | form.md names all 3 | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
 | G7 | README, slide deck, form texts and video script name the same track | 4 | pass | README, deck, form and video script all name Track 1, Solving Fragmented Intelligence | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 85 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 88 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 

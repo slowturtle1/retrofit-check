@@ -1,6 +1,6 @@
 {
- "commit": "dab6a35 (uncommitted changes)",
- "generated_at": "2026-10-27T18:59:27+00:00",
+ "commit": "d54fca0 (uncommitted changes)",
+ "generated_at": "2026-10-27T19:04:37+00:00",
  "live": true,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "85 commits scanned, no secret found",
+   "detail": "88 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
