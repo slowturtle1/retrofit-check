@@ -1,18 +1,18 @@
 # Approach scorecard
 
-Commit 199345a, 27 Oct 2026 19:22 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
+Commit 7e3e174, 27 Oct 2026 19:22 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
 
-**0 gaps in Tiers 1 to 3.** 18 manual (open), 1 manual (done), 2 n/a, 74 pass (of 95 requirements).
+**0 gaps in Tiers 1 to 3.** 2 manual (open), 17 manual (done), 2 n/a, 74 pass (of 95 requirements).
 
 | Criterion | Points | Pass | Gaps (Tiers 1 to 3) | Manual open | Not run |
 |---|---|---|---|---|---|
-| Impact | 30 | 7 of 10 | 0 | 3 | 0 |
-| Technical | 20 | 26 of 29 | 0 | 3 | 0 |
+| Impact | 30 | 10 of 10 | 0 | 0 | 0 |
+| Technical | 20 | 28 of 29 | 0 | 1 | 0 |
 | Innovation | 15 | 12 of 12 | 0 | 0 | 0 |
-| Demo | 15 | 2 of 8 | 0 | 5 | 0 |
-| Product and UX | 10 | 8 of 10 | 0 | 2 | 0 |
-| Sponsor technology | 10 | 11 of 14 | 0 | 2 | 0 |
-| Gate (pass or fail) | gate | 9 of 12 | 0 | 3 | 0 |
+| Demo | 15 | 6 of 8 | 0 | 1 | 0 |
+| Product and UX | 10 | 10 of 10 | 0 | 0 | 0 |
+| Sponsor technology | 10 | 13 of 14 | 0 | 0 | 0 |
+| Gate (pass or fail) | gate | 12 of 12 | 0 | 0 | 0 |
 
 Collaboration design checklist (guide section 9): 9 of 9 proven by a passing check.
 
@@ -20,9 +20,9 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| I4 | The README, deck and demo name a real user, a real problem and the track it answers | manual | manual (open) | README header (the question, Track 1, solo), deck cover (homeowners in England on protected streets or in listed buildings, Track 1), video opening on the intro with the question | C |
-| I7 | The value can be explained in 30 seconds (red flag "you cannot explain the value clearly") | manual | manual (open) | README first line and the deck cover state the question and the value in one sentence each; the video's voice text says both in its first 15 s (video-voice-2m35.md) | C |
-| I8 | The deck covers the problem and target users, the solution, and future enhancements (heat pump, outside walls, watch this house) | manual | manual (open) | Submission deck read 27 Oct: cover (the user), Context and Why it is hard (the problem), Solution, Limits and next (heat pump, outside wall insulation, watch this house) | C |
+| I4 | The README, deck and demo name a real user, a real problem and the track it answers | manual | manual (done) | README header (the question, Track 1, solo), deck cover (homeowners in England on protected streets or in listed buildings, Track 1), video opening on the intro with the question | C |
+| I7 | The value can be explained in 30 seconds (red flag "you cannot explain the value clearly") | manual | manual (done) | README first line and the deck cover state the question and the value in one sentence each; the video's voice text says both in its first 15 s (video-voice-2m35.md) | C |
+| I8 | The deck covers the problem and target users, the solution, and future enhancements (heat pump, outside walls, watch this house) | manual | manual (done) | Submission deck read 27 Oct: cover (the user), Context and Why it is hard (the problem), Solution, Limits and next (heat pump, outside wall insulation, watch this house) | C |
 | I1 | The README states the problem in one sentence in the guide's format (We are building an agent that helps [user] solve [problem] by [capability] using [data], producing [output]) | 1 | pass | README.md matches 1 patterns | C |
 | I10 | The self score (guide section 13) is at least 16 of 20, honest, with one evidence link per question | 1 | pass | 18 of 20, every question with evidence | C |
 | I2 | The problem sentence is about the solar MVP (Can I put solar panels on my house, and where?) | 1 | pass | README.md matches 1 patterns | C |
@@ -35,9 +35,9 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| T25 | Data is allowed for prototype use and holds no sensitive personal data; owner facts in samples are demo values and say so | manual | manual (open) | data/README.md gives the licence of all 16 sources; README section 13: the owner facts in the sample runs are demo values | C |
 | T26 | The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready | manual | manual (open) | C7 pass over README, deck and form texts | C |
-| T28 | Full validation from a fresh clone (Disqualification Checklist section 14), with Zetaris and Nightshift stopped and then running, twice on Monday | manual | manual (open) | Fresh clone of f7fd789 on 27 Oct, macOS Python 3.9.6, empty environment: 102 passed, 2 skipped (H-MEM engine not set up); the sample mode server answered house F, Hampstead and 10 Downing Street and gave 400 for bad input. The same evening live through Zetaris: house F and Hampstead | B |
+| T25 | Data is allowed for prototype use and holds no sensitive personal data; owner facts in samples are demo values and say so | manual | manual (done) | data/README.md gives the licence of all 16 sources; README section 13: the owner facts in the sample runs are demo values | C |
+| T28 | Full validation from a fresh clone (Disqualification Checklist section 14), with Zetaris and Nightshift stopped and then running, twice on Monday | manual | manual (done) | Fresh clone of f7fd789 on 27 Oct, macOS Python 3.9.6, empty environment: 102 passed, 2 skipped (H-MEM engine not set up); the sample mode server answered house F, Hampstead and 10 Downing Street and gave 400 for bad input. The same evening live through Zetaris: house F and Hampstead | B |
 | T1 | Runs from a fresh clone with an empty environment and no manual steps (sample mode, every cached house answers) | 2 | pass | fresh clone of HEAD, empty environment: 15 houses answered in 0.1 s (0 s with startup) | B |
 | T10 | A model failure retries, then falls back with a logged reason (the checked draft stays) | 2 | pass | 1 tests pass | A |
 | T11 | A programmatic way in (POST /run), structured input and output, no interactive input; the UI does not block it | 2 | pass | 3 tests pass | A |
@@ -46,7 +46,7 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
 | T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 2.9 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 3.0 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 14 source sections, seven fields each | C |
 | T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 14 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
@@ -86,11 +86,11 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| D2 | The video shows a real run, the main workflow, the key features, and Zetaris and Meterless in action (Zetaris queries, the H-MEM feature, Nightshift calls) | manual | manual (open) | Final video (2:42), checked 27 Oct: a live run of house F with Zetaris queries, H-MEM recalling 3,100 kWh and the Nightshift calls in the trace, then Hampstead | her |
-| D3 | The video shows at least one collaboration moment in the logs (a challenge and second query, the critic blocking, a fallback) | manual | manual (open) | Final video: Hampstead, the evaluator's challenge on A4Ha1 and the answer that follows Camden, highlighted in the trace | her |
 | D5 | Audio is clear and screen text is readable | manual | manual (open) | playback check before upload | her |
-| D7 | The demo path is not hardcoded and works more than once (the captioned demo mode runs on a real sample mode run or a labelled replay) | manual | manual (open) | ?demo=1 ran end to end on Pages 27 Oct (3 houses, about 2 min, no errors); captions read each run's answer; replays are labelled 'Replay of a recorded run' | A |
-| D8 | The deck covers the agent workflow or architecture and the technical stack | manual | manual (open) | Submission deck: Agent workflow (five agents, two loops) and Technical stack slides | C |
+| D2 | The video shows a real run, the main workflow, the key features, and Zetaris and Meterless in action (Zetaris queries, the H-MEM feature, Nightshift calls) | manual | manual (done) | Final video (2:42), checked 27 Oct: a live run of house F with Zetaris queries, H-MEM recalling 3,100 kWh and the Nightshift calls in the trace, then Hampstead | her |
+| D3 | The video shows at least one collaboration moment in the logs (a challenge and second query, the critic blocking, a fallback) | manual | manual (done) | Final video: Hampstead, the evaluator's challenge on A4Ha1 and the answer that follows Camden, highlighted in the trace | her |
+| D7 | The demo path is not hardcoded and works more than once (the captioned demo mode runs on a real sample mode run or a labelled replay) | manual | manual (done) | ?demo=1 ran end to end on Pages 27 Oct (3 houses, about 2 min, no errors); captions read each run's answer; replays are labelled 'Replay of a recorded run' | A |
+| D8 | The deck covers the agent workflow or architecture and the technical stack | manual | manual (done) | Submission deck: Agent workflow (five agents, two loops) and Technical stack slides | C |
 | D6 | The video link opens in a private browser window without asking for access | manual | n/a | does not apply: the video was uploaded to HackOS as a file, so there is no link to open | her |
 | D1 | The demo video is 1 to 4 minutes long | 4 | pass | 162 s | her |
 | D4 | The video script has six segments in 3:30 with her lines, a shot list, the demo path (Hampstead source conflict, house F electricity recall) and the recording checklist | 4 | pass | 7 time marks, demo path and checklist present | C |
@@ -99,8 +99,8 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| U8 | The page is intuitive and accessible (AA contrast in both themes, keyboard, labels, works at 360 px) | manual | manual (open) | axe-core 4.10.2 on Pages 27 Oct, WCAG 2.1 A and AA: 0 violations in light and dark, at 1440 and 360 px, intro open and house F's answer with every detail open. Keyboard: focus stays in the intro (fixed d2bab91), Enter runs an example. No horizontal scroll at 390 px | A |
-| U9 | The deck shows real product screenshots | manual | manual (open) | Submission deck: Solution is a replica of the running app's answer for house F; Product shows the app recording of house F | C |
+| U8 | The page is intuitive and accessible (AA contrast in both themes, keyboard, labels, works at 360 px) | manual | manual (done) | axe-core 4.10.2 on Pages 27 Oct, WCAG 2.1 A and AA: 0 violations in light and dark, at 1440 and 360 px, intro open and house F's answer with every detail open. Keyboard: focus stays in the intro (fixed d2bab91), Enter runs an example. No horizontal scroll at 390 px | A |
+| U9 | The deck shows real product screenshots | manual | manual (done) | Submission deck: Solution is a replica of the running app's answer for house F; Product shows the app recording of house F | C |
 | U1 | Every answer carries evidence, confidence, limitations and a next step | 2 | pass | 1 tests pass | A |
 | U10 | Answers are right against an independent source (the frozen 15 house evaluation, solar only, Historic England) | 3 | pass | 2 tests pass; Retrofit Check 15 of 15, 0 confidently wrong; no-evaluator 13 of 15, nemotron-alone 9 of 15; cases hash unchanged | B |
 | U2 | An unsure answer never says Allowed; it says Check with the council, with the reason on the card | 2 | pass | 2 tests pass | A |
@@ -114,8 +114,8 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| S11 | Cursor use is stated exactly as it happened, or as not used; never invented | manual | manual (open) | README section 10 and the submitted sponsor text: Cursor not used, built with Claude Code | C |
-| S12 | The deck says how Zetaris and Meterless were used and what was unique about the sponsor use | manual | manual (open) | Submission deck: 'How Zetaris and Meterless were used' and 'What was unique' slides | C |
+| S11 | Cursor use is stated exactly as it happened, or as not used; never invented | manual | manual (done) | README section 10 and the submitted sponsor text: Cursor not used, built with Claude Code | C |
+| S12 | The deck says how Zetaris and Meterless were used and what was unique about the sponsor use | manual | manual (done) | Submission deck: 'How Zetaris and Meterless were used' and 'What was unique' slides | C |
 | S14 | Colab links in the README if agents run in Google Colab | 1 | n/a | does not apply; nothing runs in Colab | B |
 | S1 | Zetaris is the data layer and load bearing; every fact the agent uses comes through a Zetaris read first | 2 | pass | 1 tests pass | A |
 | S10 | The README sponsor section covers: the Zetaris role, the H-MEM feature and its test, how the app connects to Nightshift, Nemotron, Cursor, and what was unique | 1 | pass | README.md matches 8 patterns | C |
@@ -133,10 +133,10 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| G12 | No keys, tokens or personal data are visible in the demo video or the slide deck (Nightshift console, /config.js, terminal) | manual | manual (open) | Final video checked 27 Oct, a frame every 6 s: the app, the stack slide and GitHub only; no terminal, console, /config.js or key. Deck: app replicas and isometric clips, no key | her |
-| G2 | All four components are submitted on HackOS (demo video, slide deck, public repository with README, sponsor technology explanation) | manual | manual (open) | Submitted on HackOS 27 Oct about 18:20 UTC: description, sponsor texts, video uploaded as a file (2:42), GitHub repository and deck link | her |
-| G8 | Submitted on HackOS before 27 Oct 23:45 UTC, with hours to spare (target 18:00 UTC) | manual | manual (open) | Submitted 27 Oct about 18:20 UTC, about 5 h 25 min before 23:45 (the 18:00 target missed by about 20 min) | her |
+| G12 | No keys, tokens or personal data are visible in the demo video or the slide deck (Nightshift console, /config.js, terminal) | manual | manual (done) | Final video checked 27 Oct, a frame every 6 s: the app, the stack slide and GitHub only; no terminal, console, /config.js or key. Deck: app replicas and isometric clips, no key | her |
+| G2 | All four components are submitted on HackOS (demo video, slide deck, public repository with README, sponsor technology explanation) | manual | manual (done) | Submitted on HackOS 27 Oct about 18:20 UTC: description, sponsor texts, video uploaded as a file (2:42), GitHub repository and deck link | her |
 | G5 | One account per person; the team roster is final (solo, 1 of 1) before the first submission is created; she is the primary contact | manual | manual (done) | HackOS team Buccies 1/1 since 25 Oct 16:50 GMT (Igor removed on her request) | her |
+| G8 | Submitted on HackOS before 27 Oct 23:45 UTC, with hours to spare (target 18:00 UTC) | manual | manual (done) | Submitted 27 Oct about 18:20 UTC, about 5 h 25 min before 23:45 (the 18:00 target missed by about 20 min) | her |
 | G1 | The GitHub repository is public by the deadline, so judges open it without asking for access | 4 | pass | slowturtle1/retrofit-check is public | her |
 | G10 | No secret file is tracked (.env, *.pem, *.key, secrets/, credentials/), and .gitignore covers them | 1 | pass | no secret files tracked; .gitignore covers .env, .env.*, *.pem, *.key, secrets/, credentials/ | B |
 | G11 | .env.example holds placeholders only | 1 | pass | every key, token and password is empty or a placeholder | B |
@@ -144,19 +144,19 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | G4 | Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py) | 4 | pass | form.md names all 3 | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
 | G7 | README, slide deck, form texts and video script name the same track | 4 | pass | README, deck, form and video script all name Track 1, Solving Fragmented Intelligence | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 91 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 93 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 
-- Not yet: "We understand the problem and the user." (I1, I3, I4, I7; open: I4, I7)
+- Yes: "We understand the problem and the user." (I1, I3, I4, I7)
 - Yes: "We can access the data reliably through Zetaris." (S1, S2, T8)
 - Yes: "We can build a narrow working version in 144 hours, with Zetaris, a Meterless Engine and Nightshift integrated." (S1, S3, S5, T1)
 - Yes: "We can show agents doing real work." (N1, N2, N4, N5, N6, N8)
-- Not yet: "We can run it cleanly and explain it in a 1 to 4 minute demo." (T1, T2, D1, D2; open: D2)
+- Yes: "We can run it cleanly and explain it in a 1 to 4 minute demo." (T1, T2, D1, D2)
 
 ## What judges should be able to say
 
-- Not yet: "I understand the problem this solves and who it's for." (I1, I3, I4; open: I4)
+- Yes: "I understand the problem this solves and who it's for." (I1, I3, I4)
 - Yes: "It clearly answers the track it was submitted to." (G6, G7, I5)
 - Yes: "I can run it without manual setup." (T1, T2, T20, T21)
 - Yes: "Zetaris and Meterless do real work in this build." (S1, S3, S5)
