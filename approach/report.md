@@ -1,6 +1,6 @@
 # Approach scorecard
 
-Commit 7e98d72, 27 Oct 2026 19:25 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
+Commit fe54995, 27 Oct 2026 19:31 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
 
 **0 gaps in Tiers 1 to 3.** 19 manual (done), 2 n/a, 74 pass (of 95 requirements).
 
@@ -46,7 +46,7 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
 | T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 3.1 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 3.4 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 14 source sections, seven fields each | C |
 | T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 14 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
@@ -144,7 +144,7 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | G4 | Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py) | 4 | pass | form.md names all 3 | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
 | G7 | README, slide deck, form texts and video script name the same track | 4 | pass | README, deck, form and video script all name Track 1, Solving Fragmented Intelligence | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 97 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 99 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 
