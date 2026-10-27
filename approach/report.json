@@ -1,6 +1,6 @@
 {
- "commit": "d54fca0 (uncommitted changes)",
- "generated_at": "2026-10-27T19:04:37+00:00",
+ "commit": "199345a (uncommitted changes)",
+ "generated_at": "2026-10-27T19:22:03+00:00",
  "live": true,
  "gaps_tier_1_to_3": 0,
  "requirements": [
@@ -27,7 +27,7 @@
    "criterion": "gate",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "HackOS submission form, Tue 27 Oct",
+   "detail": "Submitted on HackOS 27 Oct about 18:20 UTC: description, sponsor texts, video uploaded as a file (2:42), GitHub repository and deck link",
    "owner": "her",
    "text": "All four components are submitted on HackOS (demo video, slide deck, public repository with README, sponsor technology explanation)",
    "source": [
@@ -36,7 +36,7 @@
     "AG 14",
     "FP 1"
    ],
-   "evidence": "HackOS submission form, Tue 27 Oct"
+   "evidence": "Submitted on HackOS 27 Oct about 18:20 UTC: description, sponsor texts, video uploaded as a file (2:42), GitHub repository and deck link"
   },
   {
    "id": "G3",
@@ -125,7 +125,7 @@
    "criterion": "gate",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "HackOS submission timestamp",
+   "detail": "Submitted 27 Oct about 18:20 UTC, about 5 h 25 min before 23:45 (the 18:00 target missed by about 20 min)",
    "owner": "her",
    "text": "Submitted on HackOS before 27 Oct 23:45 UTC, with hours to spare (target 18:00 UTC)",
    "source": [
@@ -135,14 +135,14 @@
     "FP 8",
     "AG 14"
    ],
-   "evidence": "HackOS submission timestamp"
+   "evidence": "Submitted 27 Oct about 18:20 UTC, about 5 h 25 min before 23:45 (the 18:00 target missed by about 20 min)"
   },
   {
    "id": "G9",
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "88 commits scanned, no secret found",
+   "detail": "91 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -190,7 +190,7 @@
    "criterion": "gate",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "frame by frame check of the video around any terminal; deck screenshots",
+   "detail": "Final video checked 27 Oct, a frame every 6 s: the app, the stack slide and GitHub only; no terminal, console, /config.js or key. Deck: app replicas and isometric clips, no key",
    "owner": "her",
    "text": "No keys, tokens or personal data are visible in the demo video or the slide deck (Nightshift console, /config.js, terminal)",
    "source": [
@@ -200,7 +200,7 @@
     "FP 3.5",
     "SS 8"
    ],
-   "evidence": "frame by frame check of the video around any terminal; deck screenshots"
+   "evidence": "Final video checked 27 Oct, a frame every 6 s: the app, the stack slide and GitHub only; no terminal, console, /config.js or key. Deck: app replicas and isometric clips, no key"
   },
   {
    "id": "I1",
@@ -250,7 +250,7 @@
    "criterion": "impact",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "README header, deck slide 1, video segment 0:00 to 0:20",
+   "detail": "README header (the question, Track 1, solo), deck cover (homeowners in England on protected streets or in listed buildings, Track 1), video opening on the intro with the question",
    "owner": "C",
    "text": "The README, deck and demo name a real user, a real problem and the track it answers",
    "source": [
@@ -258,7 +258,7 @@
     "AG 6",
     "FP 3.5"
    ],
-   "evidence": "README header, deck slide 1, video segment 0:00 to 0:20"
+   "evidence": "README header (the question, Track 1, solo), deck cover (homeowners in England on protected streets or in listed buildings, Track 1), video opening on the intro with the question"
   },
   {
    "id": "I5",
@@ -295,21 +295,21 @@
    "criterion": "impact",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "video segment 0:00 to 0:20 and deck problem slide",
+   "detail": "README first line and the deck cover state the question and the value in one sentence each; the video's voice text says both in its first 15 s (video-voice-2m35.md)",
    "owner": "C",
    "text": "The value can be explained in 30 seconds (red flag \"you cannot explain the value clearly\")",
    "source": [
     "AG 13 Q1",
     "AG 18"
    ],
-   "evidence": "video segment 0:00 to 0:20 and deck problem slide"
+   "evidence": "README first line and the deck cover state the question and the value in one sentence each; the video's voice text says both in its first 15 s (video-voice-2m35.md)"
   },
   {
    "id": "I8",
    "criterion": "impact",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "deck v3 slides",
+   "detail": "Submission deck read 27 Oct: cover (the user), Context and Why it is hard (the problem), Solution, Limits and next (heat pump, outside wall insulation, watch this house)",
    "owner": "C",
    "text": "The deck covers the problem and target users, the solution, and future enhancements (heat pump, outside walls, watch this house)",
    "source": [
@@ -319,7 +319,7 @@
     "AG 14",
     "SS 7"
    ],
-   "evidence": "deck v3 slides"
+   "evidence": "Submission deck read 27 Oct: cover (the user), Context and Why it is hard (the problem), Solution, Limits and next (heat pump, outside wall insulation, watch this house)"
   },
   {
    "id": "I9",
@@ -630,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 2.8 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB)",
+   "detail": "git objects 2.9 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [
@@ -750,7 +750,7 @@
    "criterion": "technical",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "licence column in data/README.md; owner facts labelled demo values",
+   "detail": "data/README.md gives the licence of all 16 sources; README section 13: the owner facts in the sample runs are demo values",
    "owner": "C",
    "text": "Data is allowed for prototype use and holds no sensitive personal data; owner facts in samples are demo values and say so",
    "source": [
@@ -758,7 +758,7 @@
     "AG 7",
     "DQ 13"
    ],
-   "evidence": "licence column in data/README.md; owner facts labelled demo values"
+   "evidence": "data/README.md gives the licence of all 16 sources; README section 13: the owner facts in the sample runs are demo values"
   },
   {
    "id": "T26",
@@ -798,7 +798,7 @@
    "criterion": "technical",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "B8 log, Mon 26 Oct about 14:00 and 17:00",
+   "detail": "Fresh clone of f7fd789 on 27 Oct, macOS Python 3.9.6, empty environment: 102 passed, 2 skipped (H-MEM engine not set up); the sample mode server answered house F, Hampstead and 10 Downing Street and gave 400 for bad input. The same evening live through Zetaris: house F and Hampstead",
    "owner": "B",
    "text": "Full validation from a fresh clone (Disqualification Checklist section 14), with Zetaris and Nightshift stopped and then running, twice on Monday",
    "source": [
@@ -807,7 +807,7 @@
     "DQ 14",
     "DQ 16"
    ],
-   "evidence": "B8 log, Mon 26 Oct about 14:00 and 17:00"
+   "evidence": "Fresh clone of f7fd789 on 27 Oct, macOS Python 3.9.6, empty environment: 102 passed, 2 skipped (H-MEM engine not set up); the sample mode server answered house F, Hampstead and 10 Downing Street and gave 400 for bad input. The same evening live through Zetaris: house F and Hampstead"
   },
   {
    "id": "N1",
@@ -1006,7 +1006,7 @@
    "criterion": "demo",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "video; script segments 0:50 to 2:50",
+   "detail": "Final video (2:42), checked 27 Oct: a live run of house F with Zetaris queries, H-MEM recalling 3,100 kWh and the Nightshift calls in the trace, then Hampstead",
    "owner": "her",
    "text": "The video shows a real run, the main workflow, the key features, and Zetaris and Meterless in action (Zetaris queries, the H-MEM feature, Nightshift calls)",
    "source": [
@@ -1015,21 +1015,21 @@
     "FP 3.5",
     "SS 8"
    ],
-   "evidence": "video; script segments 0:50 to 2:50"
+   "evidence": "Final video (2:42), checked 27 Oct: a live run of house F with Zetaris queries, H-MEM recalling 3,100 kWh and the Nightshift calls in the trace, then Hampstead"
   },
   {
    "id": "D3",
    "criterion": "demo",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "video segment 1:40 to 2:20",
+   "detail": "Final video: Hampstead, the evaluator's challenge on A4Ha1 and the answer that follows Camden, highlighted in the trace",
    "owner": "her",
    "text": "The video shows at least one collaboration moment in the logs (a challenge and second query, the critic blocking, a fallback)",
    "source": [
     "SS 1",
     "SS 8"
    ],
-   "evidence": "video segment 1:40 to 2:20"
+   "evidence": "Final video: Hampstead, the evaluator's challenge on A4Ha1 and the answer that follows Camden, highlighted in the trace"
   },
   {
    "id": "D4",
@@ -1062,8 +1062,8 @@
    "id": "D6",
    "criterion": "demo",
    "tier": "manual",
-   "status": "manual_open",
-   "detail": "private window test, Tue 27 Oct",
+   "status": "na",
+   "detail": "does not apply: the video was uploaded to HackOS as a file, so there is no link to open",
    "owner": "her",
    "text": "The video link opens in a private browser window without asking for access",
    "source": [
@@ -1072,28 +1072,28 @@
     "FP 5",
     "FP 6"
    ],
-   "evidence": "private window test, Tue 27 Oct"
+   "evidence": "does not apply: the video was uploaded to HackOS as a file, so there is no link to open"
   },
   {
    "id": "D7",
    "criterion": "demo",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "web/demo.js (?demo=1)",
+   "detail": "?demo=1 ran end to end on Pages 27 Oct (3 houses, about 2 min, no errors); captions read each run's answer; replays are labelled 'Replay of a recorded run'",
    "owner": "A",
    "text": "The demo path is not hardcoded and works more than once (the captioned demo mode runs on a real sample mode run or a labelled replay)",
    "source": [
     "SR 3.1",
     "DQ 8"
    ],
-   "evidence": "web/demo.js (?demo=1)"
+   "evidence": "?demo=1 ran end to end on Pages 27 Oct (3 houses, about 2 min, no errors); captions read each run's answer; replays are labelled 'Replay of a recorded run'"
   },
   {
    "id": "D8",
    "criterion": "demo",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "deck v3 slides",
+   "detail": "Submission deck: Agent workflow (five agents, two loops) and Technical stack slides",
    "owner": "C",
    "text": "The deck covers the agent workflow or architecture and the technical stack",
    "source": [
@@ -1103,7 +1103,7 @@
     "AG 14",
     "SS 7"
    ],
-   "evidence": "deck v3 slides"
+   "evidence": "Submission deck: Agent workflow (five agents, two loops) and Technical stack slides"
   },
   {
    "id": "U1",
@@ -1207,21 +1207,21 @@
    "criterion": "product_ux",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "accessibility pass on web/",
+   "detail": "axe-core 4.10.2 on Pages 27 Oct, WCAG 2.1 A and AA: 0 violations in light and dark, at 1440 and 360 px, intro open and house F's answer with every detail open. Keyboard: focus stays in the intro (fixed d2bab91), Enter runs an example. No horizontal scroll at 390 px",
    "owner": "A",
    "text": "The page is intuitive and accessible (AA contrast in both themes, keyboard, labels, works at 360 px)",
    "source": [
     "SR 7",
     "HO A6"
    ],
-   "evidence": "accessibility pass on web/"
+   "evidence": "axe-core 4.10.2 on Pages 27 Oct, WCAG 2.1 A and AA: 0 violations in light and dark, at 1440 and 360 px, intro open and house F's answer with every detail open. Keyboard: focus stays in the intro (fixed d2bab91), Enter runs an example. No horizontal scroll at 390 px"
   },
   {
    "id": "U9",
    "criterion": "product_ux",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "deck v3 product slide",
+   "detail": "Submission deck: Solution is a replica of the running app's answer for house F; Product shows the app recording of house F",
    "owner": "C",
    "text": "The deck shows real product screenshots",
    "source": [
@@ -1231,7 +1231,7 @@
     "AG 14",
     "SS 7"
    ],
-   "evidence": "deck v3 product slide"
+   "evidence": "Submission deck: Solution is a replica of the running app's answer for house F; Product shows the app recording of house F"
   },
   {
    "id": "U10",
@@ -1410,7 +1410,7 @@
    "criterion": "sponsor",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "README sponsor section; her 20 minute Cursor task if she does it",
+   "detail": "README section 10 and the submitted sponsor text: Cursor not used, built with Claude Code",
    "owner": "C",
    "text": "Cursor use is stated exactly as it happened, or as not used; never invented",
    "source": [
@@ -1418,14 +1418,14 @@
     "DQ 13",
     "SR 3.4"
    ],
-   "evidence": "README sponsor section; her 20 minute Cursor task if she does it"
+   "evidence": "README section 10 and the submitted sponsor text: Cursor not used, built with Claude Code"
   },
   {
    "id": "S12",
    "criterion": "sponsor",
    "tier": "manual",
    "status": "manual_open",
-   "detail": "deck v3 stack slide",
+   "detail": "Submission deck: 'How Zetaris and Meterless were used' and 'What was unique' slides",
    "owner": "C",
    "text": "The deck says how Zetaris and Meterless were used and what was unique about the sponsor use",
    "source": [
@@ -1435,7 +1435,7 @@
     "AG 14",
     "SS 7"
    ],
-   "evidence": "deck v3 stack slide"
+   "evidence": "Submission deck: 'How Zetaris and Meterless were used' and 'What was unique' slides"
   },
   {
    "id": "S13",
