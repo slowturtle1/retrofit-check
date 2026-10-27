@@ -30,9 +30,9 @@ Record counts below were read on 25 Oct 2026: the live cache held 16 houses, the
 
 - **URL:** https://services-eu1.arcgis.com/ZOdPfBS3aqqDYPUQ/arcgis/rest/services/National_Heritage_List_for_England_NHLE_v02_VIEW/FeatureServer/3 (ArcGIS, no key)
 - **Licence:** Open Government Licence; © Crown copyright, contains Ordnance Survey data © Crown copyright and database right (as stated on the layer).
-- **Subset:** layer 3, "Listed Building polygons": the list entry, name and grade of every outline that touches the house footprint. The layer holds 379,687 outlines (25 Oct 2026).
+- **Subset:** layer 3, "Listed Building polygons": the list entry, name and grade of every outline that touches the house footprint, taken about 1 m inward so a neighbour's outline on the party wall does not count. The ring has sharp corners and at most about 40 points: the service answers 404 to a query URL past about 2,000 characters. The layer holds 379,687 outlines (25 Oct 2026).
 - **Record count:** snapshot 15 rows in `he_listed`, one per house; 3 of them carry an outline (10 Downing Street, Keats House and a listed house in Hampstead), the rest record "checked, none".
-- **Zetaris registration:** one REST table per house, `PLANNING_DATA.he_<house>`, read with `LATERAL VIEW explode(features)` when the evaluator challenges a "not listed" answer.
+- **Zetaris registration:** one REST table per house and query, `PLANNING_DATA.he_<house>_v<hash of the query>`, so a changed footprint gets a new table and never an old one, read with `LATERAL VIEW explode(features)` when the evaluator challenges a "not listed" answer.
 - **How to regenerate:** a live check registers it again; the snapshot: `scripts/make_cache.py`.
 - **Limits:** an outline can belong to a building next door that shares the footprint edge. When Historic England shows an outline that planning.data does not, the answer says "Check with the council" rather than choosing. If the service does not answer, planning.data's answer stands and the trace says it is unchecked.
 
