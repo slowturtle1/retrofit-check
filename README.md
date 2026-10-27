@@ -294,7 +294,7 @@ Every source, its licence, the subset we use, record counts, how it is registere
 - Roof size and yield come from 1 m LIDAR and PVGIS, and panel capacity per m² is an estimate. An installer's survey confirms the roof.
 - The share of solar power used at home follows the MCS tables for a whole year without a battery. A household's own pattern can differ, and the answer says so.
 - "Faces a road" comes from OpenStreetMap geometry and can be wrong; the owner can correct it.
-- Nightshift calls to Nemotron took 30 to 70 seconds during our build, with some 502 errors. The page shows the checked draft at once and swaps in Nemotron's text when it passes the critic.
+- Nightshift calls to Nemotron took about 30 to 90 seconds during our build, with some 502 errors. On 27 Oct Nightshift ended some calls at exactly 45 s ("The request was aborted before completion"), streamed or not, and Nemotron used 4,500 to 4,900 completion tokens for a one word critic verdict. In the six recorded runs on Pages, Nemotron's text reached the card in three. The page shows the checked draft at once and swaps in Nemotron's text when it passes the critic.
 - Confidence is a fixed scale from the evidence checks (high, medium, low), not a measured probability.
 - Not legal or financial advice. For certainty: a lawful development certificate, or ask the council.
 
