@@ -45,9 +45,10 @@ requirements:
   criterion: gate
   tier: manual
   check: manual
+  done: true
   done: false
   owner: her
-  evidence: "HackOS submission form, Tue 27 Oct"
+  evidence: "Submitted on HackOS 27 Oct about 18:20 UTC: description, sponsor texts, video uploaded as a file (2:42), GitHub repository and deck link"
 - id: G3
   text: "Work from before 22 Oct 00:00 UTC is declared in the README"
   source: [SR 5, DQ 1, DQ 13, AG 10, SS 6]
@@ -96,9 +97,10 @@ requirements:
   criterion: gate
   tier: manual
   check: manual
+  done: true
   done: false
   owner: her
-  evidence: "HackOS submission timestamp"
+  evidence: "Submitted 27 Oct about 18:20 UTC, about 5 h 25 min before 23:45 (the 18:00 target missed by about 20 min)"
 - id: G9
   text: "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)"
   source: [DQ 11, AG 10, SR 3.3, FP 3.4]
@@ -131,9 +133,10 @@ requirements:
   criterion: gate
   tier: manual
   check: manual
+  done: true
   done: false
   owner: her
-  evidence: "frame by frame check of the video around any terminal; deck screenshots"
+  evidence: "Final video checked 27 Oct, a frame every 6 s: the app, the stack slide and GitHub only; no terminal, console, /config.js or key. Deck: app replicas and isometric clips, no key"
 
 # ------------------------------------------------------------------ impact (30)
 - id: I1
@@ -168,9 +171,10 @@ requirements:
   criterion: impact
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "README header, deck slide 1, video segment 0:00 to 0:20"
+  evidence: "README header (the question, Track 1, solo), deck cover (homeowners in England on protected streets or in listed buildings, Track 1), video opening on the intro with the question"
 - id: I5
   text: "Track fit for Fragmented Intelligence: several small sources that disagree, registered in Zetaris, and the answer shows where they disagree"
   source: [AG 6, AG 19, SR 7]
@@ -193,18 +197,20 @@ requirements:
   criterion: impact
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "video segment 0:00 to 0:20 and deck problem slide"
+  evidence: "README first line and the deck cover state the question and the value in one sentence each; the video's voice text says both in its first 15 s (video-voice-2m35.md)"
 - id: I8
   text: "The deck covers the problem and target users, the solution, and future enhancements (heat pump, outside walls, watch this house)"
   source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
   criterion: impact
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "deck v3 slides"
+  evidence: "Submission deck read 27 Oct: cover (the user), Context and Why it is hard (the problem), Solution, Limits and next (heat pump, outside wall insulation, watch this house)"
 - id: I9
   text: "The decision worksheet (guide section 21) is filled in the repository"
   source: [AG 21]
@@ -440,9 +446,10 @@ requirements:
   criterion: technical
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "licence column in data/README.md; owner facts labelled demo values"
+  evidence: "data/README.md gives the licence of all 16 sources; README section 13: the owner facts in the sample runs are demo values"
   legacy: P7
 - id: T26
   text: "The README is honest; every capability claimed is in the code, data is described as live or cached, nothing is called production ready"
@@ -467,9 +474,10 @@ requirements:
   criterion: technical
   tier: manual
   check: manual
+  done: true
   done: false
   owner: B
-  evidence: "B8 log, Mon 26 Oct about 14:00 and 17:00"
+  evidence: "Fresh clone of f7fd789 on 27 Oct, macOS Python 3.9.6, empty environment: 102 passed, 2 skipped (H-MEM engine not set up); the sample mode server answered house F, Hampstead and 10 Downing Street and gave 400 for bad input. The same evening live through Zetaris: house F and Hampstead"
 
 # ------------------------------------------------------------------ innovation (15)
 - id: N1
@@ -594,18 +602,20 @@ requirements:
   criterion: demo
   tier: manual
   check: manual
+  done: true
   done: false
   owner: her
-  evidence: "video; script segments 0:50 to 2:50"
+  evidence: "Final video (2:42), checked 27 Oct: a live run of house F with Zetaris queries, H-MEM recalling 3,100 kWh and the Nightshift calls in the trace, then Hampstead"
 - id: D3
   text: "The video shows at least one collaboration moment in the logs (a challenge and second query, the critic blocking, a fallback)"
   source: [SS 1, SS 8]
   criterion: demo
   tier: manual
   check: manual
+  done: true
   done: false
   owner: her
-  evidence: "video segment 1:40 to 2:20"
+  evidence: "Final video: Hampstead, the evaluator's challenge on A4Ha1 and the answer that follows Camden, highlighted in the trace"
 - id: D4
   text: "The video script has six segments in 3:30 with her lines, a shot list, the demo path (Hampstead source conflict, house F electricity recall) and the recording checklist"
   source: [SS 8, HO C6]
@@ -628,28 +638,30 @@ requirements:
   source: [DQ 12, FP 3.5, FP 5, FP 6]
   criterion: demo
   tier: manual
-  check: manual
+  check: na
   done: false
   owner: her
-  evidence: "private window test, Tue 27 Oct"
+  evidence: "does not apply: the video was uploaded to HackOS as a file, so there is no link to open"
 - id: D7
   text: "The demo path is not hardcoded and works more than once (the captioned demo mode runs on a real sample mode run or a labelled replay)"
   source: [SR 3.1, DQ 8]
   criterion: demo
   tier: manual
   check: manual
+  done: true
   done: false
   owner: A
-  evidence: "web/demo.js (?demo=1)"
+  evidence: "?demo=1 ran end to end on Pages 27 Oct (3 houses, about 2 min, no errors); captions read each run's answer; replays are labelled 'Replay of a recorded run'"
 - id: D8
   text: "The deck covers the agent workflow or architecture and the technical stack"
   source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
   criterion: demo
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "deck v3 slides"
+  evidence: "Submission deck: Agent workflow (five agents, two loops) and Technical stack slides"
   legacy: H5
 
 # ------------------------------------------------------------------ product and UX (10)
@@ -718,18 +730,20 @@ requirements:
   criterion: product_ux
   tier: manual
   check: manual
+  done: true
   done: false
   owner: A
-  evidence: "accessibility pass on web/"
+  evidence: "axe-core 4.10.2 on Pages 27 Oct, WCAG 2.1 A and AA: 0 violations in light and dark, at 1440 and 360 px, intro open and house F's answer with every detail open. Keyboard: focus stays in the intro (fixed d2bab91), Enter runs an example. No horizontal scroll at 390 px"
 - id: U9
   text: "The deck shows real product screenshots"
   source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
   criterion: product_ux
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "deck v3 product slide"
+  evidence: "Submission deck: Solution is a replica of the running app's answer for house F; Product shows the app recording of house F"
 - id: U10
   text: "Answers are right against an independent source (the frozen 15 house evaluation, solar only, Historic England)"
   source: [AG 13, SS 1, HO B6]
@@ -836,18 +850,20 @@ requirements:
   criterion: sponsor
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "README sponsor section; her 20 minute Cursor task if she does it"
+  evidence: "README section 10 and the submitted sponsor text: Cursor not used, built with Claude Code"
 - id: S12
   text: "The deck says how Zetaris and Meterless were used and what was unique about the sponsor use"
   source: [SR 3.2, DQ 12, FP 3.6, AG 14, SS 7]
   criterion: sponsor
   tier: manual
   check: manual
+  done: true
   done: false
   owner: C
-  evidence: "deck v3 stack slide"
+  evidence: "Submission deck: 'How Zetaris and Meterless were used' and 'What was unique' slides"
 - id: S13
   text: "The form texts explain each sponsor (Zetaris, Meterless, Cursor, NVIDIA) and finish with what was unique"
   source: [FP 3.7, FP 4, SR 3.4]
