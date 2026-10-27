@@ -620,9 +620,9 @@ requirements:
   criterion: demo
   tier: manual
   check: manual
-  done: false
+  done: true
   owner: her
-  evidence: "playback check before upload"
+  evidence: "Her playback check of the final video (2:42), 27 Oct: the audio is clear and the screen text readable"
 - id: D6
   text: "The video link opens in a private browser window without asking for access"
   source: [DQ 12, FP 3.5, FP 5, FP 6]
