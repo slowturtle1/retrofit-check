@@ -431,14 +431,27 @@ async function examples() {
 }
 
 /* ---------------- welcome ---------------- */
+let welcomeOpener = null;   // focus goes back here when the intro closes
 function openWelcome() {
+  welcomeOpener = document.activeElement;
   $("welcome").classList.remove("hid");
   if (state.ownerElec) $("wKwh").value = state.ownerElec;
   ($("wKwh").offsetParent ? $("wKwh") : $("wExample")).focus();
 }
 function closeWelcome() {
   $("welcome").classList.add("hid");
+  if (welcomeOpener && welcomeOpener !== document.body && document.contains(welcomeOpener)) welcomeOpener.focus();
+  welcomeOpener = null;
 }
+// The intro is a modal dialog: Tab and Shift+Tab stay inside it while it is open.
+$("welcome").addEventListener("keydown", (ev) => {
+  if (ev.key !== "Tab") return;
+  const items = [...$("welcome").querySelectorAll("button, input, a[href]")].filter((el) => el.offsetParent !== null && !el.disabled);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+  else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+});
 // The yearly use typed here goes with every check in this visit, as if typed under the facts.
 function welcomeUse() {
   const el = $("wKwh");
