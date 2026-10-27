@@ -1,15 +1,15 @@
 # Approach scorecard
 
-Commit c30edcf, 27 Oct 2026 19:23 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
+Commit 7e98d72, 27 Oct 2026 19:25 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
 
-**0 gaps in Tiers 1 to 3.** 1 manual (open), 18 manual (done), 2 n/a, 74 pass (of 95 requirements).
+**0 gaps in Tiers 1 to 3.** 19 manual (done), 2 n/a, 74 pass (of 95 requirements).
 
 | Criterion | Points | Pass | Gaps (Tiers 1 to 3) | Manual open | Not run |
 |---|---|---|---|---|---|
 | Impact | 30 | 10 of 10 | 0 | 0 | 0 |
 | Technical | 20 | 29 of 29 | 0 | 0 | 0 |
 | Innovation | 15 | 12 of 12 | 0 | 0 | 0 |
-| Demo | 15 | 6 of 8 | 0 | 1 | 0 |
+| Demo | 15 | 7 of 8 | 0 | 0 | 0 |
 | Product and UX | 10 | 10 of 10 | 0 | 0 | 0 |
 | Sponsor technology | 10 | 13 of 14 | 0 | 0 | 0 |
 | Gate (pass or fail) | gate | 12 of 12 | 0 | 0 | 0 |
@@ -46,7 +46,7 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
 | T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 3.0 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 3.1 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 14 source sections, seven fields each | C |
 | T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 14 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
@@ -86,9 +86,9 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| D5 | Audio is clear and screen text is readable | manual | manual (open) | playback check before upload | her |
 | D2 | The video shows a real run, the main workflow, the key features, and Zetaris and Meterless in action (Zetaris queries, the H-MEM feature, Nightshift calls) | manual | manual (done) | Final video (2:42), checked 27 Oct: a live run of house F with Zetaris queries, H-MEM recalling 3,100 kWh and the Nightshift calls in the trace, then Hampstead | her |
 | D3 | The video shows at least one collaboration moment in the logs (a challenge and second query, the critic blocking, a fallback) | manual | manual (done) | Final video: Hampstead, the evaluator's challenge on A4Ha1 and the answer that follows Camden, highlighted in the trace | her |
+| D5 | Audio is clear and screen text is readable | manual | manual (done) | Her playback check of the final video (2:42), 27 Oct: the audio is clear and the screen text readable | her |
 | D7 | The demo path is not hardcoded and works more than once (the captioned demo mode runs on a real sample mode run or a labelled replay) | manual | manual (done) | ?demo=1 ran end to end on Pages 27 Oct (3 houses, about 2 min, no errors); captions read each run's answer; replays are labelled 'Replay of a recorded run' | A |
 | D8 | The deck covers the agent workflow or architecture and the technical stack | manual | manual (done) | Submission deck: Agent workflow (five agents, two loops) and Technical stack slides | C |
 | D6 | The video link opens in a private browser window without asking for access | manual | n/a | does not apply: the video was uploaded to HackOS as a file, so there is no link to open | her |
@@ -144,7 +144,7 @@ Collaboration design checklist (guide section 9): 9 of 9 proven by a passing che
 | G4 | Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py) | 4 | pass | form.md names all 3 | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
 | G7 | README, slide deck, form texts and video script name the same track | 4 | pass | README, deck, form and video script all name Track 1, Solving Fragmented Intelligence | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 95 commits scanned, no secret found | B |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 97 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 
