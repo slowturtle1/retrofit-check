@@ -1,15 +1,15 @@
 {
- "commit": "c235c66 (uncommitted changes)",
- "generated_at": "2026-10-27T18:50:25+00:00",
- "live": false,
+ "commit": "dab6a35 (uncommitted changes)",
+ "generated_at": "2026-10-27T18:59:27+00:00",
+ "live": true,
  "gaps_tier_1_to_3": 0,
  "requirements": [
   {
    "id": "G1",
    "criterion": "gate",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "slowturtle1/retrofit-check is public",
    "owner": "her",
    "text": "The GitHub repository is public by the deadline, so judges open it without asking for access",
    "source": [
@@ -59,8 +59,8 @@
    "id": "G4",
    "criterion": "gate",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "form.md names all 3",
    "owner": "C",
    "text": "Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py)",
    "source": [
@@ -109,8 +109,8 @@
    "id": "G7",
    "criterion": "gate",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "README, deck, form and video script all name Track 1, Solving Fragmented Intelligence",
    "owner": "C",
    "text": "README, slide deck, form texts and video script name the same track",
    "source": [
@@ -142,7 +142,7 @@
    "criterion": "gate",
    "tier": 1,
    "status": "pass",
-   "detail": "83 commits scanned, no secret found",
+   "detail": "85 commits scanned, no secret found",
    "owner": "B",
    "text": "No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords)",
    "source": [
@@ -630,7 +630,7 @@
    "criterion": "technical",
    "tier": 1,
    "status": "pass",
-   "detail": "git objects 2.7 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB)",
+   "detail": "git objects 2.8 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB)",
    "owner": "B",
    "text": "The repository is light; no raw archives, model checkpoints, videos or large database files",
    "source": [
@@ -902,8 +902,8 @@
    "id": "N7",
    "criterion": "innovation",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "2 tests pass",
    "owner": "A",
    "text": "Agents write structured messages to shared memory (H-MEM, remembered with the date the owner said it)",
    "source": [
@@ -987,8 +987,8 @@
    "id": "D1",
    "criterion": "demo",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "162 s",
    "owner": "her",
    "text": "The demo video is 1 to 4 minutes long",
    "source": [
@@ -1035,8 +1035,8 @@
    "id": "D4",
    "criterion": "demo",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "7 time marks, demo path and checklist present",
    "owner": "C",
    "text": "The video script has six segments in 3:30 with her lines, a shot list, the demo path (Hampstead source conflict, house F electricity recall) and the recording checklist",
    "source": [
@@ -1271,8 +1271,8 @@
    "id": "S2",
    "criterion": "sponsor",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "retrofit_pg answered through Zetaris (5 rows)",
    "owner": "A",
    "text": "Zetaris answers live and the datasources are registered (retrofit_pg, PLANNING_DATA, PVGIS)",
    "source": [
@@ -1285,8 +1285,8 @@
    "id": "S3",
    "criterion": "sponsor",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "2 tests pass",
    "owner": "A",
    "text": "A Meterless Engine (H-MEM) powers a real feature and its test passes (owner's electricity use remembered across sessions, correction supersedes)",
    "source": [
@@ -1304,8 +1304,8 @@
    "id": "S4",
    "criterion": "sponsor",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "conformance 13/13",
    "owner": "A",
    "text": "The H-MEM reference conformance suite passes (13 of 13)",
    "source": [
@@ -1441,8 +1441,8 @@
    "id": "S13",
    "criterion": "sponsor",
    "tier": 4,
-   "status": "not_run",
-   "detail": "Tier 4: run make approach-live on this Mac",
+   "status": "pass",
+   "detail": "form.md names all 5",
    "owner": "C",
    "text": "The form texts explain each sponsor (Zetaris, Meterless, Cursor, NVIDIA) and finish with what was unique",
    "source": [

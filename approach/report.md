@@ -1,20 +1,20 @@
 # Approach scorecard
 
-Commit c235c66 (uncommitted changes), 27 Oct 2026 18:50 UTC, without Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach`.
+Commit dab6a35 (uncommitted changes), 27 Oct 2026 18:59 UTC, with Tier 4 (live). Source: `approach/requirements.yaml`, run with `make approach-live`.
 
-**0 gaps in Tiers 1 to 3.** 10 not run, 19 manual (open), 1 manual (done), 1 n/a, 64 pass (of 95 requirements).
+**0 gaps in Tiers 1 to 3.** 19 manual (open), 1 manual (done), 1 n/a, 74 pass (of 95 requirements).
 
 | Criterion | Points | Pass | Gaps (Tiers 1 to 3) | Manual open | Not run |
 |---|---|---|---|---|---|
 | Impact | 30 | 7 of 10 | 0 | 3 | 0 |
 | Technical | 20 | 26 of 29 | 0 | 3 | 0 |
-| Innovation | 15 | 11 of 12 | 0 | 0 | 1 |
-| Demo | 15 | 0 of 8 | 0 | 6 | 2 |
+| Innovation | 15 | 12 of 12 | 0 | 0 | 0 |
+| Demo | 15 | 2 of 8 | 0 | 6 | 0 |
 | Product and UX | 10 | 8 of 10 | 0 | 2 | 0 |
-| Sponsor technology | 10 | 7 of 14 | 0 | 2 | 4 |
-| Gate (pass or fail) | gate | 6 of 12 | 0 | 3 | 3 |
+| Sponsor technology | 10 | 11 of 14 | 0 | 2 | 0 |
+| Gate (pass or fail) | gate | 9 of 12 | 0 | 3 | 0 |
 
-Collaboration design checklist (guide section 9): 8 of 9 proven by a passing check.
+Collaboration design checklist (guide section 9): 9 of 9 proven by a passing check.
 
 ## Impact (30 points)
 
@@ -46,7 +46,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | T14 | Logs are generated during the run, saved to logs/ and printed to stdout, and match the input being processed | 2 | pass | 2 tests pass | A |
 | T15 | Every trace event carries timestamp, trace_id, agent_name, action, input and output summary, target_agent, confidence, retry_count and status | 2 | pass | 2 tests pass | A |
 | T16 | At least three sample inputs and their real saved outputs are in input_examples/ and output_examples/ | 1 | pass | 4 inputs, 5 saved outputs, every output passes the answer contract | A |
-| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 2.7 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
+| T17 | The repository is light; no raw archives, model checkpoints, videos or large database files | 1 | pass | git objects 2.8 MB, largest tracked file deck/retrofit-check-deck.pdf (1633 KB) | B |
 | T18 | data/README.md documents every source with URL, licence, subset, record count, Zetaris registration, how to regenerate, and limits | 1 | pass | 14 source sections, seven fields each | C |
 | T19 | The table counts stated in README.md and data/README.md match the database schema and the sample snapshot | 1 | pass | retrofit_pg has 11 tables (db/init), the sample snapshot 14 | C |
 | T2 | SAMPLE_MODE=true runs without Zetaris, Nightshift or credentials, runs real agent logic on cached data (not a replay), and the README documents it | 2 | pass | 1 tests pass; README.md matches 2 patterns | C |
@@ -69,7 +69,6 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| N7 | Agents write structured messages to shared memory (H-MEM, remembered with the date the owner said it) | 4 | not run | Tier 4: run make approach-live on this Mac | A |
 | N1 | Agents interact more than once and in both directions; not a fixed one pass chain | 2 | pass | 3 tests pass | A |
 | N10 | The final answer has traceable evidence (every rule with clause, in force date and URL; every fact names its source) | 2 | pass | 2 tests pass | A |
 | N11 | The README shows the architecture as a diagram with the loops (Mermaid), not an ASCII chain | 1 | pass | Mermaid diagram with 5 labelled edges | C |
@@ -79,6 +78,7 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 | N4 | An evaluator critiques the specialist's output | 2 | pass | 1 tests pass | A |
 | N5 | The agent revises after critique (every challenge is followed by a second Zetaris query) | 2 | pass | 1 tests pass | A |
 | N6 | A critic flags unsupported claims and can block the writer (role authority) | 2 | pass | 7 tests pass | A |
+| N7 | Agents write structured messages to shared memory (H-MEM, remembered with the date the owner said it) | 4 | pass | 2 tests pass | A |
 | N8 | The workflow branches on confidence (unsure data gives Check with the council and Ask the council first) | 2 | pass | 2 tests pass | A |
 | N9 | A fallback path activates when data or an API fails | 2 | pass | 2 tests pass | A |
 
@@ -86,14 +86,14 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| D1 | The demo video is 1 to 4 minutes long | 4 | not run | Tier 4: run make approach-live on this Mac | her |
-| D4 | The video script has six segments in 3:30 with her lines, a shot list, the demo path (Hampstead source conflict, house F electricity recall) and the recording checklist | 4 | not run | Tier 4: run make approach-live on this Mac | C |
 | D2 | The video shows a real run, the main workflow, the key features, and Zetaris and Meterless in action (Zetaris queries, the H-MEM feature, Nightshift calls) | manual | manual (open) | video; script segments 0:50 to 2:50 | her |
 | D3 | The video shows at least one collaboration moment in the logs (a challenge and second query, the critic blocking, a fallback) | manual | manual (open) | video segment 1:40 to 2:20 | her |
 | D5 | Audio is clear and screen text is readable | manual | manual (open) | playback check before upload | her |
 | D6 | The video link opens in a private browser window without asking for access | manual | manual (open) | private window test, Tue 27 Oct | her |
 | D7 | The demo path is not hardcoded and works more than once (the captioned demo mode runs on a real sample mode run or a labelled replay) | manual | manual (open) | web/demo.js (?demo=1) | A |
 | D8 | The deck covers the agent workflow or architecture and the technical stack | manual | manual (open) | deck v3 slides | C |
+| D1 | The demo video is 1 to 4 minutes long | 4 | pass | 162 s | her |
+| D4 | The video script has six segments in 3:30 with her lines, a shot list, the demo path (Hampstead source conflict, house F electricity recall) and the recording checklist | 4 | pass | 7 time marks, demo path and checklist present | C |
 
 ## Product and UX (10 points)
 
@@ -114,15 +114,15 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| S13 | The form texts explain each sponsor (Zetaris, Meterless, Cursor, NVIDIA) and finish with what was unique | 4 | not run | Tier 4: run make approach-live on this Mac | C |
-| S2 | Zetaris answers live and the datasources are registered (retrofit_pg, PLANNING_DATA, PVGIS) | 4 | not run | Tier 4: run make approach-live on this Mac | A |
-| S3 | A Meterless Engine (H-MEM) powers a real feature and its test passes (owner's electricity use remembered across sessions, correction supersedes) | 4 | not run | Tier 4: run make approach-live on this Mac | A |
-| S4 | The H-MEM reference conformance suite passes (13 of 13) | 4 | not run | Tier 4: run make approach-live on this Mac | A |
 | S11 | Cursor use is stated exactly as it happened, or as not used; never invented | manual | manual (open) | README sponsor section; her 20 minute Cursor task if she does it | C |
 | S12 | The deck says how Zetaris and Meterless were used and what was unique about the sponsor use | manual | manual (open) | deck v3 stack slide | C |
 | S14 | Colab links in the README if agents run in Google Colab | 1 | n/a | does not apply; nothing runs in Colab | B |
 | S1 | Zetaris is the data layer and load bearing; every fact the agent uses comes through a Zetaris read first | 2 | pass | 1 tests pass | A |
 | S10 | The README sponsor section covers: the Zetaris role, the H-MEM feature and its test, how the app connects to Nightshift, Nemotron, Cursor, and what was unique | 1 | pass | README.md matches 8 patterns | C |
+| S13 | The form texts explain each sponsor (Zetaris, Meterless, Cursor, NVIDIA) and finish with what was unique | 4 | pass | form.md names all 5 | C |
+| S2 | Zetaris answers live and the datasources are registered (retrofit_pg, PLANNING_DATA, PVGIS) | 4 | pass | retrofit_pg answered through Zetaris (5 rows) | A |
+| S3 | A Meterless Engine (H-MEM) powers a real feature and its test passes (owner's electricity use remembered across sessions, correction supersedes) | 4 | pass | 2 tests pass | A |
+| S4 | The H-MEM reference conformance suite passes (13 of 13) | 4 | pass | conformance 13/13 | A |
 | S5 | Meterless Nightshift is the primary AI provider; every model call goes through it and real requests pass | 2 | pass | 1 tests pass; retrofit/agent/llm.py is the only model client, pointed at Nightshift (METERLESS_BASE_URL) | A |
 | S6 | NVIDIA Nemotron is pinned (not meterless/auto) and the model that answered is logged for every request | 1 | pass | pinned to nvidia/nemotron-3.5-lightning-30b-a3b in .env.example and retrofit/agent/llm.py | B |
 | S7 | The models the README names match the models in the logs | 1 | pass | README names nvidia/nemotron-3.5-lightning-30b-a3b, the model in the recorded receipts | C |
@@ -133,33 +133,33 @@ Collaboration design checklist (guide section 9): 8 of 9 proven by a passing che
 
 | Id | Requirement | Tier | Status | Evidence or detail | Owner |
 |---|---|---|---|---|---|
-| G1 | The GitHub repository is public by the deadline, so judges open it without asking for access | 4 | not run | Tier 4: run make approach-live on this Mac | her |
-| G4 | Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py) | 4 | not run | Tier 4: run make approach-live on this Mac | C |
-| G7 | README, slide deck, form texts and video script name the same track | 4 | not run | Tier 4: run make approach-live on this Mac | C |
 | G12 | No keys, tokens or personal data are visible in the demo video or the slide deck (Nightshift console, /config.js, terminal) | manual | manual (open) | frame by frame check of the video around any terminal; deck screenshots | her |
 | G2 | All four components are submitted on HackOS (demo video, slide deck, public repository with README, sponsor technology explanation) | manual | manual (open) | HackOS submission form, Tue 27 Oct | her |
 | G8 | Submitted on HackOS before 27 Oct 23:45 UTC, with hours to spare (target 18:00 UTC) | manual | manual (open) | HackOS submission timestamp | her |
 | G5 | One account per person; the team roster is final (solo, 1 of 1) before the first submission is created; she is the primary contact | manual | manual (done) | HackOS team Buccies 1/1 since 25 Oct 16:50 GMT (Igor removed on her request) | her |
+| G1 | The GitHub repository is public by the deadline, so judges open it without asking for access | 4 | pass | slowturtle1/retrofit-check is public | her |
 | G10 | No secret file is tracked (.env, *.pem, *.key, secrets/, credentials/), and .gitignore covers them | 1 | pass | no secret files tracked; .gitignore covers .env, .env.*, *.pem, *.key, secrets/, credentials/ | B |
 | G11 | .env.example holds placeholders only | 1 | pass | every key, token and password is empty or a placeholder | B |
 | G3 | Work from before 22 Oct 00:00 UTC is declared in the README | 1 | pass | README.md matches 3 patterns | C |
+| G4 | Pre-existing components are declared in the submission form (vendored H-MEM reference, smoke_test.py, tools/set_meterless_token.py) | 4 | pass | form.md names all 3 | C |
 | G6 | The README names exactly one primary track (Track 1, Solving Fragmented Intelligence) | 1 | pass | README.md matches 1 patterns | C |
-| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 83 commits scanned, no secret found | B |
+| G7 | README, slide deck, form texts and video script name the same track | 4 | pass | README, deck, form and video script all name Track 1, Solving Fragmented Intelligence | C |
+| G9 | No secret is anywhere in the git history (API keys, Nightshift token, NVIDIA key, private keys, passwords) | 1 | pass | 85 commits scanned, no secret found | B |
 
 ## Guide section 22: can we say yes to all five?
 
 - Not yet: "We understand the problem and the user." (I1, I3, I4, I7; open: I4, I7)
-- Not yet: "We can access the data reliably through Zetaris." (S1, S2, T8; open: S2)
-- Not yet: "We can build a narrow working version in 144 hours, with Zetaris, a Meterless Engine and Nightshift integrated." (S1, S3, S5, T1; open: S3)
+- Yes: "We can access the data reliably through Zetaris." (S1, S2, T8)
+- Yes: "We can build a narrow working version in 144 hours, with Zetaris, a Meterless Engine and Nightshift integrated." (S1, S3, S5, T1)
 - Yes: "We can show agents doing real work." (N1, N2, N4, N5, N6, N8)
-- Not yet: "We can run it cleanly and explain it in a 1 to 4 minute demo." (T1, T2, D1, D2; open: D1, D2)
+- Not yet: "We can run it cleanly and explain it in a 1 to 4 minute demo." (T1, T2, D1, D2; open: D2)
 
 ## What judges should be able to say
 
 - Not yet: "I understand the problem this solves and who it's for." (I1, I3, I4; open: I4)
-- Not yet: "It clearly answers the track it was submitted to." (G6, G7, I5; open: G7)
+- Yes: "It clearly answers the track it was submitted to." (G6, G7, I5)
 - Yes: "I can run it without manual setup." (T1, T2, T20, T21)
-- Not yet: "Zetaris and Meterless do real work in this build." (S1, S3, S5; open: S3)
+- Yes: "Zetaris and Meterless do real work in this build." (S1, S3, S5)
 - Yes: "The agents have distinct responsibilities." (N12, T15, N1)
 - Yes: "The logs prove real collaboration, not a linear chain." (N1, N5, N6, T14)
 - Yes: "The output is something the user could act on." (I6, U1, U2)
